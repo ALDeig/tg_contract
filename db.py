@@ -1,0 +1,230 @@
+import os
+
+import sqlite3
+
+from num2words import num2words
+
+
+conn = sqlite3.connect(os.path.join("db", "users.db"))
+cursor = conn.cursor()
+
+
+def transform_warranty(warranty: str) -> str:
+    warranty = f"{warranty} ({num2words(int(warranty), lang='ru')})"
+
+    return warranty
+
+
+def create_data_to_db(data: dict):
+    api_inn = data.pop('api_inn')[0]
+    api_bik = data.pop('api_bik')
+    api_inn.update(api_bik)
+    api_inn.update(data)
+    print(f'create data from db {api_inn}')
+    return api_inn
+
+
+def insert(table: str, columns: list, data: dict):
+    columns = ', '.join(columns)
+    values = [tuple(data.values())]
+    placeholders = ", ".join("?" * len(data.keys()))
+    cursor.executemany(
+        f"INSERT INTO {table} "
+        f"({columns}) "
+        f"VALUES ({placeholders})",
+        values)
+    conn.commit()
+
+
+def update_type_executor(type_executor: str, id_tg: int):
+    cursor.execute(f"UPDATE users SET type_executor = '{type_executor}' WHERE id_tg = {id_tg}")
+    conn.commit()
+
+
+def get_table_executor_for_type_executor(id_tg):
+    cursor.execute(f"SELECT type_executor FROM users WHERE id_tg={id_tg}")
+    type_executor = cursor.fetchone()[0]
+    if type_executor == 'ЮЛ':
+        table = 'executor_ooo'
+    else:
+        table = 'executor_ip'
+    return table
+
+
+def update_number_account(id_tg: int):
+    table = get_table_executor_for_type_executor(id_tg)
+    cursor.execute(f"SELECT number_contract FROM {table} WHERE user_id_tg={id_tg}")
+    number = cursor.fetchone()[0]
+    cnt = len(number)
+    tmp = ''
+    for word in number[::-1]:
+        if word.isdigit():
+            tmp = f'{word}{tmp}'
+            cnt -= 1
+        else:
+            break
+
+    tmp = str(int(tmp) + 1)
+    number = number[:cnt] + tmp
+    cursor.execute(f"UPDATE {table} SET number_contract = '{number}' WHERE user_id_tg = {id_tg}")
+    conn.commit()
+
+
+def fetchall_ooo(id_tg: int):
+    columns = [
+        'executor_ooo.name_org',
+        'executor_ooo.initials',
+        'executor_ooo.position_in_org',
+        'executor_ooo.ogrn',
+        'executor_ooo.address',
+        'executor_ooo.name_bank',
+        'executor_ooo.number_account',
+        'executor_ooo.inn',
+        'executor_ooo.form',
+        'executor_ooo.bik',
+        'executor_ooo.check_acc',
+        'executor_ooo.warranty',
+        'executor_ooo.number_contract',
+        'executor_ooo.user_id_tg']
+    columns = ', '.join(columns)
+    cursor.execute(f"SELECT users.city, {columns} FROM users JOIN executor_ooo ON users.id_tg=executor.user_id_tg WHERE"
+                   f" users.id_tg={id_tg}")
+    rows = cursor.fetchone()
+
+    return rows
+
+
+def fetchall_ip(id_tg: int):
+    columns = [
+        'executor_ip.name_ip',
+        'executor_ip.inn',
+        'executor_ip.ogrn',
+        'executor_ip.type_ip',
+        'executor_ip.code_region',
+        'executor_ip.address',
+        'executor_ip.form',
+        'executor_ip.bik',
+        'executor_ip.name_bank',
+        'executor_ip.cor_account',
+        'executor_ip.check_acc',
+        'executor_ip.warranty',
+        'executor_ip.number_contract',
+        'executor_ip.user_id_tg'
+    ]
+    columns = ', '.join(columns)
+    cursor.execute(f"SELECT users.city, {columns} FROM users JOIN executor_ip ON users.id_tg=executor_ip.user_id_tg "
+                   f"WHERE users.id_tg={id_tg}")
+
+    rows = cursor.fetchone()
+    return rows
+
+
+def get_data_from_db_ooo(id_tg: int) -> dict:
+    tmp_data = fetchall_ooo(id_tg)
+    director = tmp_data[1].split()
+    director = f'{director[0]} {director[-2][0]}. {director[-1][0]}.'
+    warranty = transform_warranty(tmp_data[13])
+    result = {
+        'number': tmp_data[14],
+        'city_ex': tmp_data[0],
+        'ogrn_ex': tmp_data[3],
+        'kpp': tmp_data[4],
+        'warranty': warranty,
+        'address_ex': tmp_data[7],
+        'bik_ex': tmp_data[9],
+        'inn_ex': tmp_data[2],
+        'name_bank_ex': tmp_data[10],
+        'check_account_ex': tmp_data[12],
+        'director_ex': director,
+        'taxation': tmp_data[8],
+        'name_ip': tmp_data[1]
+    }
+
+    return result
+
+
+def get_data_from_db_ip(id_tg: int) -> dict:
+    tmp_data = fetchall_ip(id_tg)
+    warranty = transform_warranty(tmp_data[12])
+    result = {
+        'number': tmp_data[13],
+        'city_ex': tmp_data[0],
+        'ogrn_ex': tmp_data[3],
+        'warranty': warranty,
+        'address_ex': tmp_data[6],
+        'bik_ex': tmp_data[8],
+        'inn_ex': tmp_data[2],
+        'cor_account_ex': tmp_data[10],
+        'name_bank_ex': tmp_data[9],
+        'check_account_ex': tmp_data[11],
+        'director_ex': tmp_data[1],
+        'taxation': tmp_data[7],
+        'name_ip': tmp_data[1]
+    }
+
+    return result
+
+
+def check_user_in(id_tg: int, column: str, table: str) -> bool:
+    cursor.execute(f"SELECT {column} FROM {table}")
+    data_from_db = cursor.fetchall()
+    users = []
+
+    for user in data_from_db:
+        users.append(int(user[0]))
+
+    if int(id_tg) in users:
+        return True
+
+    else:
+        return False
+
+
+def delete(id_tg: int):
+    cursor.execute(f"DELETE FROM executor_ooo WHERE user_id_tg={id_tg}")
+    cursor.execute(f"DELETE FROM executor_ip WHERE user_id_tg={id_tg}")
+    conn.commit()
+
+
+def delete_user(id_tg: int):
+    cursor.execute(f"DELETE FROM users WHERE id_tg={id_tg}")
+    conn.commit()
+
+
+def get_number_contract(id_tg):
+    cursor.execute(f"SELECT type_executor FROM users WHERE id_tg={id_tg}")
+    type_executor = cursor.fetchone()[0]
+    if type_executor == 'ЮЛ':
+        cursor.execute(f"SELECT number_contract FROM executor_ooo WHERE user_id_tg={id_tg}")
+        number = cursor.fetchone()[0]
+    else:
+        cursor.execute(f"SELECT number_contract FROM executor_ip WHERE user_id_tg={id_tg}")
+        number = cursor.fetchone()[0]
+
+    return number
+
+
+def get_cursor():
+    return cursor
+
+
+def _init_db():
+    """Инициализирует БД"""
+    with open("createdb.sql", "r") as f:
+        sql = f.read()
+    cursor.executescript(sql)
+    conn.commit()
+
+
+def check_db_exists():
+    """Проверяет, инициализирована ли БД, если нет — инициализирует"""
+    cursor.execute("SELECT name FROM sqlite_master "
+                   "WHERE type='table' AND name='users'")
+    table_exists = cursor.fetchall()
+    print(table_exists)
+    if table_exists:
+        return
+    _init_db()
+
+
+check_db_exists()
