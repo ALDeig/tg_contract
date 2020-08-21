@@ -1,0 +1,6 @@
+setenv.sh
+test.py
+db/users.db
+.venv
+.idea
+Dockerfile
