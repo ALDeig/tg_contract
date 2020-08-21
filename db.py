@@ -221,7 +221,6 @@ def check_db_exists():
     cursor.execute("SELECT name FROM sqlite_master "
                    "WHERE type='table' AND name='users'")
     table_exists = cursor.fetchall()
-    print(table_exists)
     if table_exists:
         return
     _init_db()
