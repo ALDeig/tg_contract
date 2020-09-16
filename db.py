@@ -256,4 +256,5 @@ def check_db_exists():
         return
     _init_db()
 
-# check_db_exists()
+
+check_db_exists()
