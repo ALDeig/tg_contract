@@ -2,6 +2,5 @@ aiogram==2.9.2
 cchardet==2.1.6
 docxtpl==0.10.0
 requests==2.24.0
-uvloop==0.14.0
-num2words~=0.5.10
-ujson~=3.0.0
+num2words==0.5.10
+# ujson~=3.0.0

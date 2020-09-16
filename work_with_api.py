@@ -1,22 +1,8 @@
 import json
-from typing import NamedTuple
 
 import requests
 
 import config
-
-
-class DataFromApiInn(NamedTuple):
-    name_org: str
-    initials: str
-    position: str
-    ogrn: str
-    address: str
-
-
-class DataFromApiBik(NamedTuple):
-    name: str
-    number_account: str
 
 
 def _get_data_from_api_inn(inn_egr: str):
@@ -34,7 +20,7 @@ def _get_data_from_api_bik(bik):
 
 
 def parse_answer_inn(inn_erg: str):
-    """Компанует в словарь ответ от API от ИНН"""
+    """Компанует в словарь ответ от API по ИНН"""
     try:
         answer = _get_data_from_api_inn(inn_erg).json()
     except json.JSONDecodeError:
@@ -50,20 +36,28 @@ def parse_answer_inn(inn_erg: str):
     except KeyError:
         data = answer['items'][0]['ИП']
         flg = 'ИП'
+        data_address = data['История']['Адрес']
+        for i in data_address.keys():
+            try:
+                address = data_address[i]['АдресПолн']
+            except KeyError:
+                address = data['Адрес']['АдресПолн']
+            break
 
     if flg == 'ЮЛ':
-        result = {'name_org': data['НаимПолнЮЛ'],
+        result = {'name_ip': data['НаимПолнЮЛ'],
                   'initials': data['Руководитель']['ФИОПолн'],
-                  'position': data['Руководитель']['Должн'],
+                  'position': data['Руководитель']['Должн'],  # не нужна
                   'ogrn': data['ОГРН'],
                   'kpp': data['КПП'],
                   'address': data['Адрес']['АдресПолн']}
     else:
         result = {'name_ip': data['ФИОПолн'],
+                  'initials': data['ФИОПолн'],
                   'ogrn': data['ОГРНИП'],
                   'type_ip': data['ВидИП'],
                   'code_region': data['Адрес']['КодРегион'],
-                  'address': data['Адрес']['АдресПолн']}
+                  'address': address}  # data['Адрес']['АдресПолн']}
 
     return result, flg
 

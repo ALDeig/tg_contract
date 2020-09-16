@@ -1,6 +1,7 @@
 setenv.sh
 test.py
 db/users.db
+__pycache__
 .venv
 .idea
 Dockerfile

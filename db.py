@@ -4,15 +4,45 @@ import sqlite3
 
 from num2words import num2words
 
-
 conn = sqlite3.connect(os.path.join("db", "users.db"))
 cursor = conn.cursor()
 
 
+def choice_of_ending(number: str) -> str:
+    endings = {'1': 'месяц', '2': 'месяца', '3': 'месяца', '4': 'месяца', '5': 'месяцев', '6': 'месяцев',
+               '7': 'месяцев', '8': 'месяцев',
+               '9': 'месяцев', '0': 'месяцев'}
+    endings_2 = {'11': 'месяцев', '12': 'месяцев', '13': 'месяцев'}
+    try:
+        ending = endings_2[number[-2:]]
+    except KeyError:
+        ending = endings[number[-1]]
+
+    return ending
+
+
 def transform_warranty(warranty: str) -> str:
-    warranty = f"{warranty} ({num2words(int(warranty), lang='ru')})"
+    ending = choice_of_ending(warranty)
+    warranty = f"{warranty} ({num2words(int(warranty), lang='ru')}) {ending}"
 
     return warranty
+
+
+def get_count_users():
+    cursor.execute('SELECT COUNT(*) FROM users')
+    count_users = cursor.fetchone()
+
+    return count_users[0]
+
+
+def get_count_executors():
+    cursor.execute('SELECT COUNT(*) FROM executor_ooo')
+    count_executors_ooo = cursor.fetchone()[0]
+    cursor.execute('SELECT COUNT(*) FROM executor_ip')
+    count_executors_ip = cursor.fetchone()[0]
+    count_executor = count_executors_ooo + count_executors_ip
+
+    return count_executor
 
 
 def create_data_to_db(data: dict):
@@ -20,7 +50,6 @@ def create_data_to_db(data: dict):
     api_bik = data.pop('api_bik')
     api_inn.update(api_bik)
     api_inn.update(data)
-    print(f'create data from db {api_inn}')
     return api_inn
 
 
@@ -80,6 +109,7 @@ def fetchall_ooo(id_tg: int):
         'executor_ooo.name_bank',
         'executor_ooo.number_account',
         'executor_ooo.inn',
+        'executor_ooo.kpp',
         'executor_ooo.form',
         'executor_ooo.bik',
         'executor_ooo.check_acc',
@@ -87,8 +117,8 @@ def fetchall_ooo(id_tg: int):
         'executor_ooo.number_contract',
         'executor_ooo.user_id_tg']
     columns = ', '.join(columns)
-    cursor.execute(f"SELECT users.city, {columns} FROM users JOIN executor_ooo ON users.id_tg=executor.user_id_tg WHERE"
-                   f" users.id_tg={id_tg}")
+    cursor.execute(f"SELECT users.city, {columns} FROM users JOIN executor_ooo ON users.id_tg=executor_ooo.user_id_tg "
+                   f"WHERE users.id_tg={id_tg}")
     rows = cursor.fetchone()
 
     return rows
@@ -121,23 +151,24 @@ def fetchall_ip(id_tg: int):
 
 def get_data_from_db_ooo(id_tg: int) -> dict:
     tmp_data = fetchall_ooo(id_tg)
-    director = tmp_data[1].split()
-    director = f'{director[0]} {director[-2][0]}. {director[-1][0]}.'
+    # director = tmp_data[2].split()
+    # director = f'{director[0]} {director[-2][0]}. {director[-1][0]}.'
     warranty = transform_warranty(tmp_data[13])
     result = {
         'number': tmp_data[14],
         'city_ex': tmp_data[0],
-        'ogrn_ex': tmp_data[3],
-        'kpp': tmp_data[4],
+        'ogrn_ex': tmp_data[4],
+        'kpp_ex': tmp_data[9],
         'warranty': warranty,
-        'address_ex': tmp_data[7],
-        'bik_ex': tmp_data[9],
-        'inn_ex': tmp_data[2],
-        'name_bank_ex': tmp_data[10],
+        'address_ex': tmp_data[5],
+        'bik_ex': tmp_data[11],
+        'inn_ex': tmp_data[8],
+        'name_bank_ex': tmp_data[6],
+        'cor_account_ex': tmp_data[7],
         'check_account_ex': tmp_data[12],
-        'director_ex': director,
-        'taxation': tmp_data[8],
-        'name_ip': tmp_data[1]
+        'director_ex': tmp_data[2],
+        'taxation': tmp_data[10],
+        'name_ip': tmp_data[1],
     }
 
     return result
@@ -225,5 +256,4 @@ def check_db_exists():
         return
     _init_db()
 
-
-check_db_exists()
+# check_db_exists()
