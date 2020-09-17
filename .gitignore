@@ -4,5 +4,6 @@ db/users.db
 __pycache__
 .venv
 .idea
+db/analytics.json
 Dockerfile
 
