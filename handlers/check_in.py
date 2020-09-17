@@ -45,7 +45,7 @@ async def reg_step_1(message: types.Message, state: FSMContext):
 async def reg_step_2(message: types.Message, state: FSMContext):
     await state.update_data(city=message.text.capitalize())
     await DataRegistrationUser.next()
-    await message.answer('Введи номер телефона (без пробелов, скобок и тире, начни с 8)',
+    await message.answer('Введи номер телефона (без пробелов, скобок и тире, начни с 7)',
                          reply_markup=keyboards.phone_key)
 
 
@@ -62,21 +62,21 @@ async def reg_step_3(message: types.Message, state: FSMContext):
                          f"Все верно?", reply_markup=keyboards.yes_or_no)
 
 
-# @dp.message_handler(state=DataRegistrationUser.phone, content_types=types.ContentTypes.TEXT)
-# async def reg_step_3(message: types.Message, state: FSMContext):
-#     if not message.text[1:].isdigit() or len(message.text) != 11:
-#         await message.answer('Некорректный номер')
-#         return
-#     await state.update_data(phone=message.text)
-#     user_data = await state.get_data()
-#     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Да')
-#     keyboard.add('Нет')
-#     await DataRegistrationUser.next()
-#     await message.answer(f"Проверь данные:\n"
-#                          f"Имя: {user_data['name']}\n"
-#                          f"Город: {user_data['city']}\n"
-#                          f"Телефон: {user_data['phone']}\n"
-#                          f"Все верно?", reply_markup=keyboard)
+@dp.message_handler(state=DataRegistrationUser.phone, content_types=types.ContentTypes.TEXT)
+async def reg_step_3(message: types.Message, state: FSMContext):
+    if not message.text[1:].isdigit() or len(message.text) != 11:
+        await message.answer('Некорректный номер')
+        return
+    await state.update_data(phone=message.text)
+    user_data = await state.get_data()
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Да')
+    keyboard.add('Нет')
+    await DataRegistrationUser.next()
+    await message.answer(f"Проверь данные:\n"
+                         f"Имя: {user_data['name']}\n"
+                         f"Город: {user_data['city']}\n"
+                         f"Телефон: {user_data['phone']}\n"
+                         f"Все верно?", reply_markup=keyboard)
 
 
 @dp.message_handler(state=DataRegistrationUser.answer)
@@ -99,7 +99,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(text='Регистрация исполнителя', state='*')
-@dp.message_handler(text='Изменить реквизиты исполнителя', state='*')
+@dp.message_handler(text='Изменить данные исполнителя', state='*')
 async def start_registration_executor(message: types.Message):
     db.delete(message.from_user.id)
     await message.answer('Введи ИНН исполнителя', reply_markup=types.ReplyKeyboardRemove())

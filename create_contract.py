@@ -51,11 +51,11 @@ def _get_data_client_from_api_ip(inn: dict, bik: dict) -> dict:
 def _calculate_the_advance_and_the_last_payment_with_nds(price: str, prepaid: str) -> tuple:
     if prepaid != '100':
         advance = f'{float(price) / 100 * float(prepaid):.2f}'
-        nds_advance = f'{(float(advance) / 100 * 20):.2f}'
+        nds_advance = f'{(float(advance) / 1.2 * 0.2):.2f}'
         last_payment = f'{float(price) - float(advance):.2f}'
-        nds_last_payment = f'{(float(last_payment) / 100 * 20):.2f}'
+        nds_last_payment = f'{(float(last_payment) / 1.2 * 0.2):.2f}'
         price_tmp = f'{float(price):.2f}'
-        nds = f"{(float(price) / 100 * 20):.2f}"
+        nds = f"{(float(price) / 1.2 * 0.2):.2f}"
 
         advance_str = f"{int(float(advance))} ({num2words(int(float(advance)), lang='ru')}) руб. {advance.split('.')[-1]} "\
                       f"коп., в том числе НДС {nds_advance.split('.')[0]} " \

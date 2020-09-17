@@ -53,14 +53,13 @@ def parse_answer_inn(inn_erg: str):
                   'address': data['Адрес']['АдресПолн']}
     else:
         result = {'name_ip': data['ФИОПолн'],
-                  'initials': data['ФИОПолн'],
                   'ogrn': data['ОГРНИП'],
                   'type_ip': data['ВидИП'],
                   'code_region': data['Адрес']['КодРегион'],
                   'address': address}  # data['Адрес']['АдресПолн']}
 
     return result, flg
-
+#'initials': data['ФИОПолн'],
 
 def parse_answer_bik(bik):
     """Компанует в словарь ответ от API по БИК"""
