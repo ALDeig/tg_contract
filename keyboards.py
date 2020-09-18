@@ -16,5 +16,5 @@ key_cancel = ReplyKeyboardMarkup([
     [KeyboardButton(text='Отмена')]
 ], resize_keyboard=True)
 
-phone_key = ReplyKeyboardMarkup([[KeyboardButton(text='Отправить свой телефон', request_contact=True)]],
+phone_key = ReplyKeyboardMarkup([[KeyboardButton(text='Отправить свой номер', request_contact=True)]],
                                 resize_keyboard=True)
