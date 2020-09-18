@@ -69,7 +69,7 @@ def _calculate_the_advance_and_the_last_payment_with_nds(price: str, prepaid: st
                     f"({num2words(int(nds.split('.')[0]), lang='ru')}) руб. {nds.split('.')[-1]} коп."
     else:
         price_tmp = f"{float(price):.2f}"
-        nds = f"{(float(price) / 100 * 20):.2f}"
+        nds = f"{(float(price) / 1.2 * 0.2):.2f}"
         price_new = f"{price.split('.')[0]} ({num2words(int(price.split('.')[0]), lang='ru')}) руб. " \
                     f"{str(price_tmp).split('.')[-1]} коп, в том числе НДС {nds.split('.')[0]} " \
                     f"({num2words(int(nds.split('.')[0]), lang='ru')}) руб. {nds.split('.')[-1]} коп."
@@ -107,7 +107,7 @@ def choice_of_ending(number: str) -> str:
     endings_2 = {'11': 'дней', '12': 'дней', '13': 'дней'}
     try:
         ending = endings_2[number[-2:]]
-    except:
+    except KeyError:
         ending = endings[number[-1]]
 
     endings_3 = {'день': 'календарный', 'дней': 'календарных', 'дня': 'календарных'}

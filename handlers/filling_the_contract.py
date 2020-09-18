@@ -28,7 +28,7 @@ class FillingContract(StatesGroup):  # информация о клиенте
 
 @dp.message_handler(text='Договор на монтаж видеонаблюдения')
 async def start_create_contract(message: types.Message):
-    await message.answer('Введи ИНН клиента', reply_markup=types.ReplyKeyboardRemove())
+    await message.answer('Введи ИНН клиента', reply_markup=keyboards.key_cancel)
     await FillingContract.inn.set()
 
 
@@ -127,6 +127,9 @@ async def filling_step_6(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=FillingContract.current_account)
 async def filling_step_7(message: types.Message, state: FSMContext):
+    if not message.text.isdigit() or len(message.text) != 20:
+        await message.answer('Видимо не верно указал номер счета. Проверь и введи верный номер.')
+        return
     data = await state.get_data()
     api_inn = data['api_inn']
     if api_inn[1] == 'ИП':
@@ -154,7 +157,7 @@ async def filling_step_7(message: types.Message, state: FSMContext):
 async def filling_step_8(message: types.Message, state: FSMContext):
     if message.text == 'Нет':
         await FillingContract.inn.set()
-        await message.answer('Введи инн клиента', reply_markup=types.ReplyKeyboardRemove())
+        await message.answer('Введи инн клиента', reply_markup=keyboards.key_cancel)
     else:
         data = await state.get_data()
         await message.answer('Я начал составлять договор. Обычно это занимает не больше 1 минуты.',

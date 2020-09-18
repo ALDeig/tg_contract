@@ -17,6 +17,7 @@ start_message = """ Отлично! Для начала надо зарегис�
 """
 
 
+@dp.message_handler(text='Отмена', state='*')
 @dp.message_handler(commands=['start'], state='*')
 async def cmd_start(message: types.Message, state: FSMContext):
     """Обработка команды старт"""
@@ -29,10 +30,6 @@ async def cmd_start(message: types.Message, state: FSMContext):
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
         await message.answer('Зарегистрируйте исполнителя', reply_markup=keyboard)
     else:
-        # keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        # keyboard.add('Договор на монтаж видеонаблюдения')
-        # keyboard.add('Изменить реквизиты исполнителя')
-        # keyboard.add('Изменить свои данные')
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
 
 

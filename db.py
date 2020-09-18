@@ -92,9 +92,14 @@ def update_number_account(id_tg: int):
             cnt -= 1
         else:
             break
-
+    start_number = str()
+    for num in tmp:
+        if num == '0':
+            start_number += '0'
+        else:
+            break
     tmp = str(int(tmp) + 1)
-    number = number[:cnt] + tmp
+    number = number[:cnt] + start_number + tmp
     cursor.execute(f"UPDATE {table} SET number_contract = '{number}' WHERE user_id_tg = {id_tg}")
     conn.commit()
 
@@ -151,8 +156,6 @@ def fetchall_ip(id_tg: int):
 
 def get_data_from_db_ooo(id_tg: int) -> dict:
     tmp_data = fetchall_ooo(id_tg)
-    # director = tmp_data[2].split()
-    # director = f'{director[0]} {director[-2][0]}. {director[-1][0]}.'
     warranty = transform_warranty(tmp_data[13])
     result = {
         'number': tmp_data[14],

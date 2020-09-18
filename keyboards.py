@@ -8,7 +8,12 @@ menu = ReplyKeyboardMarkup([
 
 yes_or_no = ReplyKeyboardMarkup([
     [KeyboardButton(text='Да')],
-    [KeyboardButton(text='Нет')]
+    [KeyboardButton(text='Нет')],
+    [KeyboardButton(text='Отмена')]
+], resize_keyboard=True)
+
+key_cancel = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Отмена')]
 ], resize_keyboard=True)
 
 phone_key = ReplyKeyboardMarkup([[KeyboardButton(text='Телефон', request_contact=True)]], resize_keyboard=True)

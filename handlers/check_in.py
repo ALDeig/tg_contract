@@ -29,8 +29,7 @@ class DataRegistrationExecutor(StatesGroup):
 @dp.message_handler(text='Регистрация', state='*')
 @dp.message_handler(text='Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
-    db.delete_user(message.from_user.id)
-    await message.answer('Как тебя зовут?', reply_markup=types.ReplyKeyboardRemove())
+    await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
 
 
@@ -69,19 +68,18 @@ async def reg_step_3(message: types.Message, state: FSMContext):
         return
     await state.update_data(phone=message.text)
     user_data = await state.get_data()
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Да')
-    keyboard.add('Нет')
     await DataRegistrationUser.next()
     await message.answer(f"Проверь данные:\n"
                          f"Имя: {user_data['name']}\n"
                          f"Город: {user_data['city']}\n"
                          f"Телефон: {user_data['phone']}\n"
-                         f"Все верно?", reply_markup=keyboard)
+                         f"Все верно?", reply_markup=keyboards.yes_or_no)
 
 
 @dp.message_handler(state=DataRegistrationUser.answer)
 async def reg_step_4(message: types.Message, state: FSMContext):
     if message.text == 'Да':
+        db.delete_user(message.from_user.id)
         user_data = await state.get_data()
         user_data.update({'id_tg': message.from_user.id})
         columns = ['name', 'city', 'phone', 'id_tg']
@@ -94,15 +92,14 @@ async def reg_step_4(message: types.Message, state: FSMContext):
                              reply_markup=keyboard)
     else:
         await state.finish()
-        await message.answer('Как тебя зовут?', reply_markup=types.ReplyKeyboardRemove())
+        await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
         await DataRegistrationUser.name.set()
 
 
 @dp.message_handler(text='Регистрация исполнителя', state='*')
 @dp.message_handler(text='Изменить данные исполнителя', state='*')
 async def start_registration_executor(message: types.Message):
-    db.delete(message.from_user.id)
-    await message.answer('Введи ИНН исполнителя', reply_markup=types.ReplyKeyboardRemove())
+    await message.answer('Введи ИНН исполнителя', reply_markup=keyboards.key_cancel)
     await DataRegistrationExecutor.inn.set()
 
 
@@ -208,6 +205,7 @@ async def reg_step_9(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DataRegistrationExecutor.answer)
 async def reg_step_10(message: types.Message, state: FSMContext):
     if message.text == 'Да':
+        db.delete(message.from_user.id)
         data = await state.get_data()
         if data['api_inn'][1] == 'ЮЛ':
             db.update_type_executor(type_executor='ЮЛ', id_tg=message.from_user.id)
@@ -229,5 +227,5 @@ async def reg_step_10(message: types.Message, state: FSMContext):
                                   'какой.', reply_markup=keyboards.menu)
     else:
         await state.finish()
-        await message.answer('Введи ИНН исполнителя', reply_markup=types.ReplyKeyboardRemove())
+        await message.answer('Введи ИНН исполнителя', reply_markup=keyboards.key_cancel)
         await DataRegistrationExecutor.inn.set()
