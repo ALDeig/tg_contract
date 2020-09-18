@@ -214,6 +214,13 @@ def check_user_in(id_tg: int, column: str, table: str) -> bool:
         return False
 
 
+def check_executor_in(id_tg: int):
+    if not check_user_in(id_tg, 'user_id_tg', 'executor_ip') and not check_user_in(id_tg, 'user_id_tg', 'executor_ooo'):
+        return False
+    else:
+        return True
+
+
 def delete(id_tg: int):
     cursor.execute(f"DELETE FROM executor_ooo WHERE user_id_tg={id_tg}")
     cursor.execute(f"DELETE FROM executor_ip WHERE user_id_tg={id_tg}")
