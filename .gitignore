@@ -1,9 +1,9 @@
 setenv.sh
 test.py
+Dockerfile
 db/users.db
+db/analytics.json
 __pycache__
 .venv
 .idea
-db/analytics.json
-Dockerfile
 
