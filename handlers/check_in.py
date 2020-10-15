@@ -79,7 +79,7 @@ async def reg_step_3(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DataRegistrationUser.answer)
 async def reg_step_4(message: types.Message, state: FSMContext):
     if message.text == 'Да':
-        type_executor = db.get_type_execotor(id_tg = message.from_user.id)
+        type_executor = db.get_type_execotor(id_tg=message.from_user.id)
         db.delete_user(message.from_user.id)
         user_data = await state.get_data()
         user_data.update({'id_tg': message.from_user.id})

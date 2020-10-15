@@ -25,10 +25,10 @@ async def cmd_start(message: types.Message, state: FSMContext):
     if not db.check_user_in(message.from_user.id, 'id_tg', 'users'):  # Если пользователя нет в базе.
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация')
         await message.answer(text=start_message, parse_mode='HTML', reply_markup=keyboard)
-    elif not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ip') \
-            and not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ooo'):  # Если у пользователя нет исп
-        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
-        await message.answer('Зарегистрируйте исполнителя', reply_markup=keyboard)
+    # elif not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ip') \
+    #         and not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ooo'):  # Если у пользователя нет исп
+    #     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
+    #     await message.answer('Зарегистрируйте исполнителя', reply_markup=keyboard)
     else:
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
 
@@ -44,3 +44,13 @@ async def cmd_get_analytics(message: types.Message):
                          f"<b>Количество отправленных договоров:</b> {data['contract']}\n"
                          f"<b>Количество запросов по ИНН:</b> {data['request_inn']}\n"
                          f"<b>Количество запросов по БИК:</b> {data['request_bik']}", parse_mode='HTML')
+
+
+@dp.message_handler(text='Создать КП', state='*')
+async def create_kp(message: types.Message):
+    await message.answer(text='Выбери действие', reply_markup=keyboards.menu_kp)
+
+
+@dp.message_handler(text='Изменить данные', state='*')
+async def change_data(message: types.Message):
+    await message.answer(text='Выберите действие', reply_markup=keyboards.choice_menu)
