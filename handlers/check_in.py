@@ -86,13 +86,13 @@ async def reg_step_4(message: types.Message, state: FSMContext):
         db.insert('users', columns, user_data)
 
         await state.finish()
-        if db.check_executor_in(message.from_user.id):
-            await message.answer('Выберите действие', reply_markup=keyboards.menu)
-        else:
-            keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
-            await message.answer('Введи данные исполнителя (подготовь ИНН, БИК банка и номер расчетный счёта) '
-                                 'Нажимай кнопку "Регистрация исполнителя"',
-                                 reply_markup=keyboard)
+        # if db.check_executor_in(message.from_user.id):
+        await message.answer('Выберите действие', reply_markup=keyboards.menu)
+        # else:
+            # keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
+            # await message.answer('Введи данные исполнителя (подготовь ИНН, БИК банка и номер расчетный счёта) '
+            #                      'Нажимай кнопку "Регистрация исполнителя"',
+            #                      reply_markup=keyboard)
     else:
         await state.finish()
         await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
@@ -101,6 +101,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
 
 @dp.message_handler(text='Регистрация исполнителя', state='*')
 @dp.message_handler(text='Изменить данные исполнителя', state='*')
+# @dp.message_handler(text='Договор на монтаж видеонаблюдения', state='*')
 async def start_registration_executor(message: types.Message):
     await message.answer('Введи ИНН исполнителя', reply_markup=keyboards.key_cancel)
     await DataRegistrationExecutor.inn.set()

@@ -245,6 +245,26 @@ def get_number_contract(id_tg):
     return number
 
 
+def insert_cost(data: dict, id_tg: int):
+    data.update({'id_tg': id_tg})
+    columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost', 'id_tg'])
+    values = [tuple(data.values())]
+    placeholders = ", ".join("?" * len(data.keys()))
+    cursor.executemany(
+        f'INSERT INTO cost_work '
+        f'({columns}) '
+        f'VALUES ({placeholders})', values)
+    conn.commit()
+
+
+def get_data_cost(id_tg):
+    columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
+    cursor.execute(f'SELECT {columns} FROM cost_work WHERE id_tg={id_tg}')
+    data = cursor.fetchone()
+
+    return data
+
+
 def get_cursor():
     return cursor
 
