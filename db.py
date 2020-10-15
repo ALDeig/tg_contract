@@ -186,7 +186,7 @@ def get_data_from_db_ooo(id_tg: int) -> dict:
 
 def get_data_from_db_ip(id_tg: int) -> dict:
     tmp_data = fetchall_ip(id_tg)
-    return
+    # return
     warranty = transform_warranty(tmp_data[12])
     result = {
         'number': tmp_data[13],
@@ -206,7 +206,6 @@ def get_data_from_db_ip(id_tg: int) -> dict:
 
     return result
 
-get_data_from_db_ip(213736686)
 
 def check_user_in(id_tg: int, column: str, table: str) -> bool:
     cursor.execute(f"SELECT {column} FROM {table}")
