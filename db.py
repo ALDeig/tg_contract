@@ -21,6 +21,13 @@ def choice_of_ending(number: str) -> str:
     return ending
 
 
+def get_type_executor(id_tg: int):
+    cursor.execute('SELECT type_executor FROM users')
+    type_executor = cursor.fetchone()
+
+    return type_executor[0]
+
+
 def transform_warranty(warranty: str) -> str:
     ending = choice_of_ending(warranty)
     warranty = f"{warranty} ({num2words(int(warranty), lang='ru')}) {ending}"
@@ -179,6 +186,7 @@ def get_data_from_db_ooo(id_tg: int) -> dict:
 
 def get_data_from_db_ip(id_tg: int) -> dict:
     tmp_data = fetchall_ip(id_tg)
+    return
     warranty = transform_warranty(tmp_data[12])
     result = {
         'number': tmp_data[13],
@@ -198,6 +206,7 @@ def get_data_from_db_ip(id_tg: int) -> dict:
 
     return result
 
+get_data_from_db_ip(213736686)
 
 def check_user_in(id_tg: int, column: str, table: str) -> bool:
     cursor.execute(f"SELECT {column} FROM {table}")
