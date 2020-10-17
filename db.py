@@ -22,7 +22,7 @@ def choice_of_ending(number: str) -> str:
 
 
 def get_type_executor(id_tg: int):
-    cursor.execute('SELECT type_executor FROM users')
+    cursor.execute(f'SELECT type_executor FROM users WHERE id_tg={id_tg}')
     type_executor = cursor.fetchone()
 
     return type_executor[0]

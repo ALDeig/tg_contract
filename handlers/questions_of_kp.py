@@ -54,7 +54,7 @@ async def step_2(message: types.Message, state: FSMContext):
         data['cams_on_indoor'] = message.text
     if message.text == total_cams:
         await message.answer('Все камеры будут для помещения')
-        await message.answer_photo('AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE',
+        await message.answer_photo('AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ',
                                    caption='Какой тип камер будет установлен в помещении? Выбери варинат.',
                                    reply_markup=keyboards.choice_type_cam)
         # await message.answer_media_group(keyboards.album_1)
@@ -64,7 +64,7 @@ async def step_2(message: types.Message, state: FSMContext):
     elif message.text == '0':
         await message.answer('Все камеры будут уличные')
         await state.update_data(type_cam_in_room=None)
-        await message.answer_photo('AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE',
+        await message.answer_photo('AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ',
                                    caption='Какой тип камер будет установлен на улице?',
                                    reply_markup=keyboards.choice_type_cam_outdoor)
         # await message.answer_media_group(keyboards.album_2)
@@ -77,7 +77,7 @@ async def step_2(message: types.Message, state: FSMContext):
             data['cams_on_indoor'] = message.text
             data['cams_on_street'] = int(total) - int(message.text)
         await message.answer(f'В помещении - {message.text}\nНа улице - {int(total) - int(message.text)}')
-        await message.answer_photo('AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE',
+        await message.answer_photo('AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ',
                                    caption='Какой тип камер будет установлен в помещении? Выбери варинат.',
                                    reply_markup=keyboards.choice_type_cam)
         await DataPoll.type_cams_in_room.set()
@@ -89,7 +89,7 @@ async def step_3(message: types.Message, state: FSMContext):
         await message.answer('Вы не верно указали количество. Сколько камер будет установлено на улице?')
         return
     await state.update_data(cams_on_street=message.text)
-    await message.answer_photo('AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE',
+    await message.answer_photo('AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ',
                                caption='Какой тип камер будет установлен в помещении?',
                                reply_markup=keyboards.choice_type_cam)
     # await message.answer_media_group(keyboards.album_2)
@@ -107,7 +107,7 @@ async def step_4(message: types.Message, state: FSMContext):
             await message.answer('Сколько дней будем хранить архив при записи 24/7?', reply_markup=keyboards.key_cancel)
             await DataPoll.days_for_archive.set()
             return
-    await message.answer_photo('AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE',
+    await message.answer_photo('AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ',
                                caption='Какой тип камер будет установлен на улице?',
                                reply_markup=keyboards.choice_type_cam_outdoor)
     # await message.answer_media_group(keyboards.album_2)

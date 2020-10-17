@@ -41,14 +41,14 @@ menu_kp = ReplyKeyboardMarkup([
     [KeyboardButton(text='КП на камерах HiWatch')],
 ], resize_keyboard=True)
 
-# photo_1 = InputFile('cupol.png')
+# photo_1 = InputFile('photo_cams.jpg')
 # photo_2 = InputFile('cylindr.png')
 # photo_3 = InputFile('compact.png')
-album_1 = MediaGroup()
-album_1.attach_photo("https://hi.watch/media/product/201911//0c9uvvmx.png", caption='Купольная')
-album_1.attach_photo("https://hi.watch/media/product/201811//5gbbhkuf.png", caption='Цилиндрическая')
-album_1.attach_photo("https://hi.watch/media/product/202001//zyjcpaj1.png", caption='Компактная')
+# album_1 = MediaGroup()
+# album_1.attach_photo("https://hi.watch/media/product/201911//0c9uvvmx.png", caption='Купольная')
+# album_1.attach_photo("https://hi.watch/media/product/201811//5gbbhkuf.png", caption='Цилиндрическая')
+# album_1.attach_photo("https://hi.watch/media/product/202001//zyjcpaj1.png", caption='Компактная')
 
-album_2 = MediaGroup()
-album_2.attach_photo("https://hi.watch/media/product/201911//0c9uvvmx.png", caption='Купольная')
-album_2.attach_photo("https://hi.watch/media/product/201811//5gbbhkuf.png", caption='Цилиндрическая')
+# album_2 = MediaGroup()
+# album_2.attach_photo("https://hi.watch/media/product/201911//0c9uvvmx.png", caption='Купольная')
+# album_2.attach_photo("https://hi.watch/media/product/201811//5gbbhkuf.png", caption='Цилиндрическая')
