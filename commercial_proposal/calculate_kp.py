@@ -41,10 +41,11 @@ def calculate_disks(regs: list, cams: int, archive: int):
                     cnt += 1
                     cams -= 16
                 hdd = num_cams * 42.2 * int(archive) / 1024
-                disk = find_hdd(hdd / 2, [])
+                disk_1 = '6tb'  # здесь сделать изменения
+                disk = find_hdd(hdd - 6, [])
                 if len(disk) > 1:
                     return False
-                disks.append(disk[0])
+                disks.append(disk_1)
                 disks.append(disk[0])
             else:
                 if cnt == len(regs):
@@ -284,15 +285,18 @@ def calculate_result(data, id_tg):
     prices = parser_prices.open_prices()
     work = db.get_data_cost(id_tg)
     reg = calculate_registrar(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), result=[])
+    hdd = calculate_disks(regs=reg, cams=int(data['total_cams']), archive=data['days_for_archive'])
+    if not hdd:
+        return False
     switch = calculate_switch(total_cam=int(data['total_cams']), result=[])
     fasteners = calculate_fasteners(type_cam_in_room=data['type_cam_in_room'],
                                     type_cam_on_street=data['type_cam_on_street'],
                                     cams_in_room=int(data['cams_on_indoor']),
                                     cams_on_street=int(data['cams_on_street']))
     # hdd = calculate_disk(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), num_reg=len(reg))
-    hdd = calculate_disks(regs=reg, cams=int(data['total_cams']), archive=data['days_for_archive'])
-    if not hdd:
-        return False
+    # hdd = calculate_disks(regs=reg, cams=int(data['total_cams']), archive=data['days_for_archive'])
+    # if not hdd:
+    #     return False
     print(hdd)
     cable = calculate_meter(total_cam=int(data['total_cams']), mt_cam=int(work[2]))
     result.append(['Оборудование'])
