@@ -142,7 +142,7 @@ def create_row_reg(regs: list, result: list, prices: dict, price_categories: dic
         if regs[0] == regs[-1]:
             row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
                    'шт',
-                   '1',
+                   f'{len(regs)}',
                    f"{float(prices[regs[0]]['price']):.2f}",
                    f"{float(prices[regs[0]]['price']) * len(regs):.2f}"]
             result.append(row)
@@ -151,7 +151,7 @@ def create_row_reg(regs: list, result: list, prices: dict, price_categories: dic
         else:
             row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
                    'шт',
-                   '1',
+                   f'{len(regs) - 1}',
                    f"{float(prices[regs[0]]['price']):.2f}",
                    f"{float(prices[regs[0]]['price']) * len(regs) - 1:.2f}"]
             result.append(row)
@@ -183,7 +183,7 @@ def create_row_switch(switch: list, result: list, prices: dict, price_categories
         if switch[0] == switch[-1]:
             row = [f"Модель {prices[switch[0]]['model']}\n{prices[switch[0]]['name']}",
                    'шт',
-                   '1',
+                   f'{len(switch)}',
                    f"{float(prices[switch[0]]['price']):.2f}",
                    f"{float(prices[switch[0]]['price']) * len(switch):.2f}"]
             result.append(row)
@@ -192,7 +192,7 @@ def create_row_switch(switch: list, result: list, prices: dict, price_categories
         else:
             row = [f"Модель {prices[switch[0]]['model']}\n{prices[switch[0]]['name']}",
                    'шт',
-                   '1',
+                   f'{len(switch) - 1}',
                    f"{float(prices[switch[0]]['price']):.2f}",
                    f"{float(prices[switch[0]]['price']) * len(switch) - 1:.2f}"]
             result.append(row)
