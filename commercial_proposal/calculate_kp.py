@@ -36,11 +36,13 @@ def calculate_disks(regs: list, cams: int, archive: int):
             if len(reg) == 10:
                 if cnt == len(regs):
                     num_cams = cams
+                    print(num_cams)
                 else:
                     num_cams = 16
                     cnt += 1
                     cams -= 16
                 hdd = num_cams * 42.2 * int(archive) / 1024
+                print(hdd)
                 disk_1 = '6tb'  # здесь сделать изменения
                 disk = find_hdd(hdd - 6, [])
                 if len(disk) > 1:
@@ -150,6 +152,20 @@ def calculate_meter(total_cam, mt_cam):
     return cctv_cable
 
 
+def count_disks(disks: list):
+    result = {}
+    print(disks)
+    for disk in disks:
+        try:
+            result[disk] += 1
+        except KeyError:
+            result[disk] = 1
+
+    print(result)
+
+    return result
+
+
 def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict):
     if len(disks) == 1:
         row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
@@ -162,35 +178,45 @@ def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict
         price_categor['equipment'] += float(prices[disks[0]]['price'])
         return result, price_categor
     else:
-        if disks[0] == disks[-1]:
-            row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
+        disks_dict = count_disks(disks)
+        for name, cnt in disks_dict.items():
+            row = [f"Модель {prices[name]['model']}\n{prices[name]['name']}",
                    'шт',
-                   f'{len(disks)}',
-                   f"{float(prices[disks[0]]['price']):.2f}",
-                   f"{float(prices[disks[0]]['price']) * len(disks):.2f}"]
-            price_categor['total'] += float(prices[disks[0]]['price']) * len(disks)
-            price_categor['equipment'] += float(prices[disks[0]]['price']) * len(disks)
+                   cnt,
+                   f"{float(prices[name]['price']):.2f}",
+                   f"{float(prices[name]['price']) * cnt:.2f}"]
+            price_categor['total'] += float(prices[name]['price']) * cnt
+            price_categor['equipment'] += float(prices[name]['price']) * cnt
             result.append(row)
-            return result, price_categor
-        else:
-            row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
-                   'шт',
-                   f'{len(disks) - 1}',
-                   f"{float(prices[disks[0]]['price']):.2f}",
-                   f"{float(prices[disks[0]]['price']) * (len(disks) - 1):.2f}"]
-            result.append(row)
-            price_categor['total'] += float(prices[disks[0]]['price']) * (len(disks) - 1)
-            price_categor['equipment'] += float(prices[disks[0]]['price']) * (len(disks) - 1)
-            row = [f"Модель {prices[disks[-1]]['model']}\n{prices[disks[-1]]['name']}",
-                   'шт',
-                   '1',
-                   f"{float(prices[disks[-1]]['price']):.2f}",
-                   f"{float(prices[disks[-1]]['price']):.2f}"]
-            result.append(row)
-            price_categor['total'] += float(prices[disks[-1]]['price'])
-            price_categor['equipment'] += float(prices[disks[-1]]['price'])
+        # if disks[0] == disks[-1]:
+        #     row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
+        #            'шт',
+        #            f'{len(disks)}',
+        #            f"{float(prices[disks[0]]['price']):.2f}",
+        #            f"{float(prices[disks[0]]['price']) * len(disks):.2f}"]
+        #     price_categor['total'] += float(prices[disks[0]]['price']) * len(disks)
+        #     price_categor['equipment'] += float(prices[disks[0]]['price']) * len(disks)
+        #     result.append(row)
+        #     return result, price_categor
+        # else:
+        #     row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
+        #            'шт',
+        #            f'{len(disks) - 1}',
+        #            f"{float(prices[disks[0]]['price']):.2f}",
+        #            f"{float(prices[disks[0]]['price']) * (len(disks) - 1):.2f}"]
+        #     result.append(row)
+        #     price_categor['total'] += float(prices[disks[0]]['price']) * (len(disks) - 1)
+        #     price_categor['equipment'] += float(prices[disks[0]]['price']) * (len(disks) - 1)
+        #     row = [f"Модель {prices[disks[-1]]['model']}\n{prices[disks[-1]]['name']}",
+        #            'шт',
+        #            '1',
+        #            f"{float(prices[disks[-1]]['price']):.2f}",
+        #            f"{float(prices[disks[-1]]['price']):.2f}"]
+        #     result.append(row)
+        #     price_categor['total'] += float(prices[disks[-1]]['price'])
+        #     price_categor['equipment'] += float(prices[disks[-1]]['price'])
 
-            return result, price_categor
+        return result, price_categor
 
 
 def create_row_reg(regs: list, result: list, prices: dict, price_categories: dict) -> tuple:
