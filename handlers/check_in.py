@@ -81,12 +81,14 @@ async def reg_step_4(message: types.Message, state: FSMContext):
     if message.text == 'Да':
         if db.check_user_in(message.from_user.id, 'type_executor', 'users'):
             type_executor = db.get_type_executor(id_tg=message.from_user.id)
+            number_kp = db.get_number_kp(id_tg=message.from_user.id)
         else:
             type_executor = None
+            number_kp = 1
         db.delete_user(message.from_user.id)
         user_data = await state.get_data()
-        user_data.update({'id_tg': message.from_user.id})
-        columns = ['name', 'city', 'phone', 'id_tg']
+        user_data.update({'id_tg': message.from_user.id, 'number_kp': number_kp})
+        columns = ['name', 'city', 'phone', 'id_tg', 'number_kp']
         db.insert('users', columns, user_data)
         if type_executor:
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)

@@ -4,7 +4,8 @@ CREATE TABLE users(
     city VARCHAR(255),
     phone INTEGER,
     id_tg INTEGER,
-    type_executor VARCHAR(100)
+    type_executor VARCHAR(100),
+    number_kp INTEGER
 );
 
 CREATE TABLE executor_ooo(

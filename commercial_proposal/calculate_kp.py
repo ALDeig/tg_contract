@@ -129,6 +129,7 @@ def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict
 
 
 def create_row_reg(regs: list, result: list, prices: dict, price_categories: dict) -> tuple:
+    print(regs)
     if len(regs) == 1:
         row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
                'шт',
@@ -140,6 +141,7 @@ def create_row_reg(regs: list, result: list, prices: dict, price_categories: dic
         price_categories['equipment'] += float(prices[regs[0]]['price'])
     else:
         if regs[0] == regs[-1]:
+            print('==')
             row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
                    'шт',
                    f'{len(regs)}',
@@ -149,11 +151,12 @@ def create_row_reg(regs: list, result: list, prices: dict, price_categories: dic
             price_categories['total'] += float(prices[regs[0]]['price']) * len(regs)
             price_categories['equipment'] += float(prices[regs[0]]['price']) * len(regs)
         else:
+            print('!=')
             row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
                    'шт',
-                   f'{len(regs) - 1}',
+                   f"{len(regs) - 1}",
                    f"{float(prices[regs[0]]['price']):.2f}",
-                   f"{float(prices[regs[0]]['price']) * len(regs) - 1:.2f}"]
+                   f"{float(prices[regs[0]]['price']) * (len(regs) - 1):.2f}"]
             result.append(row)
             price_categories['total'] += float(prices[regs[0]]['price']) * len(regs) - 1
             price_categories['equipment'] += float(prices[regs[0]]['price']) * len(regs) - 1
@@ -194,7 +197,7 @@ def create_row_switch(switch: list, result: list, prices: dict, price_categories
                    'шт',
                    f'{len(switch) - 1}',
                    f"{float(prices[switch[0]]['price']):.2f}",
-                   f"{float(prices[switch[0]]['price']) * len(switch) - 1:.2f}"]
+                   f"{float(prices[switch[0]]['price']) * (len(switch) - 1):.2f}"]
             result.append(row)
             price_categories['total'] += float(prices[switch[0]]['price']) * len(switch) - 1
             price_categories['equipment'] += float(prices[switch[0]]['price']) * len(switch) - 1

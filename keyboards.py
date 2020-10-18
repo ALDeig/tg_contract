@@ -1,9 +1,9 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, MediaGroup
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup  # MediaGroup
 
 menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='Договор на монтаж видеонаблюдения')],
-    [KeyboardButton(text='Изменить данные')],
-    [KeyboardButton(text='Создать КП')]
+    [KeyboardButton(text='Создать КП')],
+    [KeyboardButton(text='Изменить данные')]
 ], resize_keyboard=True)
 
 choice_menu = ReplyKeyboardMarkup([
@@ -41,6 +41,8 @@ menu_kp = ReplyKeyboardMarkup([
     [KeyboardButton(text='КП на камерах HiWatch')],
 ], resize_keyboard=True)
 
+photo_cams = 'AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ'  # в прокте
+# photo_cams = 'AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE'  # у меня
 # photo_1 = InputFile('photo_cams.jpg')
 # photo_2 = InputFile('cylindr.png')
 # photo_3 = InputFile('compact.png')

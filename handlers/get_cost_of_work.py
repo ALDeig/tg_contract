@@ -72,7 +72,7 @@ async def step_5(message: types.Message, state: FSMContext):
         return
     await state.update_data(start_up_cost=message.text)
     await message.answer('Отлично, я сохранил эти данные и их не надо вводить каждый раз при создании КП, но есть '
-                         'возможность их изменить в любой момент')
+                         'возможность их изменить в любой момент', reply_markup=keyboards.menu)
     data = await state.get_data()
     db.insert_cost(data, message.from_user.id)
     await state.finish()

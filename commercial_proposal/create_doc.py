@@ -1,10 +1,12 @@
 import os
-from time import time
+# from time import time
 
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.shared import Pt
+
+from db import get_number_kp
 # from docx.styles import style
 
 # document = Document('test1.docx')
@@ -29,13 +31,14 @@ from docx.shared import Pt
 # document.save('test_003.docx')
 
 
-def gen_name_file():
-    file_name = f'file-{int(time()) * 100}.docx'
+def gen_name_file(id_tg):
+    number_kp = get_number_kp(id_tg)
+    file_name = f'КП-{number_kp}.docx'
 
-    return file_name
+    return file_name, number_kp
 
 
-def save_kp(table_data, total_price):
+def save_kp(table_data, total_price, id_tg):
     document = Document(os.path.join('commercial_proposal', 'Doc1.docx'))
     # document = Document('Doc1.docx')
     table = document.add_table(rows=3, cols=1, style='Table Grid')
@@ -77,10 +80,10 @@ def save_kp(table_data, total_price):
         for data in rows:
             row_cells[cnt].text = str(data)
             cnt += 1
-    file_name = gen_name_file()
+    file_name, number_kp = gen_name_file(id_tg)
     document.save(file_name)
 
-    return file_name
+    return file_name, number_kp
 
 
 # save_kp(data, 19999)

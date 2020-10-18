@@ -28,6 +28,18 @@ def get_type_executor(id_tg: int):
     return type_executor[0]
 
 
+def get_number_kp(id_tg):
+    cursor.execute(f'SELECT number_kp FROM users WHERE id_tg={id_tg}')
+    number_kp = cursor.fetchone()
+
+    return number_kp[0]
+
+
+def write_number_kp(id_tg, number_kp: int):
+    cursor.execute(f"UPDATE users SET number_kp = '{number_kp}' WHERE id_tg = {id_tg}")
+    conn.commit()
+
+
 def transform_warranty(warranty: str) -> str:
     ending = choice_of_ending(warranty)
     warranty = f"{warranty} ({num2words(int(warranty), lang='ru')}) {ending}"

@@ -6,4 +6,4 @@ from misc import dp
 async def all_other_message(message: types.Message):
     # print(message)
     await message.answer('Введите команду /start')
-    await message.answer(message)
+    # await message.answer(message)
