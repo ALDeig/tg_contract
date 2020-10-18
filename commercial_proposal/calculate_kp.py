@@ -4,17 +4,20 @@ from commercial_proposal import parser_prices
 
 def calculate_registrar(total_cam: int, days_archive: int, result: list):
     if total_cam <= 4:
-        result.append('rec4cam1d')
         if days_archive > 35:
             result.append('rec8cam2d')
+        else:
+            result.append('rec4cam1d')
     elif total_cam <= 8:
         if days_archive > 35:
             result.append('rec8cam2d')
-        result.append('rec8cam1d')
+        else:
+            result.append('rec8cam1d')
     elif total_cam <= 16:
-        if days_archive > 17:
+        if days_archive > 8:
             result.append('rec16cam2d')
-        result.append('rec16cam1d')
+        else:
+            result.append('rec16cam1d')
     else:
         if days_archive <= 8:
             result.append('rec16cam1d')
