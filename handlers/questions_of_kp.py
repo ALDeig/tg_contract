@@ -131,6 +131,9 @@ async def step_6(message: types.Message, state: FSMContext):
     await state.update_data(days_for_archive=message.text)
     data = await state.get_data()
     table_data = calculate_kp.calculate_result(data=data, id_tg=message.from_user.id)
+    if not table_data:
+        await message.answer('Слишком большой архив. Укажите еще раз число дней.')
+        return
     file_name, number_kp = create_doc.save_kp(table_data[0], table_data[1]['total'], message.from_user.id)
 
     await state.finish()

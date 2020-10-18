@@ -34,11 +34,12 @@ choice_type_cam = ReplyKeyboardMarkup([
 
 choice_type_cam_outdoor = ReplyKeyboardMarkup([
     [KeyboardButton(text='Купольная')],
-    [KeyboardButton(text='Цилиндрическая')],
+    [KeyboardButton(text='Цилиндрическая')]
 ], resize_keyboard=True)
 
 menu_kp = ReplyKeyboardMarkup([
     [KeyboardButton(text='КП на камерах HiWatch')],
+    [KeyboardButton(text='Отмена')]
 ], resize_keyboard=True)
 
 photo_cams = 'AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ'  # в прокте

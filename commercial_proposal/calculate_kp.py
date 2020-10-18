@@ -16,10 +16,69 @@ def calculate_registrar(total_cam: int, days_archive: int, result: list):
             result.append('rec16cam2d')
         result.append('rec16cam1d')
     else:
-        result.append('rec16cam2d')
+        if days_archive <= 8:
+            result.append('rec16cam1d')
+        else:
+            result.append('rec16cam2d')
         calculate_registrar(total_cam=total_cam - 16, days_archive=days_archive, result=result)
 
     return result
+
+
+def calculate_disks(regs: list, cams: int, archive: int):
+    disks = []
+    cnt = 1
+    for reg in regs:
+        if reg[-2] == '2':
+            if len(reg) == 10:
+                if cnt == len(regs):
+                    num_cams = cams
+                else:
+                    num_cams = 16
+                    cnt += 1
+                    cams -= 16
+                hdd = num_cams * 42.2 * int(archive) / 1024
+                disk = find_hdd(hdd / 2, [])
+                if len(disk) > 1:
+                    return False
+                disks.append(disk[0])
+                disks.append(disk[0])
+            else:
+                if cnt == len(regs):
+                    num_cams = cams
+                else:
+                    num_cams = int(reg[3])
+                    cnt += 1
+                    cams -= int(reg[3])
+                hdd = num_cams * 42.2 * int(archive) / 1024
+                disk = find_hdd(hdd / 2, [])
+                if len(disk) > 1:
+                    return False
+                disks.append(disk[0])
+                disks.append(disk[0])
+        else:
+            if len(reg) == 10:
+                if cnt == len(regs):
+                    num_cams = cams
+                else:
+                    num_cams = 16
+                    cnt += 1
+                    cams -= 16
+                hdd = num_cams * 42.2 * int(archive) / 1024
+                disk = find_hdd(hdd, [])
+                disks.append(disk[0])
+            else:
+                if cnt == len(regs):
+                    num_cams = cams
+                else:
+                    num_cams = int(reg[3])
+                    cnt += 1
+                    cams -= int(reg[3])
+                hdd = num_cams * 42.2 * int(archive) / 1024
+                disk = find_hdd(hdd, [])
+                disks.append(disk[0])
+
+    return disks
 
 
 def calculate_switch(total_cam: int, result: list):
@@ -72,8 +131,10 @@ def find_hdd(hdd_: float, result: list):
     return result
 
 
-def calculate_disk(total_cam, days_archive):
+def calculate_disk(total_cam, days_archive, num_reg):
     hdd = int(total_cam) * 42.2 * int(days_archive) / 1024
+    # тест
+    hdd = hdd / num_reg
     result = find_hdd(hdd, [])
 
     return result
@@ -225,7 +286,11 @@ def calculate_result(data, id_tg):
                                     type_cam_on_street=data['type_cam_on_street'],
                                     cams_in_room=int(data['cams_on_indoor']),
                                     cams_on_street=int(data['cams_on_street']))
-    hdd = calculate_disk(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']))
+    # hdd = calculate_disk(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), num_reg=len(reg))
+    hdd = calculate_disks(regs=reg, cams=int(data['total_cams']), archive=data['days_for_archive'])
+    if not hdd:
+        return False
+    print(hdd)
     cable = calculate_meter(total_cam=int(data['total_cams']), mt_cam=int(work[2]))
     result.append(['Оборудование'])
     if data['cams_on_indoor'] != '0':
