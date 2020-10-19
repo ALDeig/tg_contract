@@ -252,6 +252,11 @@ def delete_user(id_tg: int):
     conn.commit()
 
 
+def delete_cost_work(id_tg: int):
+    cursor.execute(f'DELETE FROM cost_work WHERE id_tg = {id_tg}')
+    conn.commit()
+
+
 def get_number_contract(id_tg):
     cursor.execute(f"SELECT type_executor FROM users WHERE id_tg={id_tg}")
     type_executor = cursor.fetchone()[0]

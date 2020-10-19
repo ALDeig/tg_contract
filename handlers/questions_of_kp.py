@@ -36,7 +36,7 @@ async def start_poll(message: types.Message):
 
 @dp.message_handler(state=DataPoll.total_numb_of_cam)
 async def step_1(message: types.Message, state: FSMContext):
-    if not message.text.isdigit():
+    if not message.text.isdigit() or message.text == '0':
         await message.answer('Вы не верно указали количество. Сколько камер надо установить?')
         return
     await state.update_data(total_cams=message.text)
@@ -51,6 +51,9 @@ async def step_2(message: types.Message, state: FSMContext):
         return
     async with state.proxy() as data:
         total_cams = data['total_cams']
+        if int(total_cams) < int(message.text):
+            await message.answer('Вы неверно указали количество. Сколько камер будет установлено в помещении?')
+            return
         data['cams_on_indoor'] = message.text
         data['cams_on_street'] = str(int(total_cams) - int(message.text))
     if message.text == total_cams:
@@ -125,7 +128,7 @@ async def step_5(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=DataPoll.days_for_archive)
 async def step_6(message: types.Message, state: FSMContext):
-    if not message.text.isdigit():
+    if not message.text.isdigit() or message.text == '0':
         await message.answer('Вы не верно указали архив. Укажите число дней?')
         return
     await state.update_data(days_for_archive=message.text)
