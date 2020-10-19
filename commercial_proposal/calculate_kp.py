@@ -24,7 +24,7 @@ def calculate_registrar(total_cam: int, days_archive: int, result: list):
         else:
             result.append('rec16cam2d')
         calculate_registrar(total_cam=total_cam - 16, days_archive=days_archive, result=result)
-    print(result)
+    # print(result дн.)
     return result
 
 
@@ -362,7 +362,7 @@ def calculate_result(data, id_tg):
     #     result.append(row)
     for key, value in fasteners.items():
         if value != 0:
-            row = [f"Модель {prices[key]['model']}\n{prices[key]['name']}",
+            row = [f"Модель {prices[key]['model']} {prices[key]['name']}",
                    'шт',
                    value,
                    f"{float(prices[key]['price']):.2f}",
@@ -390,7 +390,7 @@ def calculate_result(data, id_tg):
     price_of_categories['total'] += float(prices['cctv_cable']['price'])
     price_of_categories['materials'] += float(prices['cctv_cable']['price'])
     result.append(row)
-    row = [f"Модель {prices['corrugated_pipe']['model']}\n{prices['corrugated_pipe']['name']}",
+    row = [f"Модель {prices['corrugated_pipe']['model']} {prices['corrugated_pipe']['name']}",
            'м',
            cable,
            f"{float(prices['corrugated_pipe']['price']):.2f}",

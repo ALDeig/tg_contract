@@ -133,6 +133,10 @@ async def step_6(message: types.Message, state: FSMContext):
         return
     await state.update_data(days_for_archive=message.text)
     data = await state.get_data()
+    if int(data['total_cams']) >= 16 and int(message.text) > 18:
+        await message.answer(f'Слишком большой архив для данной конфигурации. Максимально возможный архив '
+                             f'18 дн. Укажите сколько дней будем хранить архив.')
+        return
     table_data = calculate_kp.calculate_result(data=data, id_tg=message.from_user.id)
     if not table_data[0]:
         await message.answer(f'Слишком большой архив для данной конфигурации. Максимально возможный архив '
