@@ -24,7 +24,7 @@ def calculate_registrar(total_cam: int, days_archive: int, result: list):
         else:
             result.append('rec16cam2d')
         calculate_registrar(total_cam=total_cam - 16, days_archive=days_archive, result=result)
-
+    print(result)
     return result
 
 
@@ -47,6 +47,7 @@ def calculate_disks(regs: list, cams: int, archive: int):
                     return False
                 disks.append(disk_1)
                 disks.append(disk[0])
+                # disks.append(disk[-1])
             else:
                 if cnt == len(regs):
                     num_cams = cams
@@ -60,6 +61,8 @@ def calculate_disks(regs: list, cams: int, archive: int):
                     return False
                 disks.append(disk[0])
                 disks.append(disk[0])
+                # disks.append(disk[-1])
+                # disks.append(disk[-1])
         else:
             if len(reg) == 10:
                 if cnt == len(regs):
@@ -71,6 +74,7 @@ def calculate_disks(regs: list, cams: int, archive: int):
                 hdd = num_cams * 42.2 * int(archive) / 1024
                 disk = find_hdd(hdd, [])
                 disks.append(disk[0])
+                # disks.append(disk[-1])
             else:
                 if cnt == len(regs):
                     num_cams = cams
@@ -81,7 +85,7 @@ def calculate_disks(regs: list, cams: int, archive: int):
                 hdd = num_cams * 42.2 * int(archive) / 1024
                 disk = find_hdd(hdd, [])
                 disks.append(disk[0])
-
+                # disks.append(disk[-1])
     return disks
 
 
@@ -131,7 +135,7 @@ def find_hdd(hdd_: float, result: list):
     else:
         result.append('6tb')
         find_hdd(hdd_ - 6, result)
-
+    # print(result)
     return result
 
 
@@ -157,23 +161,10 @@ def count_disks(disks: list):
             result[disk] += 1
         except KeyError:
             result[disk] = 1
-
-
     return result
 
 
 def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict):
-    # if len(disks) == 1:
-    #     row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
-    #            'шт',
-    #            '1',
-    #            f"{float(prices[disks[0]]['price']):.2f}",
-    #            f"{float(prices[disks[0]]['price']):.2f}"]
-    #     result.append(row)
-    #     price_categor['total'] += float(prices[disks[0]]['price'])
-    #     price_categor['equipment'] += float(prices[disks[0]]['price'])
-    #     return result, price_categor
-    # else:
     disks_dict = count_disks(disks)
     for name, cnt in disks_dict.items():
         row = [f"Модель {prices[name]['model']}\n{prices[name]['name']}",
@@ -184,35 +175,8 @@ def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict
         price_categor['total'] += float(prices[name]['price']) * cnt
         price_categor['equipment'] += float(prices[name]['price']) * cnt
         result.append(row)
-        # if disks[0] == disks[-1]:
-        #     row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
-        #            'шт',
-        #            f'{len(disks)}',
-        #            f"{float(prices[disks[0]]['price']):.2f}",
-        #            f"{float(prices[disks[0]]['price']) * len(disks):.2f}"]
-        #     price_categor['total'] += float(prices[disks[0]]['price']) * len(disks)
-        #     price_categor['equipment'] += float(prices[disks[0]]['price']) * len(disks)
-        #     result.append(row)
-        #     return result, price_categor
-        # else:
-        #     row = [f"Модель {prices[disks[0]]['model']}\n{prices[disks[0]]['name']}",
-        #            'шт',
-        #            f'{len(disks) - 1}',
-        #            f"{float(prices[disks[0]]['price']):.2f}",
-        #            f"{float(prices[disks[0]]['price']) * (len(disks) - 1):.2f}"]
-        #     result.append(row)
-        #     price_categor['total'] += float(prices[disks[0]]['price']) * (len(disks) - 1)
-        #     price_categor['equipment'] += float(prices[disks[0]]['price']) * (len(disks) - 1)
-        #     row = [f"Модель {prices[disks[-1]]['model']}\n{prices[disks[-1]]['name']}",
-        #            'шт',
-        #            '1',
-        #            f"{float(prices[disks[-1]]['price']):.2f}",
-        #            f"{float(prices[disks[-1]]['price']):.2f}"]
-        #     result.append(row)
-        #     price_categor['total'] += float(prices[disks[-1]]['price'])
-        #     price_categor['equipment'] += float(prices[disks[-1]]['price'])
 
-        return result, price_categor
+    return result, price_categor
 
 
 def create_row_reg(regs: list, result: list, prices: dict, price_categories: dict) -> tuple:
@@ -297,6 +261,27 @@ def create_row_switch(switch: list, result: list, prices: dict, price_categories
     return result, price_categories
 
 
+def find_max_archive(disks, cams, archive):
+    all_memory = 0
+    # print(disks)
+    # print(f'cams: {cams}, archive: {archive}')
+    for disk in disks:
+        all_memory += int(disk[0])
+    need_memory_one_day = int(cams) * 42.2
+    max_archive = int(all_memory * 1024 / need_memory_one_day)
+    # if int(archive) > max_archive:
+    return max_archive
+
+
+def find_disks_for_max_archive(reg, cams, archive):
+    flg = False
+    while not flg:
+        flg = calculate_disks(reg, cams, archive)
+        archive = archive - 1
+
+    return flg
+
+
 def calculate_result(data, id_tg):
     price_of_categories = {'total': 0, 'equipment': 0, 'materials': 0, 'work': 0}
     type_cams = {'Купольная': 'dome_cam', 'Цилиндрическая': 'cylindrical_cam', 'Компактная': 'compact_cam'}
@@ -306,7 +291,12 @@ def calculate_result(data, id_tg):
     reg = calculate_registrar(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), result=[])
     hdd = calculate_disks(regs=reg, cams=int(data['total_cams']), archive=data['days_for_archive'])
     if not hdd:
-        return False
+        disks = find_disks_for_max_archive(reg, int(data['total_cams']), int(data['days_for_archive']))
+        max_archive = find_max_archive(disks, data['total_cams'], data['days_for_archive'])
+        return False, max_archive
+    # check_archive = find_max_archive(hdd, data['total_cams'], data['days_for_archive'])
+    # if check_archive:
+    #     return False, check_archive
     switch = calculate_switch(total_cam=int(data['total_cams']), result=[])
     fasteners = calculate_fasteners(type_cam_in_room=data['type_cam_in_room'],
                                     type_cam_on_street=data['type_cam_on_street'],

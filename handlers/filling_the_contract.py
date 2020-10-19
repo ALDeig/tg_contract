@@ -95,6 +95,9 @@ async def filling_step_4(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer('Введи аванс используя только цифры')
         return
+    if int(message.text) > 100:
+        await message.answer('Аванс не может быть больше 100')
+        return
     if message.text != '100':
         async with state.proxy() as data:
             data['name_file'] += 'a'
