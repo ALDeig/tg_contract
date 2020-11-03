@@ -1,5 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import analytics
 import config
@@ -17,7 +18,11 @@ start_message = """ Отлично! Для начала надо зарегис�
 """
 
 
-@dp.message_handler(text='Отмена', state='*')
+class Document(StatesGroup):
+    text_documents = State()
+
+
+@dp.message_handler(text='↩️Отмена', state='*')
 @dp.message_handler(commands=['start'], state='*')
 async def cmd_start(message: types.Message, state: FSMContext):
     """Обработка команды старт"""
@@ -46,11 +51,32 @@ async def cmd_get_analytics(message: types.Message):
                          f"<b>Количество запросов по БИК:</b> {data['request_bik']}", parse_mode='HTML')
 
 
-@dp.message_handler(text='Создать КП', state='*')
+@dp.message_handler(commands='document', user_id=config.ADMIN_ID)
+async def create_text_for_document(message: types.Message):
+    await message.answer('Отправь текст', reply_markup=keyboards.key_cancel)
+    await Document.first()
+
+
+@dp.message_handler(state=Document.text_documents, user_id=config.ADMIN_ID)
+async def get_text_for_documents(message: types.Message, state: FSMContext):
+    with open('document.txt', 'w', encoding='UTF-8') as file:
+        file.write(message.text)
+    await message.answer('Текст записан')
+    await state.finish()
+
+
+@dp.message_handler(text='🗃 Документы')
+async def send_documents(message: types.Message):
+    with open('document.txt', 'r', encoding='UTF-8') as file:
+        text = file.read()
+    await message.answer(text)
+
+
+@dp.message_handler(text='💰 Создать КП', state='*')
 async def create_kp(message: types.Message):
     await message.answer(text='Выбери действие', reply_markup=keyboards.menu_kp)
 
 
-@dp.message_handler(text='Изменить данные', state='*')
+@dp.message_handler(text='🎛 Изменить данные', state='*')
 async def change_data(message: types.Message):
     await message.answer(text='Выберите действие', reply_markup=keyboards.choice_menu)

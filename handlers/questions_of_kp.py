@@ -24,7 +24,7 @@ class DataPoll(StatesGroup):
     answer_of_sale = State()
 
 
-@dp.message_handler(text='КП на камерах HiWatch')
+@dp.message_handler(text='🎥 Видеонаблюдение')
 async def start_poll(message: types.Message):
     if db.check_user_in(id_tg=message.from_user.id, column='id_tg', table='cost_work'):  # проверяет есть ли данные в базе
         await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel)
@@ -80,7 +80,7 @@ async def step_2(message: types.Message, state: FSMContext):
         #     total = data['total_cams']
         #     data['cams_on_indoor'] = message.text
         #     data['cams_on_street'] = int(total) - int(message.text)
-        await message.answer(f'В помещении - {message.text}\nНа улице - {int(total_cams) - int(message.text)}')
+        await message.answer(f'В помещении - {message.text}, значит на улице будет {int(total_cams) - int(message.text)}')
         await message.answer_photo(keyboards.photo_cams,
                                    caption='Какой тип камер будет установлен в помещении? Выбери варинат.',
                                    reply_markup=keyboards.choice_type_cam)
@@ -108,7 +108,7 @@ async def step_4(message: types.Message, state: FSMContext):
         if data['cams_on_indoor'] == data['total_cams']:
             data['type_cam_on_street'] = None
             # data['cams_on_street'] = '0'
-            await message.answer('Сколько дней будем хранить архив при записи 24/7?', reply_markup=keyboards.key_cancel)
+            await message.answer('Сколько дней хранить архив с камер видеонаблюдения?', reply_markup=keyboards.key_cancel)
             await DataPoll.days_for_archive.set()
             return
     await message.answer_photo(keyboards.photo_cams,

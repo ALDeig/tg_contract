@@ -27,7 +27,7 @@ class DataRegistrationExecutor(StatesGroup):
 
 
 @dp.message_handler(text='Регистрация', state='*')
-@dp.message_handler(text='Изменить свои данные', state='*')
+@dp.message_handler(text='👨‍🔧 Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
@@ -108,7 +108,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(text='Регистрация исполнителя', state='*')
-@dp.message_handler(text='Изменить данные исполнителя', state='*')
+@dp.message_handler(text='🏢 Изменить данные исполнителя', state='*')
 # @dp.message_handler(text='Договор на монтаж видеонаблюдения', state='*')
 async def start_registration_executor(message: types.Message):
     await message.answer('Введи ИНН исполнителя', reply_markup=keyboards.key_cancel)
