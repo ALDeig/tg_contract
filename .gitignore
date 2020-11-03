@@ -5,3 +5,4 @@ db/analytics.json
 __pycache__
 .venv
 .idea
+prices.json
