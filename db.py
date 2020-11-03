@@ -290,6 +290,20 @@ def get_data_cost(id_tg):
     return data
 
 
+def get_reviews() -> list:
+    """Функция получает отзывы и отдает последние три. Лимит задается кнопокй 'еще' в боте"""
+    cursor.execute(f'SELECT review FROM reviews')
+    reviews = cursor.fetchall()
+
+    return reviews
+
+
+def insert_reviews(text: str):
+    """Запись отзыва в таблицу"""
+    cursor.execute(f'INSERT INTO reviews (review) VALUES ("{text}")')
+    conn.commit()
+
+
 def get_cursor():
     return cursor
 
@@ -310,6 +324,14 @@ def check_db_exists():
     if table_exists:
         return
     _init_db()
+
+
+def apply_script():
+    """Вспомогательная функция для добавления изменений в базу данных. Вызывается из терминала"""
+    with open('changedb.sql', 'r', encoding='UTF-8') as file:
+        cursor.executescript(file.read())
+    conn.commit()
+    conn.close()
 
 
 check_db_exists()
