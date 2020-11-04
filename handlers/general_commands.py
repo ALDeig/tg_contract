@@ -67,8 +67,12 @@ async def get_text_for_documents(message: types.Message, state: FSMContext):
 
 @dp.message_handler(text='🗃 Документы')
 async def send_documents(message: types.Message):
-    with open('document.txt', 'r', encoding='UTF-8') as file:
-        text = file.read()
+    try:
+        with open('document.txt', 'r', encoding='UTF-8') as file:
+            text = file.read()
+    except FileNotFoundError:
+        await message.answer('Документов нет')
+        return
     await message.answer(text)
 
 
