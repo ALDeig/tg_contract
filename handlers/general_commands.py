@@ -1,3 +1,5 @@
+import os
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -59,7 +61,7 @@ async def create_text_for_document(message: types.Message):
 
 @dp.message_handler(state=Document.text_documents, user_id=config.ADMIN_ID)
 async def get_text_for_documents(message: types.Message, state: FSMContext):
-    with open('document.txt', 'w', encoding='UTF-8') as file:
+    with open(os.path.join('db', 'document.txt'), 'w', encoding='UTF-8') as file:
         file.write(message.text)
     await message.answer('Текст записан')
     await state.finish()
@@ -68,7 +70,7 @@ async def get_text_for_documents(message: types.Message, state: FSMContext):
 @dp.message_handler(text='🗃 Документы')
 async def send_documents(message: types.Message):
     try:
-        with open('document.txt', 'r', encoding='UTF-8') as file:
+        with open(os.path.join('db', 'document.txt'), 'r', encoding='UTF-8') as file:
             text = file.read()
     except FileNotFoundError:
         await message.answer('Документов нет')
