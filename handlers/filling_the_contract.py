@@ -26,7 +26,7 @@ class FillingContract(StatesGroup):  # информация о клиенте
     api_bik_ = State()
 
 
-@dp.message_handler(text='Договор на монтаж видеонаблюдения')
+@dp.message_handler(text='📑 Договор на монтаж видеонаблюдения')
 async def start_create_contract(message: types.Message):
     if not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ip') \
             and not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ooo'):  # Если у пользователя нет исп

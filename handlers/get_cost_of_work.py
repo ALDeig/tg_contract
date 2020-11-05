@@ -19,7 +19,7 @@ class DataPrices(StatesGroup):
 @dp.message_handler(text='⚒ Изменить стоимость работ', state='*')
 async def start_change_cost(message: types.Message):
     await message.answer(text='Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
-                         reply_markup=ReplyKeyboardRemove())
+                         reply_markup=keyboards.key_cancel)
     await DataPrices.first()
 
 

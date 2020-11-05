@@ -73,7 +73,7 @@ async def send_documents(message: types.Message):
         with open(os.path.join('db', 'document.txt'), 'r', encoding='UTF-8') as file:
             text = file.read()
     except FileNotFoundError:
-        await message.answer('Документов нет')
+        await message.answer('Документов нет', reply_markup=keyboards.key_cancel)
         return
     await message.answer(text)
 
