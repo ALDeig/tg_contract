@@ -1,5 +1,6 @@
 import os
 
+import asyncio
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -22,6 +23,7 @@ start_message = """ Отлично! Для начала надо зарегис�
 
 class Document(StatesGroup):
     text_documents = State()
+    tpl = State()
 
 
 @dp.message_handler(text='↩️Отмена', state='*')
@@ -32,10 +34,6 @@ async def cmd_start(message: types.Message, state: FSMContext):
     if not db.check_user_in(message.from_user.id, 'id_tg', 'users'):  # Если пользователя нет в базе.
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация')
         await message.answer(text=start_message, parse_mode='HTML', reply_markup=keyboard)
-    # elif not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ip') \
-    #         and not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ooo'):  # Если у пользователя нет исп
-    #     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
-    #     await message.answer('Зарегистрируйте исполнителя', reply_markup=keyboard)
     else:
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
 
@@ -46,11 +44,12 @@ async def cmd_get_analytics(message: types.Message):
     count_users = db.get_count_users()
     count_executors = db.get_count_executors()
 
-    await message.answer(f"<b>Количество пользователей:</b> {count_users}\n"
-                         f"<b>Количество исполнителей:</b> {count_executors}\n"
-                         f"<b>Количество отправленных договоров:</b> {data['contract']}\n"
-                         f"<b>Количество запросов по ИНН:</b> {data['request_inn']}\n"
-                         f"<b>Количество запросов по БИК:</b> {data['request_bik']}", parse_mode='HTML')
+    await message.answer(f"<b>Пользователей:</b> {count_users}\n"
+                         f"<b>Исполнителей:</b> {count_executors}\n"
+                         f"<b>Договоров:</b> {data['contract']}\n"
+                         f"<b>КП:</b> {data['kp']}\n"
+                         f"<b>ИНН:</b> {data['request_inn']}\n"
+                         f"<b>БИК:</b> {data['request_bik']}", parse_mode='HTML')
 
 
 @dp.message_handler(commands='document', user_id=config.ADMIN_ID)
@@ -86,3 +85,15 @@ async def create_kp(message: types.Message):
 @dp.message_handler(text='🎛 Изменить данные', state='*')
 async def change_data(message: types.Message):
     await message.answer(text='Выберите действие', reply_markup=keyboards.choice_menu)
+
+
+@dp.message_handler(text='📤 Загрузить шаблон КП', state='*')
+async def add_tpl_kp(message: types.Message, state: FSMContext):
+    await message.answer('Отправьте файл шаблона', reply_markup=keyboards.key_cancel)
+    await Document.tpl.set()
+
+
+@dp.message_handler(content_types=types.ContentTypes.DOCUMENT, state=Document.tpl)
+async def download_file(message: types.Message):
+    name_file = await message.document.download()
+    db.insert_kp_tpl(name_file.name, message.from_user.id)
