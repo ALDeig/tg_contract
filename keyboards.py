@@ -41,6 +41,7 @@ choice_type_cam_outdoor = ReplyKeyboardMarkup([
 
 menu_kp = ReplyKeyboardMarkup([
     [KeyboardButton(text='🎥 Видеонаблюдение')],
+    [KeyboardButton(text='📤 Загрузить шаблон КП')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
@@ -51,14 +52,3 @@ reviews_key = ReplyKeyboardMarkup([
 
 photo_cams = 'AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ'  # в прокте
 # photo_cams = 'AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE'  # у меня
-# photo_1 = InputFile('photo_cams.jpg')
-# photo_2 = InputFile('cylindr.png')
-# photo_3 = InputFile('compact.png')
-# album_1 = MediaGroup()
-# album_1.attach_photo("https://hi.watch/media/product/201911//0c9uvvmx.png", caption='Купольная')
-# album_1.attach_photo("https://hi.watch/media/product/201811//5gbbhkuf.png", caption='Цилиндрическая')
-# album_1.attach_photo("https://hi.watch/media/product/202001//zyjcpaj1.png", caption='Компактная')
-
-# album_2 = MediaGroup()
-# album_2.attach_photo("https://hi.watch/media/product/201911//0c9uvvmx.png", caption='Купольная')
-# album_2.attach_photo("https://hi.watch/media/product/201811//5gbbhkuf.png", caption='Цилиндрическая')

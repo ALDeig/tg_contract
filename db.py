@@ -282,6 +282,18 @@ def insert_cost(data: dict, id_tg: int):
     conn.commit()
 
 
+def insert_kp_tpl(name_tpl: str, id_tg: int):
+    cursor.execute(f"UPDATE users SET kp_tpl = '{name_tpl}' WHERE id_tg={id_tg}")
+    conn.commit()
+
+
+def get_kp_tpl(id_tg: int):
+    cursor.execute(f'SELECT kp_tpl FROM users WHERE id_tg = {id_tg}')
+    kp_tpl = cursor.fetchone()
+
+    return kp_tpl[0]
+
+
 def get_data_cost(id_tg):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
     cursor.execute(f'SELECT {columns} FROM cost_work WHERE id_tg={id_tg}')
