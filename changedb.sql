@@ -13,3 +13,4 @@ CREATE TABLE IF NOT EXISTS reviews(
     review TEXT NOT NULL
 );
 
+ALTER TABLE users ADD COLUMN kp_tpl VARCHAR(255);
