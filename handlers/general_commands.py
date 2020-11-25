@@ -88,12 +88,16 @@ async def change_data(message: types.Message):
 
 
 @dp.message_handler(text='📤 Загрузить шаблон КП', state='*')
-async def add_tpl_kp(message: types.Message, state: FSMContext):
+async def add_tpl_kp(message: types.Message):
     await message.answer('Отправьте файл шаблона', reply_markup=keyboards.key_cancel)
     await Document.tpl.set()
 
 
 @dp.message_handler(content_types=types.ContentTypes.DOCUMENT, state=Document.tpl)
-async def download_file(message: types.Message):
+async def download_file(message: types.Message, state: FSMContext):
     name_file = await message.document.download()
+    old_tpl = db.get_kp_tpl(message.from_user.id)
+    os.remove(old_tpl)
     db.insert_kp_tpl(name_file.name, message.from_user.id)
+    await state.finish()
+    await message.answer('Шаблон загружен')

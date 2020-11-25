@@ -31,6 +31,7 @@ async def start_create_contract(message: types.Message):
     if not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ip') \
             and not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ooo'):  # Если у пользователя нет исп
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
+        keyboard.add('↩️Отмена')
         await message.answer('Зарегистрируйте исполнителя', reply_markup=keyboard)
         return
     await message.answer('Введи ИНН клиента', reply_markup=keyboards.key_cancel)

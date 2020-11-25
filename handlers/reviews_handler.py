@@ -17,7 +17,7 @@ class Reviews(StatesGroup):
 async def start_reviews(message: Message, state: FSMContext):
     reviews = get_reviews()
     if len(reviews) > 3:
-        await message.answer(f'Ваши отзывы о нас:'
+        await message.answer(f'Ваши отзывы о нас:\n\n'
                              f'1. {reviews[0][0]}\n'
                              f'2. {reviews[1][0]}\n'
                              f'3. {reviews[2][0]}\n\n'
