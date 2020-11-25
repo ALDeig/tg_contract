@@ -97,7 +97,8 @@ async def add_tpl_kp(message: types.Message):
 async def download_file(message: types.Message, state: FSMContext):
     name_file = await message.document.download()
     old_tpl = db.get_kp_tpl(message.from_user.id)
-    os.remove(old_tpl)
+    if old_tpl is not None:
+        os.remove(old_tpl)
     db.insert_kp_tpl(name_file.name, message.from_user.id)
     await state.finish()
     await message.answer('Шаблон загружен')
