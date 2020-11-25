@@ -24,6 +24,8 @@ start_message = """ Отлично! Для начала надо зарегис�
 class Document(StatesGroup):
     text_documents = State()
     tpl = State()
+    del_rev = State()
+    num_rev = State()
 
 
 @dp.message_handler(text='↩️Отмена', state='*')
@@ -50,6 +52,32 @@ async def cmd_get_analytics(message: types.Message):
                          f"<b>КП:</b> {data['kp']}\n"
                          f"<b>ИНН:</b> {data['request_inn']}\n"
                          f"<b>БИК:</b> {data['request_bik']}", parse_mode='HTML')
+
+
+@dp.message_handler(commands='get_reviews', user_id=config.ADMIN_ID)
+async def send_all_reviews(message: types.Message):
+    reviews = db.get_reviews_with_id()
+    text = 'Отзывы: \n'
+    for review in reviews:
+        text += f'{review[0]}. {review[1]}\n'
+
+    await Document.del_rev.set()
+    await message.answer(text, reply_markup=keyboards.del_review)
+
+
+@dp.message_handler(text='Удалить отзыв', user_id=config.ADMIN_ID, state=Document.del_rev)
+async def del_review(message: types.Message, state: FSMContext):
+    await Document.num_rev.set()
+    await message.answer('Отправьте номер отзыва на удаление')
+
+
+@dp.message_handler(user_id=config.ADMIN_ID, state=Document.num_rev)
+async def get_num_review(message: types.Message, state: FSMContext):
+    if not message.text.isdigit():
+        await message.answer('Неверные номер')
+    db.del_review(message.text)
+    await state.finish()
+    await message.answer('Отзыв удален')
 
 
 @dp.message_handler(commands='document', user_id=config.ADMIN_ID)

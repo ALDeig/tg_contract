@@ -310,9 +310,21 @@ def get_reviews() -> list:
     return reviews
 
 
+def get_reviews_with_id():
+    cursor.execute('SELECT id, review FROM reviews')
+    reviews = cursor.fetchall()
+
+    return reviews
+
+
 def insert_reviews(text: str):
     """Запись отзыва в таблицу"""
     cursor.execute(f'INSERT INTO reviews (review) VALUES ("{text}")')
+    conn.commit()
+
+
+def del_review(num_id):
+    cursor.execute(f'DELETE FROM reviews WHERE id = {num_id}')
     conn.commit()
 
 

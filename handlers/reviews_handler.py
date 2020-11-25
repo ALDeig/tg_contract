@@ -34,7 +34,7 @@ async def start_reviews(message: Message, state: FSMContext):
         for review in reviews:
             text += f'{cnt}. {review[0]}\n'
             cnt += 1
-        await message.answer(f'{text}\nОставьте свой отзыв или пожелания')
+        await message.answer(f'{text}\nОставьте свой отзыв или пожелания', reply_markup=keyboards.key_cancel)
         await Reviews.answer.set()
 
 
@@ -42,10 +42,10 @@ async def start_reviews(message: Message, state: FSMContext):
 async def send_more_reviews(message: Message, state: FSMContext):
     data = await state.get_data()
     text = str()
-    cnt = data['cnt'] + 1
+    cnt = data['cnt']
     for review in data['reviews'][cnt:]:
         if cnt < data['cnt'] + 3:
-            text += f'{cnt}. {review[0]}\n'
+            text += f'{cnt + 1}. {review[0]}\n'
             cnt += 1
         else:
             break
@@ -54,14 +54,14 @@ async def send_more_reviews(message: Message, state: FSMContext):
         keyboard = keyboards.reviews_key
         await state.update_data(cnt=cnt)
     else:
-        keyboard = None
+        keyboard = keyboards.key_cancel
     await message.answer(f'{text}\n Оставьте свой отзыв или пожелания.', reply_markup=keyboard)
 
 
 @dp.message_handler(state=Reviews.answer)
 async def get_review(message: Message, state: FSMContext):
     await bot.send_message(chat_id=config.ADMIN_ID, text=f'Новый отзыв:\n{message.text}')
-    await message.answer('Спасибо за ваш отзыв!')
+    await message.answer('Спасибо за ваш отзыв!', reply_markup=keyboards.key_cancel)
     await state.finish()
 
 
