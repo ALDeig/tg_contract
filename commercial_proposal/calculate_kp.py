@@ -170,10 +170,10 @@ def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict
         row = [f"Модель {prices[name]['model']}\n{prices[name]['name']}",
                'шт',
                cnt,
-               f"{float(prices[name]['price']):.2f}",
-               f"{float(prices[name]['price']) * cnt:.2f}"]
-        price_categor['total'] += Decimal(prices[name]['price']) * cnt
-        price_categor['equipment'] += Decimal(prices[name]['price']) * cnt
+               f"{Decimal(prices[name]['price']).quantize(Decimal('.01'))}",
+               f"{(Decimal(prices[name]['price']) * cnt).quantize(Decimal('.01'))}"]
+        price_categor['total'] += (Decimal(prices[name]['price']) * cnt).quantize(Decimal('.01'))
+        price_categor['equipment'] += (Decimal(prices[name]['price']) * cnt).quantize(Decimal('.01'))
         result.append(row)
 
     return result, price_categor
@@ -301,6 +301,7 @@ def calculate_locker(reg):
 
 
 def calculate_result(data, id_tg):
+    c = Decimal('.01')
     price_of_categories = {'total': 0, 'equipment': 0, 'materials': 0, 'work': 0}
     type_cams = {'Купольная': 'dome_cam', 'Цилиндрическая': 'cylindrical_cam', 'Компактная': 'compact_cam'}
     result = []
@@ -323,59 +324,59 @@ def calculate_result(data, id_tg):
     locker = calculate_locker(len(reg))
     result.append(['Оборудование'])
     if data['cams_on_indoor'] != '0':
-        total_price = int(data['cams_on_indoor']) * float(prices[type_cams[data['type_cam_in_room']]]['price'])
-        price_of_categories['total'] += Decimal(total_price)
-        price_of_categories['equipment'] += Decimal(total_price)
+        total_price = (int(data['cams_on_indoor']) * Decimal(prices[type_cams[data['type_cam_in_room']]]['price'])).quantize(c)
+        price_of_categories['total'] += total_price
+        price_of_categories['equipment'] += total_price
         row = [f"Модель: {prices[type_cams[data['type_cam_in_room']]]['model']}\n"
                f"{prices[type_cams[data['type_cam_in_room']]]['name']}",
                'шт',
                data['cams_on_indoor'],
                f"{float(prices[type_cams[data['type_cam_in_room']]]['price']):.2f}",
-               f"{float(int(data['cams_on_indoor']) * float(prices[type_cams[data['type_cam_in_room']]]['price'])):.2f}"]
+               f"{total_price}"]
         result.append(row)
     if data['cams_on_street'] != '0':
-        total_price = int(data['cams_on_street']) * int(prices[type_cams[data['type_cam_on_street']]]['price'])
-        price_of_categories['total'] += Decimal(total_price)
-        price_of_categories['equipment'] += Decimal(total_price)
+        total_price = (int(data['cams_on_street']) * Decimal(prices[type_cams[data['type_cam_on_street']]]['price'])).quantize(c)
+        price_of_categories['total'] += total_price
+        price_of_categories['equipment'] += total_price
         row = [f"Модель {prices[type_cams[data['type_cam_on_street']]]['model']}\n"
                f"{prices[type_cams[data['type_cam_on_street']]]['name']}",
                'шт',
                data['cams_on_street'],
                f"{float(prices[type_cams[data['type_cam_on_street']]]['price']):.2f}",
-               f"{float(int(data['cams_on_street']) * int(prices[type_cams[data['type_cam_on_street']]]['price'])):.2f}"]
+               f"{total_price}"]
         result.append(row)
     result, price_of_categories = create_row_disk(reg, result, prices, price_of_categories)
     result, price_of_categories = create_row_disk(hdd, result, prices, price_of_categories)
     result, price_of_categories = create_row_disk(switch, result, prices, price_of_categories)
-    row = [f"Модель {prices['cable_organizer']['model']} {prices['cable_organizer']['name']}",
+    row = [f"Модель {prices['cable_organizer']['model']} - Кабельный организатор",
            'шт',
            len(switch),
            f"{Decimal(prices['cable_organizer']['price'])}",
-           f"{Decimal(prices['cable_organizer']['price']) * len(switch)}"]
-    price_of_categories['total'] += Decimal(prices['cable_organizer']['price']) * len(switch)
-    price_of_categories['equipment'] += Decimal(prices['cable_organizer']['price']) * len(switch)
+           f"{(Decimal(prices['cable_organizer']['price']) * len(switch)).quantize(c)}"]
+    price_of_categories['total'] += (Decimal(prices['cable_organizer']['price']) * len(switch)).quantize(c)
+    price_of_categories['equipment'] += (Decimal(prices['cable_organizer']['price']) * len(switch)).quantize(c)
     result.append(row)
 
     if int(data['total_cams']) <= 16:
         ibp = 'ibp_16'
     else:
         ibp = 'ibp_17'
-    row = [f"Модель {prices[ibp]['model']} {prices[ibp]['name']}",
+    row = [f"Модель {prices[ibp]['model']} {prices[ibp]['name']} - ИБП",
            'шт',
            1,
            f"{Decimal(prices[ibp]['price'])}",
-           f"{Decimal(prices[ibp]['price'])}"]
-    price_of_categories['total'] += Decimal(prices[ibp]['price'])
-    price_of_categories['equipment'] += Decimal(prices[ibp]['price'])
+           f"{Decimal(prices[ibp]['price']).quantize(c)}"]
+    price_of_categories['total'] += Decimal(prices[ibp]['price']).quantize(c)
+    price_of_categories['equipment'] += Decimal(prices[ibp]['price']).quantize(c)
     result.append(row)
 
-    row = [f"Модель {prices[locker]['model']} {prices[locker]['name']}",
+    row = [f"Модель {prices[locker]['model']} {prices[locker]['name']} - Шкаф настенный",
            'шт',
            1,
-           f"{Decimal(prices[locker]['price'])}",
-           f"{Decimal(prices[locker]['price'])}"]
-    price_of_categories['total'] += Decimal(prices[locker]['price'])
-    price_of_categories['equipment'] += Decimal(prices[locker]['price'])
+           f"{Decimal(prices[locker]['price']).quantize(c)}",
+           f"{Decimal(prices[locker]['price']).quantize(c)}"]
+    price_of_categories['total'] += Decimal(prices[locker]['price']).quantize(c)
+    price_of_categories['equipment'] += Decimal(prices[locker]['price']).quantize(c)
     result.append(row)
 
     for key, value in fasteners.items():
@@ -383,10 +384,10 @@ def calculate_result(data, id_tg):
             row = [f"Модель {prices[key]['model']} {prices[key]['name']}",
                    'шт',
                    value,
-                   f"{float(prices[key]['price']):.2f}",
-                   f"{float(prices[key]['price']) * int(value):.2f}"]
-            price_of_categories['total'] += Decimal(prices[key]['price']) * int(value)
-            price_of_categories['materials'] += Decimal(prices[key]['price']) * int(value)
+                   f"{Decimal(prices[key]['price']).quantize(c)}",
+                   f"{(Decimal(prices[key]['price']) * int(value)).quantize(c)}"]
+            price_of_categories['total'] += (Decimal(prices[key]['price']) * int(value)).quantize(c)
+            price_of_categories['materials'] += (Decimal(prices[key]['price']) * int(value)).quantize(c)
             result.append(row)
     row = ['Материалы']
     result.append(row)
@@ -394,61 +395,61 @@ def calculate_result(data, id_tg):
            'шт',
            data['total_cams'],
            f"{float(work[3]):.2f}",
-           f"{(int(data['total_cams']) * int(work[3])):.2f}"]
-    price_of_categories['total'] += int(data['total_cams']) * int(work[3])
-    price_of_categories['materials'] += int(data['total_cams']) * int(work[3])
+           f"{(int(data['total_cams']) * Decimal(work[3])).quantize(c)}"]
+    price_of_categories['total'] += (int(data['total_cams']) * Decimal(work[3])).quantize(c)
+    price_of_categories['materials'] += (int(data['total_cams']) * Decimal(work[3])).quantize(c)
     result.append(row)
-    price_cable = float(prices['cctv_cable']['price']) / 305
+    price_cable = Decimal(prices['cctv_cable']['price']) / 305
     row = [f"Модель {prices['cctv_cable']['model']} {prices['cctv_cable']['name']}",
            'м',
            cable,
            f"{float(price_cable):.2f}",
-           f"{(price_cable * float(cable)):.2f}"]
-    price_of_categories['total'] += Decimal(prices['cctv_cable']['price'])
-    price_of_categories['materials'] += Decimal(prices['cctv_cable']['price'])
+           f"{(price_cable * Decimal(cable)).quantize(c)}"]
+    price_of_categories['total'] += (price_cable * Decimal(cable)).quantize(c)
+    price_of_categories['materials'] += (price_cable * Decimal(cable)).quantize(c)
     result.append(row)
     if pipe_in != 0:
         row = [f"Модель {prices['corrugated_pipe']['model']} {prices['corrugated_pipe']['name']}",
                'м',
                pipe_in,
-               f"{float(prices['corrugated_pipe']['price']):.2f}",
-               f"{(float(prices['corrugated_pipe']['price']) * pipe_in):.2f}"]
-        price_of_categories['total'] += Decimal(prices['corrugated_pipe']['price']) * Decimal(pipe_in)
-        price_of_categories['materials'] += Decimal(prices['corrugated_pipe']['price']) * Decimal(pipe_in)
+               f"{Decimal(prices['corrugated_pipe']['price']).quantize(c)}",
+               f"{(Decimal(prices['corrugated_pipe']['price']) * pipe_in).quantize(c)}"]
+        price_of_categories['total'] += (Decimal(prices['corrugated_pipe']['price']) * pipe_in).quantize(c)
+        price_of_categories['materials'] += (Decimal(prices['corrugated_pipe']['price']) * pipe_in).quantize(c)
         result.append(row)
     if pipe_out != 0:
         row = [f"Модель {prices['corrugated_pipe_out']['model']} {prices['corrugated_pipe_out']['name']}",
                'м',
                pipe_out,
-               f"{Decimal(prices['corrugated_pipe_out']['price'])}",
-               f"{Decimal(prices['corrugated_pipe_out']['price']) * pipe_out}"]
-        price_of_categories['total'] += Decimal(prices['corrugated_pipe_out']['price']) * Decimal(pipe_out)
-        price_of_categories['materials'] += Decimal(prices['corrugated_pipe_out']['price']) * Decimal(pipe_out)
+               f"{Decimal(prices['corrugated_pipe_out']['price']).quantize(c)}",
+               f"{(Decimal(prices['corrugated_pipe_out']['price']) * pipe_out).quantize(c)}"]
+        price_of_categories['total'] += (Decimal(prices['corrugated_pipe_out']['price']) * pipe_out).quantize(c)
+        price_of_categories['materials'] += (Decimal(prices['corrugated_pipe_out']['price']) * pipe_out).quantize(c)
         result.append(row)
     result.append(['Работа и настройка оборудования'])
     row = ['Монтаж камеры',
            'шт',
            data['total_cams'],
            f"{float(work[0]):.2f}",
-           f"{(int(data['total_cams']) * float(work[0])):.2f}"]
-    price_of_categories['total'] += int(data['total_cams']) * Decimal(work[0])
-    price_of_categories['work'] += int(data['total_cams']) * Decimal(work[0])
+           f"{(int(data['total_cams']) * Decimal(work[0])).quantize(c)}"]
+    price_of_categories['total'] += (int(data['total_cams']) * Decimal(work[0])).quantize(c)
+    price_of_categories['work'] += (int(data['total_cams']) * Decimal(work[0])).quantize(c)
     result.append(row)
     row = ['Монтаж кабеля в гофрированной трубе',
            'м',
            float(work[2]) * int(data['total_cams']),
            f"{float(work[1]):.2f}",
-           f"{(float(work[2]) * int(data['total_cams']) * float(work[1])):.2f}"]
-    price_of_categories['total'] += Decimal(work[2]) * int(data['total_cams']) * Decimal(work[1])
-    price_of_categories['work'] += Decimal(work[2]) * int(data['total_cams']) * Decimal(work[1])
+           f"{(Decimal(work[2]) * int(data['total_cams']) * Decimal(work[1])).quantize(c)}"]
+    price_of_categories['total'] += (Decimal(work[2]) * int(data['total_cams']) * Decimal(work[1])).quantize(c)
+    price_of_categories['work'] += (Decimal(work[2]) * int(data['total_cams']) * Decimal(work[1])).quantize(c)
     result.append(row)
     row = ['Пуско-наладочные работы систем видеонаблюдения',
            'шт',
            data['total_cams'],
            f"{float(work[4]):.2f}",
-           f"{(int(data['total_cams']) * float(work[4])):.2f}"]
-    price_of_categories['total'] += int(data['total_cams']) * Decimal(work[4])
-    price_of_categories['work'] += int(data['total_cams']) * Decimal(work[4])
+           f"{(int(data['total_cams']) * Decimal(work[4])).quantize(c)}"]
+    price_of_categories['total'] += (int(data['total_cams']) * Decimal(work[4])).quantize(c)
+    price_of_categories['work'] += (int(data['total_cams']) * Decimal(work[4])).quantize(c)
     result.append(row)
 
     return result, price_of_categories
