@@ -1,3 +1,6 @@
+import os
+
+from docx.opc.exceptions import PackageNotFoundError
 from docxtpl import DocxTemplate, RichText
 from db import get_number_kp, get_kp_tpl
 
@@ -11,6 +14,9 @@ def gen_name_file(id_tg):
 
 def save_kp(table_data, total_price, id_tg):
     tpl_name = get_kp_tpl(id_tg)
+    if tpl_name is None:
+        tpl_name = os.path.join('documents', 'default.docx')
+
     tpl = DocxTemplate(tpl_name)
     context = {
         'price': total_price,
