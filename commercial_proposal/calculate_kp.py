@@ -369,8 +369,11 @@ def calculate_result(data, id_tg):
     price_of_categories['total'] += Decimal(prices[ibp]['price']).quantize(c)
     price_of_categories['equipment'] += Decimal(prices[ibp]['price']).quantize(c)
     result.append(row)
-
-    row = [f"Модель {prices[locker]['model']} {prices[locker]['name']} - Шкаф настенный",
+    if locker == 'locker_6':
+        name_lock = 'Шкаф напольный'
+    else:
+        name_lock = 'Шкаф настенный'
+    row = [f"Модель {prices[locker]['model']} {prices[locker]['name']} - {name_lock}",
            'шт',
            1,
            f"{Decimal(prices[locker]['price']).quantize(c)}",
