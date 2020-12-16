@@ -20,7 +20,7 @@ scheduler = AsyncIOScheduler()
 scheduler.add_job(save_prices, 'cron', day='*', hour='7', minute='00')
 
 if __name__ == '__main__':
-    # save_prices()
-    # parser.insert_information()
+    save_prices()
+    parser.insert_information()
     scheduler.start()
     executor.start_polling(dp, skip_updates=True, on_startup=set_default_commands)

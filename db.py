@@ -303,25 +303,6 @@ def insert_choice_camera(column, model, id_tg):
     conn.commit()
 
 
-# with open('data.json', 'r', encoding='utf-8') as file:
-#     result = json.load(file)
-#     data = list()
-#     for i in result.values():
-#         data.append(i)
-#
-#     print(len(data))
-#
-#
-# insert_data_of_cameras(data)
-def test():
-    cursor.execute('SELECT * FROM data_cameras')
-    res = cursor.fetchall()
-    print(res)
-    print(len(res))
-
-
-# test()
-
 def get_data_of_cameras(view_cam, purpose, ppi, brand):
     columns = ('id', 'model', 'description', 'specifications', 'price', 'image')
     columns = ', '.join(columns)
@@ -332,20 +313,10 @@ def get_data_of_cameras(view_cam, purpose, ppi, brand):
         AND purpose=?
         AND ppi=?
         AND brand=?''', (view_cam, purpose, ppi, brand))
-    # print(columns)
-    # cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam=? AND purpose=? AND ppi=? AND brand=?', (view_cam, purpose, ppi, brand))
     cameras = cursor.fetchall()
     if len(cameras) == 0:
         return False
     return cameras
-
-
-# body = 'cyl'
-# purposes = 'o'
-# ppin = '4'
-# brandn = 'hiwatch'
-# res = get_data_of_cameras(body, purposes, ppin, brandn)
-# print(res)
 
 
 def get_price_of_camera(model):
