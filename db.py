@@ -1,3 +1,4 @@
+import json
 import os
 
 import sqlite3
@@ -285,6 +286,83 @@ def insert_cost(data: dict, id_tg: int):
 def insert_kp_tpl(name_tpl: str, id_tg: int):
     cursor.execute(f"UPDATE users SET kp_tpl = '{name_tpl}' WHERE id_tg={id_tg}")
     conn.commit()
+
+
+def insert_data_of_cameras(data):
+    columns = ('model', 'description', 'specifications', 'price', 'image', 'view_cam', 'purpose', 'ppi', 'brand')
+    columns = ', '.join(columns)
+    for camera in data:
+        placeholders = ', '.join('?' * len(camera))
+        cursor.execute(f'INSERT INTO data_cameras ({columns}) VALUES ({placeholders})', camera)
+
+    conn.commit()
+
+
+def insert_choice_camera(column, model, id_tg):
+    cursor.execute(f'UPDATE users SET {column} = ? WHERE id_tg = ?', (model, id_tg))
+    conn.commit()
+
+
+# with open('data.json', 'r', encoding='utf-8') as file:
+#     result = json.load(file)
+#     data = list()
+#     for i in result.values():
+#         data.append(i)
+#
+#     print(len(data))
+#
+#
+# insert_data_of_cameras(data)
+def test():
+    cursor.execute('SELECT * FROM data_cameras')
+    res = cursor.fetchall()
+    print(res)
+    print(len(res))
+
+
+# test()
+
+def get_data_of_cameras(view_cam, purpose, ppi, brand):
+    columns = ('id', 'model', 'description', 'specifications', 'price', 'image')
+    columns = ', '.join(columns)
+    cursor.execute(
+        f'''SELECT {columns}
+        FROM data_cameras
+        WHERE view_cam=?
+        AND purpose=?
+        AND ppi=?
+        AND brand=?''', (view_cam, purpose, ppi, brand))
+    # print(columns)
+    # cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam=? AND purpose=? AND ppi=? AND brand=?', (view_cam, purpose, ppi, brand))
+    cameras = cursor.fetchall()
+    if len(cameras) == 0:
+        return False
+    return cameras
+
+
+# body = 'cyl'
+# purposes = 'o'
+# ppin = '4'
+# brandn = 'hiwatch'
+# res = get_data_of_cameras(body, purposes, ppin, brandn)
+# print(res)
+
+
+def get_price_of_camera(model):
+    columns = ('model', 'description', 'specifications', 'price')
+    columns = ', '.join(columns)
+    cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = ?', (model,))
+    result = cursor.fetchone()
+    if len(result) == 0:
+        return False
+    return result
+
+
+def get_model_camera_of_user(column, id_tg):
+    cursor.execute(f'SELECT {column} FROM users WHERE id_tg = ?', (id_tg,))
+    model = cursor.fetchone()[0]
+
+    return model
 
 
 def get_kp_tpl(id_tg: int):

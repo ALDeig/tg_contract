@@ -1,4 +1,6 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup  # MediaGroup
+from aiogram.utils.callback_data import CallbackData
+
 
 menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='📑 Договор на монтаж видеонаблюдения')],
@@ -42,7 +44,25 @@ choice_type_cam_outdoor = ReplyKeyboardMarkup([
 menu_kp = ReplyKeyboardMarkup([
     [KeyboardButton(text='🎥 Видеонаблюдение')],
     [KeyboardButton(text='📤 Загрузить шаблон КП')],
+    [KeyboardButton(text='Подбор оборудования')],
     [KeyboardButton(text='↩️Отмена')]
+], resize_keyboard=True)
+
+camera_selection_body = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Купольная')],
+    [KeyboardButton(text='Цилиндрическая')],
+    [KeyboardButton(text='Компактная')],
+    [KeyboardButton(text='↩️Отмена')]
+], resize_keyboard=True)
+
+camera_selection_execute = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Внутренняя')],
+    [KeyboardButton(text='Уличная')]
+], resize_keyboard=True)
+
+camera_selection_ppi = ReplyKeyboardMarkup([
+    [KeyboardButton(text='2mp')],
+    [KeyboardButton(text='4mp')]
 ], resize_keyboard=True)
 
 reviews_key = ReplyKeyboardMarkup([
@@ -55,5 +75,5 @@ del_review = ReplyKeyboardMarkup([
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
-photo_cams = 'AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ'  # в прокте
-# photo_cams = 'AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE'  # у меня
+# photo_cams = 'AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ'  # в прокте
+photo_cams = 'AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE'  # у меня
