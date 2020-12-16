@@ -12,7 +12,7 @@ def parse_links():
 
 
 def get_information_of_cameras():
-    with open(os.path.join('commercial_proposal', 'links_hiwatch.json'), 'r', encoding='utf-8') as file:
+    with open('links_hiwatch.json', 'r', encoding='utf-8') as file:
         links = json.load(file)
     data = ParserCameras(urls=links, brand='hiwatch')
     data = data.run()
