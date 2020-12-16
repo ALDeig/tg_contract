@@ -58,6 +58,7 @@ async def step_4(message: types.Message, state: FSMContext):
     cameras = db.get_data_of_cameras(data['body'], data['execute'], data['ppi'], 'hiwatch')
     if not cameras:
         await message.answer('Таких камер нет', reply_markup=keyboards.menu)
+        await state.finish()
         return
     await message.answer('Выберите камеру:', reply_markup=keyboards.key_cancel)
     for camera in cameras:
