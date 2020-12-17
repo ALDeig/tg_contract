@@ -23,4 +23,3 @@ def create_keyboard_2(model):
 
     keyboard.insert(button_choice)
     return keyboard
-

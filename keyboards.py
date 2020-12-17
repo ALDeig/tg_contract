@@ -44,25 +44,32 @@ choice_type_cam_outdoor = ReplyKeyboardMarkup([
 menu_kp = ReplyKeyboardMarkup([
     [KeyboardButton(text='🎥 Видеонаблюдение')],
     [KeyboardButton(text='📤 Загрузить шаблон КП')],
-    [KeyboardButton(text='Подбор оборудования')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
+menu_video = ReplyKeyboardMarkup([
+    [KeyboardButton(text='💰Создать КП')],
+    [KeyboardButton(text='⚙️Подбор оборудования')],
+    [KeyboardButton(text='↩️Отмена')]
+])
+
 camera_selection_body = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Купольная')],
-    [KeyboardButton(text='Цилиндрическая')],
-    [KeyboardButton(text='Компактная')],
+    [KeyboardButton(text='🔘 Купольная')],
+    [KeyboardButton(text='🔘 Цилиндрическая')],
+    [KeyboardButton(text='🔘 Компактная')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
 camera_selection_execute = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Внутренняя')],
-    [KeyboardButton(text='Уличная')]
+    [KeyboardButton(text='🏠 Внутренняя')],
+    [KeyboardButton(text='⛈ Уличная')],
+    [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
 camera_selection_ppi = ReplyKeyboardMarkup([
-    [KeyboardButton(text='2mp')],
-    [KeyboardButton(text='4mp')]
+    [KeyboardButton(text='2️⃣ 2mp')],
+    [KeyboardButton(text='4️⃣ 4mp')],
+    [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
 reviews_key = ReplyKeyboardMarkup([

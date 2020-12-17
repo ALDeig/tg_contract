@@ -29,6 +29,13 @@ def get_type_executor(id_tg: int):
     return type_executor[0]
 
 
+def get_users():
+    cursor.execute('SELECT id_tg FROM users')
+    users = cursor.fetchall()
+
+    return users
+
+
 def get_number_kp(id_tg):
     cursor.execute(f'SELECT number_kp FROM users WHERE id_tg={id_tg}')
     number_kp = cursor.fetchone()

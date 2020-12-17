@@ -25,7 +25,7 @@ class DataPoll(StatesGroup):
     answer_of_sale = State()
 
 
-@dp.message_handler(text='🎥 Видеонаблюдение')
+@dp.message_handler(text='💰Создать КП')
 async def start_poll(message: types.Message):
     if db.check_user_in(id_tg=message.from_user.id, column='id_tg', table='cost_work'):  # проверяет есть ли данные в базе
         await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel)
@@ -119,10 +119,10 @@ async def step_6(message: types.Message, state: FSMContext):
     file_name, number_kp = create_doc.save_kp(table_data[0], table_data[1]['total'], message.from_user.id)
 
     await state.finish()
-    await message.answer(text=f'Общая стоимость - {table_data[1]["total"]:.2f}\n'
-                              f'Стоимость оборудования - {table_data[1]["equipment"]:.2f}\n'
-                              f'Стоимость материалов - {table_data[1]["materials"]:.2f}\n'
-                              f'Стоимость работы - {table_data[1]["work"]:.2f}', reply_markup=ReplyKeyboardRemove())
+    await message.answer(text=f'Общая стоимость - {table_data[1]["total"]:.2f}₽\n'
+                              f'Стоимость оборудования - {table_data[1]["equipment"]:.2f}₽\n'
+                              f'Стоимость материалов - {table_data[1]["materials"]:.2f}₽\n'
+                              f'Стоимость работы - {table_data[1]["work"]:.2f}₽', reply_markup=ReplyKeyboardRemove())
     await message.answer('Подождите, я начал формировать КП')
     await asyncio.sleep(10)
     file = types.InputFile(file_name)

@@ -3,12 +3,14 @@ import os
 import asyncio
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.utils.exceptions import BotBlocked
 
 import analytics
 import config
 import db
-from misc import dp
+from misc import dp, bot
 import keyboards
 
 start_message = """ Отлично! Для начала надо зарегистрироваться тебе, как пользователю системы и зарегистрировать свою \
@@ -28,6 +30,14 @@ class Document(StatesGroup):
     num_rev = State()
 
 
+class CreateKP(StatesGroup):
+    start = State()
+
+
+class MessageFromUsers(StatesGroup):
+    message = State()
+
+
 @dp.message_handler(text='↩️Отмена', state='*')
 @dp.message_handler(commands=['start'], state='*')
 async def cmd_start(message: types.Message, state: FSMContext):
@@ -38,6 +48,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await message.answer(text=start_message, parse_mode='HTML', reply_markup=keyboard)
     else:
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
+        await CreateKP.start.set()
 
 
 @dp.message_handler(commands='get_analytics', user_id=config.ADMIN_ID)
@@ -105,9 +116,15 @@ async def send_documents(message: types.Message):
     await message.answer(text)
 
 
-@dp.message_handler(text='💰 Создать КП', state='*')
-async def create_kp(message: types.Message):
+@dp.message_handler(text='🎥 Видеонаблюдение')
+async def send_menu_video(message: types.Message):
+    await message.answer('Выбери действие', reply_markup=keyboards.menu_video)
+
+
+@dp.message_handler(text='💰 Создать КП')  # , state=CreateKP.start
+async def create_kp(message: types.Message, state: FSMContext):
     await message.answer(text='Выбери действие', reply_markup=keyboards.menu_kp)
+    # await state.finish()
 
 
 @dp.message_handler(text='🎛 Изменить данные', state='*')
@@ -130,3 +147,19 @@ async def download_file(message: types.Message, state: FSMContext):
     db.insert_kp_tpl(name_file.name, message.from_user.id)
     await state.finish()
     await message.answer('Шаблон загружен')
+
+
+@dp.message_handler(Command('send_message'), user_id=config.ADMIN_ID, state='*')
+async def send_message_all_users(message: types.Message):
+    await message.answer('Отправь сообщение', reply_markup=keyboards.key_cancel)
+    await MessageFromUsers.message.set()
+
+
+@dp.message_handler(user_id=config.ADMIN_ID, state=MessageFromUsers.message)
+async def send_message_all_users_2(message: types.Message, state: FSMContext):
+    users = db.get_users()
+    for user in users:
+        try:
+            await bot.send_message(chat_id=user[0], text=message.text)
+        except BotBlocked:
+            pass

@@ -12,7 +12,8 @@ async def set_default_commands(dp):
         types.BotCommand("start", "Запустить бота"),
         types.BotCommand("get_analytics", "Получить аналитику (только для администратора)"),
         types.BotCommand("document", "Изменить ответ на кнопку Документы (только для администратора)"),
-        types.BotCommand("get_reviews", "Отзывы (только для администратора)")
+        types.BotCommand("get_reviews", "Отзывы (только для администратора)"),
+        types.BotCommand("send_message", "Отправить сообщение всем пользователям")
     ])
 
 
@@ -20,7 +21,7 @@ scheduler = AsyncIOScheduler()
 scheduler.add_job(save_prices, 'cron', day='*', hour='7', minute='00')
 
 if __name__ == '__main__':
-    save_prices()
-    parser.insert_information()
-    scheduler.start()
+    # save_prices()
+    # parser.insert_information()
+    # scheduler.start()
     executor.start_polling(dp, skip_updates=True, on_startup=set_default_commands)
