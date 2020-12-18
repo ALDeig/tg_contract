@@ -12,6 +12,7 @@ import config
 import db
 from misc import dp, bot
 import keyboards
+from work_with_api import get_limit_api_inn, get_limit_api_bik
 
 start_message = """ Отлично! Для начала надо зарегистрироваться тебе, как пользователю системы и зарегистрировать свою \
 фирму исполнителя (подготовь ИНН, БИК банка и номер расчетного счёта). Эти данные я буду хранить, вводить их каждый \
@@ -74,6 +75,25 @@ async def send_all_reviews(message: types.Message):
 
     await Document.del_rev.set()
     await message.answer(text, reply_markup=keyboards.del_review)
+
+
+@dp.message_handler(Command('get_limit'), user_id=config.ADMIN_ID)
+async def send_limits(message: types.Message):
+    inn = get_limit_api_inn()
+    bik = get_limit_api_bik()
+    if not inn or not bik:
+        await message.answer('Ошибка')
+        return
+    await message.answer(f'ИНН:\n'
+                         f'Лимит: {inn[0]}\n'
+                         f'Потрачено: {inn[1]}\n'
+                         f'Осталось: {inn[2]}\n'
+                         f'Дата окончания: {inn[3]}')
+    await message.answer(f'БИК:\n'
+                         f'Лимит: {bik[0]}\n'
+                         f'Потрачено: {bik[1]}\n'
+                         f'Осталось: {bik[2]}\n'
+                         f'Дата окончания: {inn[3]}')
 
 
 @dp.message_handler(text='Удалить отзыв', user_id=config.ADMIN_ID, state=Document.del_rev)

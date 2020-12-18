@@ -19,7 +19,7 @@ def _get_data_from_api_bik(bik):
     return result
 
 
-def get_limit_api_inn() -> tuple:
+def get_limit_api_inn() -> tuple or bool:
     """Функция возвращает количество запросов, сколько заросов использовано и сколько осталось.
     По методу ИНН"""
     result = requests.get(f'https://api-fns.ru/api/stat?key={config.KEY_EGR}')
@@ -30,14 +30,15 @@ def get_limit_api_inn() -> tuple:
     try:
         limit = data_json['Методы']['egr']['Лимит']
         spend = data_json['Методы']['egr']['Истрачено']
+        expiration_date = data_json['ДатаОконч']
     except KeyError:
         return False
     left = int(limit) - int(spend)
 
-    return limit, spend, left
+    return limit, spend, left, expiration_date
 
 
-def get_limit_api_bik() -> tuple:
+def get_limit_api_bik() -> tuple or bool:
     """Функция возвращает количество запросов, сколько заросов использовано и сколько осталось.
     По методу bic"""
     result = requests.get(f'https://analizbankov.ru/api/stat?key={config.KEY_BANK_INFO}')
@@ -48,11 +49,12 @@ def get_limit_api_bik() -> tuple:
     try:
         limit = data_json['Методы']['bankbic']['Лимит']
         spend = data_json['Методы']['bankbic']['Истрачено']
+        expiration_date = data_json['ДатаОконч']
     except KeyError:
         return False
     left = int(limit) - int(spend)
 
-    return limit, spend, left
+    return limit, spend, left, expiration_date
 
 
 def parse_answer_inn(inn_erg: str):
