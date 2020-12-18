@@ -4,7 +4,7 @@ from aiogram.utils.callback_data import CallbackData
 
 menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='📑 Договор на монтаж видеонаблюдения')],
-    [KeyboardButton(text='💰 Создать КП')],
+    [KeyboardButton(text='💰 Коммерческое предложение')],
     [KeyboardButton(text='🎛 Изменить данные')],
     [KeyboardButton(text='😀 Отзывы')],
     [KeyboardButton(text='🗃 Документы')]

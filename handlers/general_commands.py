@@ -141,7 +141,7 @@ async def send_menu_video(message: types.Message):
     await message.answer('Выбери действие', reply_markup=keyboards.menu_video)
 
 
-@dp.message_handler(text='💰 Создать КП')  # , state=CreateKP.start
+@dp.message_handler(text='💰 Коммерческое предложение')  # , state=CreateKP.start
 async def create_kp(message: types.Message, state: FSMContext):
     await message.answer(text='Выбери действие', reply_markup=keyboards.menu_kp)
     # await state.finish()

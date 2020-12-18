@@ -25,7 +25,7 @@ class DataPoll(StatesGroup):
     answer_of_sale = State()
 
 
-@dp.message_handler(text='💰Создать КП')
+@dp.message_handler(text='💰 Создать КП')
 async def start_poll(message: types.Message):
     if db.check_user_in(id_tg=message.from_user.id, column='id_tg', table='cost_work'):  # проверяет есть ли данные в базе
         await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel)
