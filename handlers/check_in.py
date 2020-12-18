@@ -117,7 +117,7 @@ def get_info(table: str, id_tg: int, type_executor: str) -> str or bool:
     info = db.get_info(columns, table, id_tg, 'user_id_tg')
     if not info:
         return False
-    text = f'Имя: {info[0]}\nИНН: {info[1]}\nОГРН: {info[2]}\nАдрес: {info[3]}\n' \
+    text = f'Текущие данные:\nИмя: {info[0]}\nИНН: {info[1]}\nОГРН: {info[2]}\nАдрес: {info[3]}\n' \
            f'БИК: {info[4]}\nБанк: {info[5]}\nГарантия: {info[6]}'
     return text
 

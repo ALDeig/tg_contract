@@ -66,6 +66,7 @@ async def get_review(message: Message, state: FSMContext):
 
 
 @dp.message_handler(text='Отзыв', user_id=config.ADMIN_ID, state='*')
+@dp.message_handler(text='отзыв', user_id=config.ADMIN_ID, state='*')
 async def write_review(message: Message, state: FSMContext):
     await message.answer('Пришли отзыв!')
     await Reviews.insert.set()
