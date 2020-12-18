@@ -30,7 +30,7 @@ def calculate_registrar(total_cam: int, days_archive: int, result: list):
     return result
 
 
-def calculate_disks(regs: list, cams: int, archive: int):
+def calculate_disks(regs: list, cams: int, archive: int, ppi: int):
     """Вычисляет количество дисков и их объем. Возвращате False если архив слишком большой"""
     disks = []
     cnt = 1
@@ -43,7 +43,7 @@ def calculate_disks(regs: list, cams: int, archive: int):
                     num_cams = 16
                     cnt += 1
                     cams -= 16
-                hdd = num_cams * 42.2 * int(archive) / 1024
+                hdd = num_cams * ppi * int(archive) / 1024
                 disk_1 = '6tb'
                 disk = find_hdd(hdd - 6, [])
                 if len(disk) > 1:
@@ -179,90 +179,6 @@ def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict
     return result, price_categor
 
 
-# def create_row_reg(regs: list, result: list, prices: dict, price_categories: dict) -> tuple:
-#     """Возможно не нужна"""
-#     if len(regs) == 1:
-#         row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
-#                'шт',
-#                '1',
-#                f"{float(prices[regs[0]]['price']):.2f}",
-#                f"{float(prices[regs[0]]['price']):.2f}"]
-#         result.append(row)
-#         price_categories['total'] += float(prices[regs[0]]['price'])
-#         price_categories['equipment'] += float(prices[regs[0]]['price'])
-#     else:
-#         if regs[0] == regs[-1]:
-#             row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
-#                    'шт',
-#                    f'{len(regs)}',
-#                    f"{float(prices[regs[0]]['price']):.2f}",
-#                    f"{float(prices[regs[0]]['price']) * len(regs):.2f}"]
-#             result.append(row)
-#             price_categories['total'] += float(prices[regs[0]]['price']) * len(regs)
-#             price_categories['equipment'] += float(prices[regs[0]]['price']) * len(regs)
-#         else:
-#             row = [f"Модель {prices[regs[0]]['model']}\n{prices[regs[0]]['name']}",
-#                    'шт',
-#                    f"{len(regs) - 1}",
-#                    f"{float(prices[regs[0]]['price']):.2f}",
-#                    f"{float(prices[regs[0]]['price']) * (len(regs) - 1):.2f}"]
-#             result.append(row)
-#             price_categories['total'] += float(prices[regs[0]]['price']) * len(regs) - 1
-#             price_categories['equipment'] += float(prices[regs[0]]['price']) * len(regs) - 1
-#             row = [f"Модель {prices[regs[-1]]['model']}\n{prices[regs[-1]]['name']}",
-#                    'шт',
-#                    '1',
-#                    f"{float(prices[regs[-1]]['price']):.2f}",
-#                    f"{float(prices[regs[-1]]['price']):.2f}"]
-#             result.append(row)
-#             price_categories['total'] += float(prices[regs[-1]]['price'])
-#             price_categories['equipment'] += float(prices[regs[-1]]['price'])
-#
-#     return result, price_categories
-#
-#
-# def create_row_switch(switch: list, result: list, prices: dict, price_categories: dict):
-#     """Возможно не нужна"""
-#     if len(switch) == 1:
-#         row = [f"Модель {prices[switch[0]]['model']}\n{prices[switch[0]]['name']}",
-#                'шт',
-#                '1',
-#                f"{float(prices[switch[0]]['price']):.2f}",
-#                f"{float(prices[switch[0]]['price']):.2f}"]
-#         result.append(row)
-#         price_categories['total'] += float(prices[switch[0]]['price'])
-#         price_categories['equipment'] += float(prices[switch[0]]['price'])
-#     else:
-#         if switch[0] == switch[-1]:
-#             row = [f"Модель {prices[switch[0]]['model']}\n{prices[switch[0]]['name']}",
-#                    'шт',
-#                    f'{len(switch)}',
-#                    f"{float(prices[switch[0]]['price']):.2f}",
-#                    f"{float(prices[switch[0]]['price']) * len(switch):.2f}"]
-#             result.append(row)
-#             price_categories['total'] += float(prices[switch[0]]['price']) * len(switch)
-#             price_categories['equipment'] += float(prices[switch[0]]['price']) * len(switch)
-#         else:
-#             row = [f"Модель {prices[switch[0]]['model']}\n{prices[switch[0]]['name']}",
-#                    'шт',
-#                    f'{len(switch) - 1}',
-#                    f"{float(prices[switch[0]]['price']):.2f}",
-#                    f"{float(prices[switch[0]]['price']) * (len(switch) - 1):.2f}"]
-#             result.append(row)
-#             price_categories['total'] += float(prices[switch[0]]['price']) * len(switch) - 1
-#             price_categories['equipment'] += float(prices[switch[0]]['price']) * len(switch) - 1
-#             row = [f"Модель {prices[switch[-1]]['model']}\n{prices[switch[-1]]['name']}",
-#                    'шт',
-#                    '1',
-#                    f"{float(prices[switch[-1]]['price']):.2f}",
-#                    f"{float(prices[switch[-1]]['price']):.2f}"]
-#             result.append(row)
-#             price_categories['total'] += float(prices[switch[-1]]['price'])
-#             price_categories['equipment'] += float(prices[switch[-1]]['price'])
-#
-#     return result, price_categories
-
-
 def find_max_archive(disks, cams):
     """Вычисляет максимальный архив для данного количества камер"""
     all_memory = 0
@@ -327,7 +243,12 @@ def calculate_result(data, id_tg):
     prices = parser_prices.open_prices()
     work = db.get_data_cost(id_tg)
     reg = calculate_registrar(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), result=[])
-    hdd = calculate_disks(regs=reg, cams=int(data['total_cams']), archive=data['days_for_archive'])
+    camera = db.get_model_camera_of_user(type_cam[data['type_cam_in_room'] or data['type_cam_on_street']], id_tg)
+    if not camera or db.get_price_of_camera(camera)[4] == '2':
+        ppi = 42.2
+    else:
+        ppi = 60
+    hdd = calculate_disks(regs=reg, cams=int(data['total_cams']), archive=data['days_for_archive'], ppi=ppi)
     if not hdd:
         disks = find_disks_for_max_archive(reg, int(data['total_cams']), int(data['days_for_archive']))
         max_archive = find_max_archive(disks, data['total_cams'])

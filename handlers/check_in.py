@@ -29,6 +29,12 @@ class DataRegistrationExecutor(StatesGroup):
 @dp.message_handler(text='Регистрация', state='*')
 @dp.message_handler(text='👨‍🔧 Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
+    info = db.get_info('users', message.from_user.id, 'id_tg')
+    if info:
+        text = f'Имя: {info[1]}\n' \
+               f'Город: {info[2]}\n' \
+               f'Телефон: {info[3]}'
+        await message.answer(text)
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
 
@@ -107,10 +113,30 @@ async def reg_step_4(message: types.Message, state: FSMContext):
         await DataRegistrationUser.name.set()
 
 
+def get_info(table: str, id_tg: int, type_executor: str) -> str or bool:
+    if type_executor == 'ИП':
+        columns = ', '.join(['name_ip', 'inn', 'ogrn', 'address', 'bik', 'name_bank', 'warranty'])
+    else:
+        columns = ', '.join(['name_org', 'inn', 'ogrn', 'address', 'bik', 'name_bank', 'warranty'])
+
+    info = db.get_info(columns, table, id_tg, 'user_id_tg')
+    if not info:
+        return False
+    text = f'Имя: {info[0]}\nИНН: {info[1]}\nОГРН: {info[2]}\nАдрес: {info[3]}\n' \
+           f'БИК: {info[4]}\nБанк: {info[5]}\nГарантия: {info[6]}'
+    return text
+
+
 @dp.message_handler(text='Регистрация исполнителя', state='*')
 @dp.message_handler(text='🏢 Изменить данные исполнителя', state='*')
 # @dp.message_handler(text='Договор на монтаж видеонаблюдения', state='*')
 async def start_registration_executor(message: types.Message):
+    if message.text == '🏢 Изменить данные исполнителя':
+        type_executor = db.get_type_executor(message.from_user.id)
+        table = 'executor_ip' if type_executor == 'ИП' else 'executor_ooo'
+        info = get_info(table, message.from_user.id, type_executor)
+        if info:
+            await message.answer(info)
     await message.answer('Введи ИНН исполнителя', reply_markup=keyboards.key_cancel)
     await DataRegistrationExecutor.inn.set()
 

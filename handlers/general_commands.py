@@ -105,7 +105,7 @@ async def del_review(message: types.Message, state: FSMContext):
 @dp.message_handler(user_id=config.ADMIN_ID, state=Document.num_rev)
 async def get_num_review(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
-        await message.answer('Неверные номер')
+        await message.answer('Неверный номер')
     db.del_review(message.text)
     await state.finish()
     await message.answer('Отзыв удален')
@@ -167,6 +167,7 @@ async def download_file(message: types.Message, state: FSMContext):
     db.insert_kp_tpl(name_file.name, message.from_user.id)
     await state.finish()
     await message.answer('Шаблон загружен')
+    analytics.insert_data('template')
 
 
 @dp.message_handler(Command('send_message'), user_id=config.ADMIN_ID, state='*')

@@ -36,6 +36,15 @@ def get_users():
     return users
 
 
+def get_info(columns: str, table: str, id_tg: int, column: str):
+    cursor.execute(f'SELECT {columns} FROM {table} WHERE {column} = ?', (id_tg,))
+    info = cursor.fetchone()
+
+    return info
+print(get_info('executor_ip', 381428187, 'user_id_tg'))
+# (1, 'Денис', 'Саидв', 79873665510, 381428187, None, 3, None, 'DS-I256', 'DS-I258', None)
+# (1, '100', '100', '5', '50', '200', 381428187)
+
 def get_number_kp(id_tg):
     cursor.execute(f'SELECT number_kp FROM users WHERE id_tg={id_tg}')
     number_kp = cursor.fetchone()
@@ -327,7 +336,7 @@ def get_data_of_cameras(view_cam, purpose, ppi, brand):
 
 
 def get_price_of_camera(model):
-    columns = ('model', 'description', 'specifications', 'price')
+    columns = ('model', 'description', 'specifications', 'price', 'ppi')
     columns = ', '.join(columns)
     cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = ?', (model,))
     result = cursor.fetchone()

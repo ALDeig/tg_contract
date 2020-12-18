@@ -18,6 +18,11 @@ class DataPrices(StatesGroup):
 
 @dp.message_handler(text='⚒ Изменить стоимость работ', state='*')
 async def start_change_cost(message: types.Message):
+    columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
+    info = db.get_info(columns, 'cost_work', message.from_user.id, 'id_tg')
+    text = f'Монтаж 1 камеры: {info[0]}\nМонтаж 1 метра: {info[1]}\nКоличество метров на 1 камеру: {info[2]}\n'\
+           f'Стоимтость монтажа: {info[3]}\nСтоимость запуска: {info[4]}'
+    await message.answer(text)
     await message.answer(text='Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
                          reply_markup=keyboards.key_cancel)
     await DataPrices.first()
