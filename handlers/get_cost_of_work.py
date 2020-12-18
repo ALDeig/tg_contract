@@ -20,9 +20,13 @@ class DataPrices(StatesGroup):
 async def start_change_cost(message: types.Message):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
     info = db.get_info(columns, 'cost_work', message.from_user.id, 'id_tg')
-    text = f'Монтаж 1 камеры: {info[0]}\nМонтаж 1 метра: {info[1]}\nКоличество метров на 1 камеру: {info[2]}\n'\
-           f'Стоимтость монтажа: {info[3]}\nСтоимость запуска: {info[4]}'
-    await message.answer(text)
+    if info:
+        text = f'Монтаж 1 камеры, руб: {info[0]}\nМонтаж 1 метра, руб: {info[1]}\n' \
+               f'Количество метров на 1 камеру: {info[2]}\nСтоимтость монтажа, руб: {info[3]}\n' \
+               f'Стоимость запуска, руб: {info[4]}'
+        await message.answer(text)
+    else:
+        await message.answer('Введите данные')
     await message.answer(text='Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
                          reply_markup=keyboards.key_cancel)
     await DataPrices.first()

@@ -86,7 +86,7 @@ async def step_4(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         if data['cams_on_indoor'] == data['total_cams']:
             data['type_cam_on_street'] = None
-            await message.answer('Сколько дней хранить архив с камер видеонаблюдения?', reply_markup=keyboards.key_cancel)
+            await message.answer('Сколько дней будем хранить архив при записи 24/7?', reply_markup=keyboards.key_cancel)
             await DataPoll.days_for_archive.set()
             return
     await message.answer_photo(keyboards.photo_cams,

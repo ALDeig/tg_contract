@@ -31,8 +31,9 @@ class DataRegistrationExecutor(StatesGroup):
 async def start_registration(message: types.Message):
     info = db.get_info('name, city, phone', 'users', message.from_user.id, 'id_tg')
     if info:
-        text = f'Имя: {info[0]}\n' \
-               f'Город: {info[1]}\n' \
+        text = f'Текущие данные:\n'\
+               f'Имя: {info[0]}\n'\
+               f'Город: {info[1]}\n'\
                f'Телефон: {info[2]}'
         await message.answer(text)
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
@@ -100,13 +101,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)
 
         await state.finish()
-        # if db.check_executor_in(message.from_user.id):
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
-        # else:
-            # keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
-            # await message.answer('Введи данные исполнителя (подготовь ИНН, БИК банка и номер расчетный счёта) '
-            #                      'Нажимай кнопку "Регистрация исполнителя"',
-            #                      reply_markup=keyboard)
     else:
         await state.finish()
         await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
@@ -129,7 +124,6 @@ def get_info(table: str, id_tg: int, type_executor: str) -> str or bool:
 
 @dp.message_handler(text='Регистрация исполнителя', state='*')
 @dp.message_handler(text='🏢 Изменить данные исполнителя', state='*')
-# @dp.message_handler(text='Договор на монтаж видеонаблюдения', state='*')
 async def start_registration_executor(message: types.Message):
     if message.text == '🏢 Изменить данные исполнителя':
         type_executor = db.get_type_executor(message.from_user.id)
@@ -137,6 +131,8 @@ async def start_registration_executor(message: types.Message):
         info = get_info(table, message.from_user.id, type_executor)
         if info:
             await message.answer(info)
+        else:
+            await message.answer('Введите данные')
     await message.answer('Введи ИНН исполнителя', reply_markup=keyboards.key_cancel)
     await DataRegistrationExecutor.inn.set()
 

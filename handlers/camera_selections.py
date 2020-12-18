@@ -49,7 +49,7 @@ async def step_3(message: types.Message, state: FSMContext):
     """Ловит отет кнопки о типе камеры, уличная или внутреняя"""
     if message.text == '⛈ Уличная':
         await state.update_data(execute='o')
-    elif message.text == '🏠 Внутреняя':
+    elif message.text == '🏠 Внутренняя':
         await state.update_data(execute='r')
     else:
         await message.answer('Выберите тип камеры')
@@ -82,7 +82,7 @@ async def step_4(message: types.Message, state: FSMContext):
         photo = InputFile(os.path.join('commercial_proposal', 'images', camera[-1]))
         await message.answer_photo(
             photo=photo,
-            caption=f'{camera[1]}\nЦена: {camera[4]}',
+            caption=f'{camera[1]}\nЦена: {camera[4]}₽',
             reply_markup=keyboard)
 
 
@@ -94,7 +94,7 @@ async def step_5(call: types.CallbackQuery, callback_data: dict, state: FSMConte
     caption = f'{camera[0]}\n' \
               f'{camera[1]}\n' \
               f'{camera[2]}\n' \
-              f'Цена: {camera[3]}'
+              f'Цена: {camera[3]}₽'
     keyboard = inline_keybords.create_keyboard_2(callback_data.get('model'))
     await call.message.edit_caption(caption=caption, reply_markup=keyboard)
 
@@ -105,5 +105,5 @@ async def step_6(call: types.CallbackQuery, callback_data: dict, state: FSMConte
     data = await state.get_data()
     db.insert_choice_camera(data['body'], callback_data.get('model'), call.from_user.id)
     await call.message.edit_reply_markup()
-    await call.message.answer(f'Вы выбрали {callback_data.get("model")}', reply_markup=keyboards.menu)
+    await call.message.answer(f'Вы выбрали {callback_data.get("model")}', reply_markup=keyboards.menu_video)
     await state.finish()
