@@ -60,7 +60,7 @@ async def cmd_get_analytics(message: types.Message):
     await message.answer(f"<b>Пользователей:</b> {count_users}\n"
                          f"<b>Исполнителей:</b> {count_executors}\n"
                          f"<b>Договоров:</b> {data['contract']}\n"
-                         f"<b>Шаблоны КП</b> {data['template']}\n"
+                         f"<b>Шаблоны КП:</b> {data['template']}\n"
                          f"<b>КП:</b> {data['kp']}\n"
                          f"<b>ИНН:</b> {data['request_inn']}\n"
                          f"<b>БИК:</b> {data['request_bik']}", parse_mode='HTML')
