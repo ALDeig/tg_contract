@@ -31,14 +31,14 @@ phone_key = ReplyKeyboardMarkup([[KeyboardButton(text='Отправить сво
                                 resize_keyboard=True)
 
 choice_type_cam = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Купольная')],
-    [KeyboardButton(text='Цилиндрическая')],
-    [KeyboardButton(text='Компактная')]
+    [KeyboardButton(text='🔘 Купольная')],
+    [KeyboardButton(text='🔘 Цилиндрическая')],
+    [KeyboardButton(text='🔘 Компактная')]
 ], resize_keyboard=True)
 
 choice_type_cam_outdoor = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Купольная')],
-    [KeyboardButton(text='Цилиндрическая')]
+    [KeyboardButton(text='🔘 Купольная')],
+    [KeyboardButton(text='🔘 Цилиндрическая')]
 ], resize_keyboard=True)
 
 menu_kp = ReplyKeyboardMarkup([
@@ -48,10 +48,10 @@ menu_kp = ReplyKeyboardMarkup([
 ], resize_keyboard=True)
 
 menu_video = ReplyKeyboardMarkup([
-    [KeyboardButton(text='💰Создать КП')],
+    [KeyboardButton(text='💰 Создать КП')],
     [KeyboardButton(text='⚙️Подбор оборудования')],
     [KeyboardButton(text='↩️Отмена')]
-])
+], resize_keyboard=True)
 
 camera_selection_body = ReplyKeyboardMarkup([
     [KeyboardButton(text='🔘 Купольная')],

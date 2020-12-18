@@ -31,18 +31,20 @@ async def start_poll(message: types.Message):
         await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel)
         await DataPoll.first()
         return
-    await message.answer('Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля')
+    await message.answer('Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
+                         reply_markup=keyboards.key_cancel)
     await DataPrices.first()
 
 
 @dp.message_handler(state=DataPoll.total_numb_of_cam)
 async def step_1(message: types.Message, state: FSMContext):
     if not message.text.isdigit() or message.text == '0':
-        await message.answer('Вы не верно указали количество. Сколько камер надо установить?')
+        await message.answer('Вы не верно указали количество. Сколько камер надо установить?',
+                             reply_markup=keyboards.key_cancel)
         return
     await state.update_data(total_cams=message.text)
     await DataPoll.next()
-    await message.answer('Сколько камер будет в помещении?')
+    await message.answer('Сколько камер будет в помещении?', reply_markup=keyboards.key_cancel)
 
 
 @dp.message_handler(state=DataPoll.indoor_cameras)
@@ -103,18 +105,19 @@ async def step_5(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DataPoll.days_for_archive)
 async def step_6(message: types.Message, state: FSMContext):
     if not message.text.isdigit() or message.text == '0':
-        await message.answer('Вы не верно указали архив. Укажите число дней?')
+        await message.answer('Вы не верно указали архив. Укажите число дней?', reply_markup=keyboards.key_cancel)
         return
     await state.update_data(days_for_archive=message.text)
     data = await state.get_data()
     if int(data['total_cams']) >= 16 and int(message.text) > 18:
         await message.answer(f'Слишком большой архив для данной конфигурации. Максимально возможный архив '
-                             f'18 дн. Укажите сколько дней будем хранить архив.')
+                             f'18 дн. Укажите сколько дней будем хранить архив.', reply_markup=keyboards.key_cancel)
         return
     table_data = calculate_kp.calculate_result(data=data, id_tg=message.from_user.id)
     if not table_data[0]:
         await message.answer(f'Слишком большой архив для данной конфигурации. Максимально возможный архив '
-                             f'{table_data[1]} дн. Укажите сколько дней будем хранить архив.')
+                             f'{table_data[1]} дн. Укажите сколько дней будем хранить архив.',
+                             reply_markup=keyboards.key_cancel)
         return
     file_name, number_kp = create_doc.save_kp(table_data[0], table_data[1]['total'], message.from_user.id)
 

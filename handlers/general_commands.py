@@ -49,7 +49,6 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await message.answer(text=start_message, parse_mode='HTML', reply_markup=keyboard)
     else:
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
-        await CreateKP.start.set()
 
 
 @dp.message_handler(commands='get_analytics', user_id=config.ADMIN_ID)

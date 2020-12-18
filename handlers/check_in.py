@@ -31,9 +31,9 @@ class DataRegistrationExecutor(StatesGroup):
 async def start_registration(message: types.Message):
     info = db.get_info('name, city, phone', 'users', message.from_user.id, 'id_tg')
     if info:
-        text = f'Имя: {info[1]}\n' \
-               f'Город: {info[2]}\n' \
-               f'Телефон: {info[3]}'
+        text = f'Имя: {info[0]}\n' \
+               f'Город: {info[1]}\n' \
+               f'Телефон: {info[2]}'
         await message.answer(text)
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()

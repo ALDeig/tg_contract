@@ -237,8 +237,8 @@ def create_row_camera(id_tg, type_camera, count_camera):
 def calculate_result(data, id_tg):
     c = Decimal('.01')
     price_of_categories = {'total': 0, 'equipment': 0, 'materials': 0, 'work': 0}
-    type_cams = {'Купольная': 'dome_cam', 'Цилиндрическая': 'cylindrical_cam', 'Компактная': 'compact_cam'}
-    type_cam = {'Купольная': 'cup', 'Цилиндрическая': 'cyl', 'Компактная': 'com'}
+    type_cams = {'🔘 Купольная': 'dome_cam', '🔘 Цилиндрическая': 'cylindrical_cam', '🔘 Компактная': 'compact_cam'}
+    type_cam = {'🔘 Купольная': 'cup', '🔘 Цилиндрическая': 'cyl', '🔘 Компактная': 'com'}
     result = []
     prices = parser_prices.open_prices()
     work = db.get_data_cost(id_tg)
