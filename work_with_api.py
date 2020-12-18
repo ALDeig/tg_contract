@@ -72,9 +72,6 @@ def parse_answer_inn(inn_erg: str):
     except IndexError:
         return False
     except KeyError:
-        print(answer)
-        with open('test.json', 'w', encoding='UTF-8') as file:
-            json.dump(answer, file, indent=4, ensure_ascii=False)
         data = answer['items'][0]['ИП']
         flg = 'ИП'
         data_address = data['История']['Адрес']
@@ -100,7 +97,7 @@ def parse_answer_inn(inn_erg: str):
                   'address': address}  # data['Адрес']['АдресПолн']}
 
     return result, flg
-#'initials': data['ФИОПолн'],
+
 
 def parse_answer_bik(bik):
     """Компанует в словарь ответ от API по БИК"""

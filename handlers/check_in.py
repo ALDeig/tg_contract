@@ -29,7 +29,7 @@ class DataRegistrationExecutor(StatesGroup):
 @dp.message_handler(text='Регистрация', state='*')
 @dp.message_handler(text='👨‍🔧 Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
-    info = db.get_info('users', message.from_user.id, 'id_tg')
+    info = db.get_info('name, city, phone', 'users', message.from_user.id, 'id_tg')
     if info:
         text = f'Имя: {info[1]}\n' \
                f'Город: {info[2]}\n' \
