@@ -19,6 +19,42 @@ def _get_data_from_api_bik(bik):
     return result
 
 
+def get_limit_api_inn() -> tuple:
+    """Функция возвращает количество запросов, сколько заросов использовано и сколько осталось.
+    По методу ИНН"""
+    result = requests.get(f'https://api-fns.ru/api/stat?key={config.KEY_EGR}')
+    try:
+        data_json = result.json()
+    except json.JSONDecodeError:
+        return False
+    try:
+        limit = data_json['Методы']['egr']['Лимит']
+        spend = data_json['Методы']['egr']['Истрачено']
+    except KeyError:
+        return False
+    left = int(limit) - int(spend)
+
+    return limit, spend, left
+
+
+def get_limit_api_bik() -> tuple:
+    """Функция возвращает количество запросов, сколько заросов использовано и сколько осталось.
+    По методу bic"""
+    result = requests.get(f'https://analizbankov.ru/api/stat?key={config.KEY_BANK_INFO}')
+    try:
+        data_json = result.json()
+    except json.JSONDecodeError:
+        return False
+    try:
+        limit = data_json['Методы']['bankbic']['Лимит']
+        spend = data_json['Методы']['bankbic']['Истрачено']
+    except KeyError:
+        return False
+    left = int(limit) - int(spend)
+
+    return limit, spend, left
+
+
 def parse_answer_inn(inn_erg: str):
     """Компанует в словарь ответ от API по ИНН"""
     try:
@@ -34,6 +70,9 @@ def parse_answer_inn(inn_erg: str):
     except IndexError:
         return False
     except KeyError:
+        print(answer)
+        with open('test.json', 'w', encoding='UTF-8') as file:
+            json.dump(answer, file, indent=4, ensure_ascii=False)
         data = answer['items'][0]['ИП']
         flg = 'ИП'
         data_address = data['История']['Адрес']
