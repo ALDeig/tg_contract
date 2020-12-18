@@ -13,7 +13,8 @@ async def set_default_commands(dp):
         types.BotCommand("get_analytics", "Получить аналитику (только для администратора)"),
         types.BotCommand("document", "Изменить ответ на кнопку Документы (только для администратора)"),
         types.BotCommand("get_reviews", "Отзывы (только для администратора)"),
-        types.BotCommand("send_message", "Отправить сообщение всем пользователям")
+        types.BotCommand("send_message", "Отправить сообщение всем пользователям (только для администратора)"),
+        types.BotCommand("get_limit", "Остаток ИНН и БИК (только для администартора)")
     ])
 
 
