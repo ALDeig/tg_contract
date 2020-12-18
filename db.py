@@ -1,4 +1,3 @@
-import json
 import os
 
 import sqlite3
@@ -41,9 +40,7 @@ def get_info(columns: str, table: str, id_tg: int, column: str):
     info = cursor.fetchone()
 
     return info
-print(get_info('executor_ip', 381428187, 'user_id_tg'))
-# (1, 'Денис', 'Саидв', 79873665510, 381428187, None, 3, None, 'DS-I256', 'DS-I258', None)
-# (1, '100', '100', '5', '50', '200', 381428187)
+
 
 def get_number_kp(id_tg):
     cursor.execute(f'SELECT number_kp FROM users WHERE id_tg={id_tg}')
