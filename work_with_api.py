@@ -74,13 +74,6 @@ def parse_answer_inn(inn_erg: str):
     except KeyError:
         data = answer['items'][0]['ИП']
         flg = 'ИП'
-        data_address = data['История']['Адрес']
-        for i in data_address.keys():
-            try:
-                address = data_address[i]['АдресПолн']
-            except KeyError:
-                address = data['Адрес']['АдресПолн']
-            break
 
     if flg == 'ЮЛ':
         result = {'name_ip': data['НаимПолнЮЛ'],
@@ -94,7 +87,7 @@ def parse_answer_inn(inn_erg: str):
                   'ogrn': data['ОГРНИП'],
                   'type_ip': data['ВидИП'],
                   'code_region': data['Адрес']['КодРегион'],
-                  'address': address}  # data['Адрес']['АдресПолн']}
+                  'address': data['Адрес']['АдресПолн']}  # data['Адрес']['АдресПолн']}
 
     return result, flg
 
