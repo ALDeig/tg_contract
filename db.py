@@ -301,9 +301,17 @@ def insert_kp_tpl(name_tpl: str, id_tg: int):
     conn.commit()
 
 
-def insert_data_of_cameras(data):
-    columns = ('model', 'description', 'specifications', 'price', 'image', 'view_cam', 'purpose', 'ppi', 'brand')
-    columns = ', '.join(columns)
+def insert_data_of_cameras(data, column=None):
+    if not column:
+        columns = ('model', 'description', 'specifications', 'price', 'image', 'view_cam', 'purpose', 'ppi', 'brand')
+        columns = ', '.join(columns)
+    else:
+        columns = ', '.join(column)
+    cursor.executescript("""
+    DELETE FROM data_cameras;
+    REINDEX data_cameras;
+    VACUUM;
+    """)
     for camera in data:
         placeholders = ', '.join('?' * len(camera))
         cursor.execute(f'INSERT INTO data_cameras ({columns}) VALUES ({placeholders})', camera)
@@ -311,8 +319,36 @@ def insert_data_of_cameras(data):
     conn.commit()
 
 
-def insert_choice_camera(column, model, id_tg):
-    cursor.execute(f'UPDATE users SET {column} = ? WHERE id_tg = ?', (model, id_tg))
+def get_camera_types(column: str, filters: dict = None) -> set:
+    """Получает данные по колонке из базы данных с фильтрами"""
+    if not filters:
+        request = f'SELECT {column} FROM data_cameras'
+        cursor.execute(request)
+    else:
+        cols = []
+        for key in filters.keys():
+            cols.append(f'{key}=?')
+        value = ' AND '.join(cols)
+        request = f'SELECT {column} FROM data_cameras WHERE {value}'
+        cursor.execute(request, list(filters.values()))
+
+    cams = cursor.fetchall()
+
+    return set(i[0] for i in cams)
+
+
+def insert_choice_camera(view_cam, purpose, model, id_tg):
+    cursor.execute(f'SELECT model FROM choice_cams '
+                   f'WHERE id_tg = ? AND view_cam = ? '
+                   f'AND purpose = ?', (id_tg, view_cam, purpose))
+    old_choice = cursor.fetchone()
+    print(old_choice)
+    exit()
+    if not old_choice:
+        cursor.execute(f'INSERT INTO choice_cam (id_tg, view_cam, purpose) VALUES (?, ?, ?)', (id_tg, view_cam, purpose))
+    else:
+        cursor.execute(f'UPDATE choice_cam SET model = ? WHERE id_tg = ?'
+                       f'AND view_cam = ? AND purpose = ?', (model, id_tg, view_cam, purpose))
     conn.commit()
 
 
@@ -332,19 +368,26 @@ def get_data_of_cameras(view_cam, purpose, ppi, brand):
     return cameras
 
 
-def get_price_of_camera(model):
+def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
     columns = ('model', 'description', 'specifications', 'price', 'ppi')
     columns = ', '.join(columns)
-    cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = ?', (model,))
+    if model:
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = ?', (model,))
+    else:
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam = ? AND purpose = ? AND ppi = ?',
+                       (view_cam, purpose, ppi))
     result = cursor.fetchone()
-    if len(result) == 0:
+    if not result:
         return False
     return result
 
 
-def get_model_camera_of_user(column, id_tg):
-    cursor.execute(f'SELECT {column} FROM users WHERE id_tg = ?', (id_tg,))
-    model = cursor.fetchone()[0]
+def get_model_camera_of_user(view_cam, purpose, id_tg):
+    cursor.execute(f'SELECT model FROM choice_cams WHERE view_cam = ? AND purpose = ? AND id_tg = ?',
+                   (view_cam, purpose, id_tg))
+    model = cursor.fetchone()
+    if not model:
+        return False
 
     return model
 

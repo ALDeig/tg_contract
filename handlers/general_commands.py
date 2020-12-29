@@ -10,6 +10,7 @@ from aiogram.utils.exceptions import BotBlocked
 import analytics
 import config
 import db
+from commercial_proposal.gsheets import sheets
 from misc import dp, bot
 import keyboards
 from work_with_api import get_limit_api_inn, get_limit_api_bik
@@ -185,3 +186,12 @@ async def send_message_all_users_2(message: types.Message, state: FSMContext):
         except BotBlocked:
             pass
     await state.finish()
+
+
+@dp.message_handler(Command('save_cameras'), user_id=config.ADMIN_ID)
+async def save_info(message: types.Message):
+    data = sheets.get_info_of_cameras()
+    columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'trade_price', 'view_cam',
+               'purpose', 'ppi', 'specifications', 'description', 'image')
+    db.insert_data_of_cameras(data=data, column=columns)
+    await message.answer('Готово')

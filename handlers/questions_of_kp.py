@@ -63,20 +63,20 @@ async def step_2(message: types.Message, state: FSMContext):
         await message.answer('Все камеры будут для помещения')
         await message.answer_photo(keyboards.photo_cams,
                                    caption='Какой тип камер будет установлен в помещении? Выбери варинат.',
-                                   reply_markup=keyboards.choice_type_cam)
+                                   reply_markup=keyboards.create_keyboard_kp('view_cam', {'purpose': 'Внутренняя'})[0])
         await DataPoll.type_cams_in_room.set()
     elif message.text == '0':
         await message.answer('Все камеры будут уличные')
         await state.update_data(type_cam_in_room=None)
         await message.answer_photo(keyboards.photo_cams,
                                    caption='Какой тип камер будет установлен на улице?',
-                                   reply_markup=keyboards.choice_type_cam_outdoor)
+                                   reply_markup=keyboards.create_keyboard_kp('view_cam', {'purpose': 'Уличная'})[0])
         await DataPoll.type_cams_on_street.set()
     else:
         await message.answer(f'В помещении - {message.text}, значит на улице будет {int(total_cams) - int(message.text)}')
         await message.answer_photo(keyboards.photo_cams,
                                    caption='Какой тип камер будет установлен в помещении? Выбери варинат.',
-                                   reply_markup=keyboards.choice_type_cam)
+                                   reply_markup=keyboards.create_keyboard_kp('view_cam', {'purpose': 'Внутренняя'})[0])
         await DataPoll.type_cams_in_room.set()
 
 
@@ -92,7 +92,7 @@ async def step_4(message: types.Message, state: FSMContext):
             return
     await message.answer_photo(keyboards.photo_cams,
                                caption='Какой тип камер будет установлен на улице?',
-                               reply_markup=keyboards.choice_type_cam_outdoor)
+                               reply_markup=keyboards.create_keyboard_kp('view_cam', {'purpose': 'Уличная'})[0])
     await DataPoll.next()
 
 
@@ -136,6 +136,3 @@ async def step_6(message: types.Message, state: FSMContext):
     db.write_number_kp(message.from_user.id, number_kp=int(number_kp) + 1)
     await asyncio.sleep(5)
     os.remove(file_name)
-
-# "AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE" - у меня
-# AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ - в проекте

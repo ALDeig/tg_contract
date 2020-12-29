@@ -6,10 +6,15 @@ CREATE TABLE users(
     id_tg INTEGER,
     type_executor VARCHAR(100),
     number_kp INTEGER,
-    kp_tpl VARCHAR(255),
-    cyl TEXT,
-    cup TEXT,
-    com TEXT
+    kp_tpl VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS choice_cams(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_tg INTEGER,
+    view_cam TEXT,
+    purpose TEXT,
+    model TEXT
 );
 
 CREATE TABLE executor_ooo(
@@ -66,13 +71,18 @@ CREATE TABLE IF NOT EXISTS reviews(
 
 CREATE TABLE IF NOT EXISTS data_cameras(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    model TEXT,
-    description TEXT,
+    country VARCHAR(50),
+    currency TEXT,
+    provider VARCHAR(100),
+    brand VARCHAR(100),
+    type_cam VARCHAR(20),
+    model VARCHAR(50),
+    price VARCHAR(50),
+    trade_price TEXT,
+    view_cam VARCHAR(50),
+    purpose VARCHAR(50),
+    ppi VARCHAR(50),
     specifications TEXT,
-    price TEXT,
-    image TEXT,
-    view_cam TEXT,
-    purpose TEXT,
-    ppi TEXT,
-    brand TEXT
+    description TEXT,
+    image VARCHAR(50)
 );

@@ -1,6 +1,7 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup  # MediaGroup
 from aiogram.utils.callback_data import CallbackData
 
+import db
 
 menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='📑 Договор на монтаж видеонаблюдения')],
@@ -81,6 +82,19 @@ del_review = ReplyKeyboardMarkup([
     [KeyboardButton(text='Удалить отзыв')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
+
+
+def create_keyboard_kp(column, filters=None):
+    buttons = db.get_camera_types(column, filters)
+    if not buttons:
+        return False
+    keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    for button in buttons:
+        keyboard.add(KeyboardButton(text='🔘 ' + button if column == 'view_cam' else button))
+    keyboard.add(KeyboardButton(text='↩️Отмена'))
+
+    return keyboard, buttons
+
 
 # photo_cams = 'AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ'  # в прокте
 photo_cams = 'AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE'  # у меня

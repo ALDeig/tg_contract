@@ -216,11 +216,14 @@ def calculate_locker(reg):
     return locker
 
 
-def create_row_camera(id_tg, type_camera, count_camera):
-    camera = db.get_model_camera_of_user(type_camera, id_tg)
+def create_row_camera(id_tg, type_camera, count_camera, purpose):
+    camera = db.get_model_camera_of_user(type_camera, purpose, id_tg)
+    print(camera)
     if not camera:
-        return False
-    details_camera = db.get_price_of_camera(camera)
+        details_camera = db.get_price_of_camera(view_cam=type_camera, purpose=purpose, ppi=2)
+    else:
+        details_camera = db.get_price_of_camera(camera)
+    print(details_camera)
     total_price = (Decimal(details_camera[3]) * count_camera).quantize(Decimal('.01'))
     row = [
         f'Модель: {details_camera[0]}\n'
@@ -243,7 +246,11 @@ def calculate_result(data, id_tg):
     prices = parser_prices.open_prices()
     work = db.get_data_cost(id_tg)
     reg = calculate_registrar(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), result=[])
-    camera = db.get_model_camera_of_user(type_cam[data['type_cam_in_room'] or data['type_cam_on_street']], id_tg)
+    camera = db.get_model_camera_of_user(
+        data['type_cam_in_room'][2:] or data['type_cam_on_street'][2:],
+        'Уличная' if data['cams_on_street'] != '0' else 'Внутреняя',
+        id_tg
+    )
     if not camera or db.get_price_of_camera(camera)[4] == '2':
         ppi = 42.2
     else:
@@ -264,41 +271,41 @@ def calculate_result(data, id_tg):
     locker = calculate_locker(len(reg))
     result.append(['Оборудование'])
     if data['cams_on_indoor'] != '0':
-        row_cam = create_row_camera(id_tg, type_cam[data['type_cam_in_room']], int(data['cams_on_indoor']))
-        if not row_cam:
-            total_price = (int(data['cams_on_indoor']) * Decimal(
-                prices[type_cams[data['type_cam_in_room']]]['price'])).quantize(c)
-            price_of_categories['total'] += total_price
-            price_of_categories['equipment'] += total_price
-            row = [f"Модель: {prices[type_cams[data['type_cam_in_room']]]['model']}\n"
-                   f"{prices[type_cams[data['type_cam_in_room']]]['name']}",
-                   'шт',
-                   data['cams_on_indoor'],
-                   f"{float(prices[type_cams[data['type_cam_in_room']]]['price']):.2f}",
-                   f"{total_price}"]
-            result.append(row)
-        else:
-            result.append(row_cam[0])
-            price_of_categories['total'] += row_cam[1]
-            price_of_categories['equipment'] += row_cam[1]
+        row_cam = create_row_camera(id_tg, data['type_cam_in_room'][2:], int(data['cams_on_indoor']), 'Внутренняя')
+        # if not row_cam:
+        #     total_price = (int(data['cams_on_indoor']) * Decimal(
+        #         prices[type_cams[data['type_cam_in_room']]]['price'])).quantize(c)
+        #     price_of_categories['total'] += total_price
+        #     price_of_categories['equipment'] += total_price
+        #     row = [f"Модель: {prices[type_cams[data['type_cam_in_room']]]['model']}\n"
+        #            f"{prices[type_cams[data['type_cam_in_room']]]['name']}",
+        #            'шт',
+        #            data['cams_on_indoor'],
+        #            f"{float(prices[type_cams[data['type_cam_in_room']]]['price']):.2f}",
+        #            f"{total_price}"]
+        #     result.append(row)
+        # else:
+        result.append(row_cam[0])
+        price_of_categories['total'] += row_cam[1]
+        price_of_categories['equipment'] += row_cam[1]
     if data['cams_on_street'] != '0':
-        row_cam = create_row_camera(id_tg, type_cam[data['type_cam_on_street']], int(data['cams_on_street']))
-        if not row_cam:
-            total_price = (int(data['cams_on_street']) * Decimal(
-                prices[type_cams[data['type_cam_on_street']]]['price'])).quantize(c)
-            price_of_categories['total'] += total_price
-            price_of_categories['equipment'] += total_price
-            row = [f"Модель {prices[type_cams[data['type_cam_on_street']]]['model']}\n"
-                   f"{prices[type_cams[data['type_cam_on_street']]]['name']}",
-                   'шт',
-                   data['cams_on_street'],
-                   f"{float(prices[type_cams[data['type_cam_on_street']]]['price']):.2f}",
-                   f"{total_price}"]
-            result.append(row)
-        else:
-            result.append(row_cam[0])
-            price_of_categories['total'] += row_cam[1]
-            price_of_categories['equipment'] += row_cam[1]
+        row_cam = create_row_camera(id_tg, data['type_cam_on_street'][2:], int(data['cams_on_street']), 'Уличная')
+        # if not row_cam:
+        #     total_price = (int(data['cams_on_street']) * Decimal(
+        #         prices[type_cams[data['type_cam_on_street']]]['price'])).quantize(c)
+        #     price_of_categories['total'] += total_price
+        #     price_of_categories['equipment'] += total_price
+        #     row = [f"Модель {prices[type_cams[data['type_cam_on_street']]]['model']}\n"
+        #            f"{prices[type_cams[data['type_cam_on_street']]]['name']}",
+        #            'шт',
+        #            data['cams_on_street'],
+        #            f"{float(prices[type_cams[data['type_cam_on_street']]]['price']):.2f}",
+        #            f"{total_price}"]
+        #     result.append(row)
+        # else:
+        result.append(row_cam[0])
+        price_of_categories['total'] += row_cam[1]
+        price_of_categories['equipment'] += row_cam[1]
     result, price_of_categories = create_row_disk(reg, result, prices, price_of_categories)
     result, price_of_categories = create_row_disk(hdd, result, prices, price_of_categories)
     result, price_of_categories = create_row_disk(switch, result, prices, price_of_categories)
