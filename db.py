@@ -345,8 +345,11 @@ def insert_choice_camera(view_cam, purpose, model, id_tg):
     # print(old_choice)
     # exit()
     if not old_choice:
-        cursor.execute(f'INSERT INTO choice_cams (id_tg, view_cam, purpose) VALUES (?, ?, ?)', (id_tg, view_cam, purpose))
+        # print(old_choice)
+        cursor.execute(f'INSERT INTO choice_cams (id_tg, view_cam, purpose, model) VALUES (?, ?, ?, ?)',
+                       (id_tg, view_cam, purpose, model))
     else:
+        # print('else')
         cursor.execute(f'UPDATE choice_cams SET model = ? WHERE id_tg = ?'
                        f'AND view_cam = ? AND purpose = ?', (model, id_tg, view_cam, purpose))
     conn.commit()
@@ -377,6 +380,7 @@ def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
         cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam = ? AND purpose = ? AND ppi = ?',
                        (view_cam, purpose, ppi))
     result = cursor.fetchone()
+    # print(f'get_price_of_camera - {result}')
     if not result:
         return False
     return result
@@ -386,9 +390,9 @@ def get_model_camera_of_user(view_cam, purpose, id_tg):
     cursor.execute(f'SELECT model FROM choice_cams WHERE view_cam = ? AND purpose = ? AND id_tg = ?',
                    (view_cam, purpose, id_tg))
     model = cursor.fetchone()
-    if not model:
-        return False
-
+    # if not model:
+    #     return False
+    # print(f'get_model_camera_of_user - {model}')
     return model
 
 

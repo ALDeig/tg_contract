@@ -218,12 +218,12 @@ def calculate_locker(reg):
 
 def create_row_camera(id_tg, type_camera, count_camera, purpose):
     camera = db.get_model_camera_of_user(type_camera, purpose, id_tg)
-    print(camera)
+    # print(camera)
     if not camera:
         details_camera = db.get_price_of_camera(view_cam=type_camera, purpose=purpose, ppi=2)
     else:
-        details_camera = db.get_price_of_camera(camera)
-    print(details_camera)
+        details_camera = db.get_price_of_camera(camera[0])
+    # print(details_camera)
     total_price = (Decimal(details_camera[3]) * count_camera).quantize(Decimal('.01'))
     row = [
         f'Модель: {details_camera[0]}\n'
@@ -247,11 +247,12 @@ def calculate_result(data, id_tg):
     work = db.get_data_cost(id_tg)
     reg = calculate_registrar(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), result=[])
     camera = db.get_model_camera_of_user(
-        data['type_cam_in_room'][2:] or data['type_cam_on_street'][2:],
+        data['type_cam_in_room'][2:] if data['type_cam_in_room'] else data['type_cam_on_street'][2:],
         'Уличная' if data['cams_on_street'] != '0' else 'Внутреняя',
         id_tg
     )
-    if not camera or db.get_price_of_camera(camera)[4] == '2':
+    # print(camera)
+    if not camera or db.get_price_of_camera(camera[0])[4] == '2':
         ppi = 42.2
     else:
         ppi = 60
