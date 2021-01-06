@@ -342,12 +342,12 @@ def insert_choice_camera(view_cam, purpose, model, id_tg):
                    f'WHERE id_tg = ? AND view_cam = ? '
                    f'AND purpose = ?', (id_tg, view_cam, purpose))
     old_choice = cursor.fetchone()
-    print(old_choice)
-    exit()
+    # print(old_choice)
+    # exit()
     if not old_choice:
-        cursor.execute(f'INSERT INTO choice_cam (id_tg, view_cam, purpose) VALUES (?, ?, ?)', (id_tg, view_cam, purpose))
+        cursor.execute(f'INSERT INTO choice_cams (id_tg, view_cam, purpose) VALUES (?, ?, ?)', (id_tg, view_cam, purpose))
     else:
-        cursor.execute(f'UPDATE choice_cam SET model = ? WHERE id_tg = ?'
+        cursor.execute(f'UPDATE choice_cams SET model = ? WHERE id_tg = ?'
                        f'AND view_cam = ? AND purpose = ?', (model, id_tg, view_cam, purpose))
     conn.commit()
 
