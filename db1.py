@@ -1,37 +1,11 @@
 import os
 
+import sqlite3
+
 from num2words import num2words
-import psycopg2
 
-import config
-
-conn = psycopg2.connect(
-    database=config.DATABASE,
-    user=config.USER,
-    password=config.PASSWORD,
-    host=config.HOST,
-    port=config.PORT
-)
+conn = sqlite3.connect(os.path.join("db", "users.db"))
 cursor = conn.cursor()
-print('Database opened succsefully')
-
-
-# def test():
-#     curs = con.cursor()
-#     curs.execute('SELECT * FROM users')
-#     res = curs.fetchall()
-#
-#     print(res)
-#     curs.close()
-#
-#
-# test()
-
-# import sqlite3
-
-
-# conn = sqlite3.connect(os.path.join("db", "users.db"))
-# cursor = conn.cursor()
 
 
 def choice_of_ending(number: str) -> str:
@@ -62,7 +36,7 @@ def get_users():
 
 
 def get_info(columns: str, table: str, id_tg: int, column: str):
-    cursor.execute(f'SELECT {columns} FROM {table} WHERE {column} = %s', (id_tg,))
+    cursor.execute(f'SELECT {columns} FROM {table} WHERE {column} = ?', (id_tg,))
     info = cursor.fetchone()
 
     return info
@@ -114,9 +88,9 @@ def create_data_to_db(data: dict):
 
 def insert(table: str, columns: list, data: dict):
     columns = ', '.join(columns)
-    values = tuple(data.values())
-    placeholders = ", ".join(["%s"] * len(data.keys()))
-    cursor.execute(
+    values = [tuple(data.values())]
+    placeholders = ", ".join("?" * len(data.keys()))
+    cursor.executemany(
         f"INSERT INTO {table} "
         f"({columns}) "
         f"VALUES ({placeholders})",
@@ -314,7 +288,7 @@ def insert_cost(data: dict, id_tg: int):
     data.update({'id_tg': id_tg})
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost', 'id_tg'])
     values = [tuple(data.values())]
-    placeholders = ", ".join(["%s"] * len(data.keys()))
+    placeholders = ", ".join("?" * len(data.keys()))
     cursor.executemany(
         f'INSERT INTO cost_work '
         f'({columns}) '
@@ -333,13 +307,13 @@ def insert_data_of_cameras(data, column=None):
         columns = ', '.join(columns)
     else:
         columns = ', '.join(column)
-    cursor.execute('TRUNCATE data_cameras')
-    conn.commit()
+    cursor.executescript("""
+    DELETE FROM data_cameras;
+    REINDEX data_cameras;
+    VACUUM;
+    """)
     for camera in data:
-        placeholders = ', '.join(['%s'] * len(camera))
-        print(columns)
-        print(camera)
-        print(placeholders)
+        placeholders = ', '.join('?' * len(camera))
         cursor.execute(f'INSERT INTO data_cameras ({columns}) VALUES ({placeholders})', camera)
 
     conn.commit()
@@ -353,7 +327,7 @@ def get_camera_types(column: str, filters: dict = None) -> set:
     else:
         cols = []
         for key in filters.keys():
-            cols.append(f'{key}=%s')
+            cols.append(f'{key}=?')
         value = ' AND '.join(cols)
         request = f'SELECT {column} FROM data_cameras WHERE {value}'
         cursor.execute(request, list(filters.values()))
@@ -365,19 +339,19 @@ def get_camera_types(column: str, filters: dict = None) -> set:
 
 def insert_choice_camera(view_cam, purpose, model, id_tg):
     cursor.execute(f'SELECT model FROM choice_cams '
-                   f'WHERE id_tg = %s AND view_cam = %s '
-                   f'AND purpose = %s', (id_tg, view_cam, purpose))
+                   f'WHERE id_tg = ? AND view_cam = ? '
+                   f'AND purpose = ?', (id_tg, view_cam, purpose))
     old_choice = cursor.fetchone()
     # print(old_choice)
     # exit()
     if not old_choice:
         # print(old_choice)
-        cursor.execute(f'INSERT INTO choice_cams (id_tg, view_cam, purpose, model) VALUES (%s, %s, %s, %s)',
+        cursor.execute(f'INSERT INTO choice_cams (id_tg, view_cam, purpose, model) VALUES (?, ?, ?, ?)',
                        (id_tg, view_cam, purpose, model))
     else:
         # print('else')
-        cursor.execute(f'UPDATE choice_cams SET model = %s WHERE id_tg = %s'
-                       f'AND view_cam = %s AND purpose = %s', (model, id_tg, view_cam, purpose))
+        cursor.execute(f'UPDATE choice_cams SET model = ? WHERE id_tg = ?'
+                       f'AND view_cam = ? AND purpose = ?', (model, id_tg, view_cam, purpose))
     conn.commit()
 
 
@@ -387,10 +361,10 @@ def get_data_of_cameras(view_cam, purpose, ppi, brand):
     cursor.execute(
         f'''SELECT {columns}
         FROM data_cameras
-        WHERE view_cam=%s
-        AND purpose=%s
-        AND ppi=%s
-        AND brand=%s''', (view_cam, purpose, ppi, brand))
+        WHERE view_cam=?
+        AND purpose=?
+        AND ppi=?
+        AND brand=?''', (view_cam, purpose, ppi, brand))
     cameras = cursor.fetchall()
     if len(cameras) == 0:
         return False
@@ -401,9 +375,9 @@ def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
     columns = ('model', 'description', 'specifications', 'price', 'ppi')
     columns = ', '.join(columns)
     if model:
-        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = %s', (model,))
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = ?', (model,))
     else:
-        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam = %s AND purpose = %s AND ppi = %s',
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam = ? AND purpose = ? AND ppi = ?',
                        (view_cam, purpose, ppi))
     result = cursor.fetchone()
     # print(f'get_price_of_camera - {result}')
@@ -413,7 +387,7 @@ def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
 
 
 def get_model_camera_of_user(view_cam, purpose, id_tg):
-    cursor.execute(f'SELECT model FROM choice_cams WHERE view_cam = %s AND purpose = %s AND id_tg = %s',
+    cursor.execute(f'SELECT model FROM choice_cams WHERE view_cam = ? AND purpose = ? AND id_tg = ?',
                    (view_cam, purpose, id_tg))
     model = cursor.fetchone()
     # if not model:
@@ -467,30 +441,30 @@ def get_cursor():
     return cursor
 
 
-# def _init_db():
-#     """Инициализирует БД"""
-#     with open("createdb.sql", "r") as f:
-#         sql = f.read()
-#     cursor.executescript(sql)
-#     conn.commit()
+def _init_db():
+    """Инициализирует БД"""
+    with open("createdb.sql", "r") as f:
+        sql = f.read()
+    cursor.executescript(sql)
+    conn.commit()
 
 
-# def check_db_exists():
-#     """Проверяет, инициализирована ли БД, если нет — инициализирует"""
-#     cursor.execute("SELECT name FROM sqlite_master "
-#                    "WHERE type='table' AND name='users'")
-#     table_exists = cursor.fetchall()
-#     if table_exists:
-#         return
-#     _init_db()
+def check_db_exists():
+    """Проверяет, инициализирована ли БД, если нет — инициализирует"""
+    cursor.execute("SELECT name FROM sqlite_master "
+                   "WHERE type='table' AND name='users'")
+    table_exists = cursor.fetchall()
+    if table_exists:
+        return
+    _init_db()
 
 
 def apply_script():
     """Вспомогательная функция для добавления изменений в базу данных. Вызывается из терминала"""
-    with open('createdb_psdb.sql', 'r', encoding='UTF-8') as file:
-        cursor.execute(file.read())
+    with open('changedb.sql', 'r', encoding='UTF-8') as file:
+        cursor.executescript(file.read())
     conn.commit()
     conn.close()
 
 
-# check_db_exists()
+check_db_exists()
