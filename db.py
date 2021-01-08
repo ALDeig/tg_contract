@@ -7,7 +7,7 @@ import config
 
 conn = psycopg2.connect(
     database=config.DATABASE,
-    user=config.USER,
+    user=config.USER_DB,
     password=config.PASSWORD,
     host=config.HOST,
     port=config.PORT
@@ -337,9 +337,6 @@ def insert_data_of_cameras(data, column=None):
     conn.commit()
     for camera in data:
         placeholders = ', '.join(['%s'] * len(camera))
-        print(columns)
-        print(camera)
-        print(placeholders)
         cursor.execute(f'INSERT INTO data_cameras ({columns}) VALUES ({placeholders})', camera)
 
     conn.commit()
