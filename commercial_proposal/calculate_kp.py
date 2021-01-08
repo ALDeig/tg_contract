@@ -220,7 +220,7 @@ def create_row_camera(id_tg, type_camera, count_camera, purpose):
     camera = db.get_model_camera_of_user(type_camera, purpose, id_tg)
     # print(camera)
     if not camera:
-        details_camera = db.get_price_of_camera(view_cam=type_camera, purpose=purpose, ppi=2)
+        details_camera = db.get_price_of_camera(view_cam=type_camera, purpose=purpose, ppi='2')
     else:
         details_camera = db.get_price_of_camera(camera[0])
     # print(details_camera)

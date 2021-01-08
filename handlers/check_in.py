@@ -58,7 +58,7 @@ async def reg_step_2(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DataRegistrationUser.phone, content_types=types.ContentTypes.CONTACT)
 async def reg_step_3(message: types.Message, state: FSMContext):
     phone = message.contact.phone_number
-    await state.update_data(phone=phone)
+    await state.update_data(phone=phone.replace('+', ''))
     user_data = await state.get_data()
     await DataRegistrationUser.next()
     await message.answer(f"Проверь данные:\n"
