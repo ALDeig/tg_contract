@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import config
 from db import get_reviews, insert_reviews
 from misc import dp, bot
-import keyboards
+from keyboards import keyboards
 
 
 class Reviews(StatesGroup):

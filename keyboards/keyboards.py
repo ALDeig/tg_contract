@@ -84,8 +84,8 @@ del_review = ReplyKeyboardMarkup([
 ], resize_keyboard=True)
 
 
-def create_keyboard_kp(column, filters=None):
-    buttons = db.get_camera_types(column, filters)
+def create_keyboard_kp(column, table, filters=None):
+    buttons = db.get_equipments_types(column, table, filters)
     if not buttons:
         return False
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)

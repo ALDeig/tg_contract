@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import analytics
 from misc import dp
 import db
-import keyboards
+from keyboards import keyboards
 import work_with_api
 
 

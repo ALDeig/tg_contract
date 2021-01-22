@@ -1,6 +1,5 @@
 import os
 
-import asyncio
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
@@ -12,7 +11,7 @@ import config
 import db
 from commercial_proposal.gsheets import sheets
 from misc import dp, bot
-import keyboards
+from keyboards import keyboards
 from work_with_api import get_limit_api_inn, get_limit_api_bik
 
 start_message = """ Отлично! Для начала надо зарегистрироваться тебе, как пользователю системы и зарегистрировать свою \
@@ -188,10 +187,35 @@ async def send_message_all_users_2(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-@dp.message_handler(Command('save_cameras'), user_id=config.ADMIN_ID)
-async def save_info(message: types.Message):
-    data = sheets.get_info_of_cameras()
+def save_data():
+    camera = sheets.get_info(0, 'camera', 13)
     columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'trade_price', 'view_cam',
                'purpose', 'ppi', 'specifications', 'description', 'image')
-    db.insert_data_of_cameras(data=data, column=columns)
+    db.insert_data_of_equipments(data=camera, column=columns, table='data_cameras')
+    recorder = sheets.get_info(1, 'recorder', 14)
+    columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'trade_price', 'ppi',
+               'number_channels', 'number_hdd', 'number_poe', 'specifications', 'description', 'image')
+    db.insert_data_of_equipments(data=recorder, column=columns, table='DataRecorder')
+    hdd = sheets.get_info(2, 'hdd')
+    columns = ('country', 'currency', 'provider', 'brand', 'memory_size', 'model', 'price', 'trade_price', 'serial',
+               'type_hdd', 'interface', 'description', 'image')
+    db.insert_data_of_equipments(data=hdd, column=columns, table='DataHDD')
+    switch = sheets.get_info(3, 'switch')
+    columns = ('country', 'currency', 'provider', 'brand', 'number_ports', 'model', 'price', 'trade_price', 'ports_poe',
+               'power', 'specifications', 'description', 'image')
+    db.insert_data_of_equipments(data=switch, column=columns, table='DataSwitch')
+    box = sheets.get_info(4, 'box')
+    columns = ('country', 'currency', 'provider', 'brand', 'number_units', 'model', 'price', 'trade_price',
+               'mounting_type', 'dimensions', 'specifications', 'description', 'image')
+    db.insert_data_of_equipments(data=box, column=columns, table='DataBox')
+
+
+@dp.message_handler(Command('save_cameras'), user_id=config.ADMIN_ID)
+async def save_info(message: types.Message):
+    await message.answer('Я начал сохранять информацию')
+    # data = sheets.get_info(1, 'camera')
+    # columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'trade_price', 'view_cam',
+    #            'purpose', 'ppi', 'specifications', 'description', 'image')
+    # db.insert_data_of_cameras(data=data, column=columns)
+    save_data()
     await message.answer('Готово')

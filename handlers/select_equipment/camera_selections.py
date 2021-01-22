@@ -7,6 +7,7 @@ from aiogram.types import InputFile, Message, CallbackQuery
 import db
 from keyboards import keyboards, inline_keybords
 from misc import dp
+from handlers.select_equipment.start_selections import Selections
 
 
 class CameraSelections(StatesGroup):
@@ -16,9 +17,9 @@ class CameraSelections(StatesGroup):
     q_4 = State()
 
 
-@dp.message_handler(text='⚙️Подбор оборудования')
+@dp.message_handler(text='Камера', state=Selections.q_1)
 async def step_1(message: Message, state: FSMContext):
-    keyboard = keyboards.create_keyboard_kp('brand')
+    keyboard = keyboards.create_keyboard_kp('brand', 'data_cameras')
     if not keyboard:
         await message.answer('Нет вариантов')
     await state.update_data(options=keyboard[1])
@@ -34,7 +35,7 @@ async def step_2(message: Message, state: FSMContext):
         await message.answer('Выберите вариант')
         return
     await state.update_data(brand=message.text)
-    keyboard = keyboards.create_keyboard_kp('view_cam', {'brand': message.text})
+    keyboard = keyboards.create_keyboard_kp('view_cam', 'data_cameras', {'brand': message.text})
     await state.update_data(options=keyboard[1])
     await message.answer('Какой тип камеры подобрать?', reply_markup=keyboard[0])
     await CameraSelections.q_2.set()
@@ -64,7 +65,7 @@ async def step_4(message: Message, state: FSMContext):
     if message.text not in data['options']:
         await message.answer('Выберите вариант')
         return
-    keyboard = keyboards.create_keyboard_kp('ppi', {'brand': data['brand'], 'view_cam': data['view_cam']})
+    keyboard = keyboards.create_keyboard_kp('ppi', 'data_cameras', {'brand': data['brand'], 'view_cam': data['view_cam']})
     if not keyboard:
         await message.answer('Вариантов нет')
         return
@@ -80,18 +81,18 @@ async def step_5(message: Message, state: FSMContext):
     if message.text not in data['options']:
         await message.answer('Выберите разрешение камеры')
         return
-    data = await state.get_data()
     cameras = db.get_data_of_cameras(data['view_cam'], data['purpose'], message.text, data['brand'])
     if not cameras:
         await message.answer('Таких камер нет. Выберети другие параметры.')
-        await message.answer('Выберите бренд', reply_markup=keyboards.create_keyboard_kp('brand'))
+        await message.answer('Выберите бренд', reply_markup=keyboards.create_keyboard_kp('brand', 'data_cameras'))
         await state.finish()
         await CameraSelections.q_1.set()
         return
     await message.answer('Выберите камеру:', reply_markup=keyboards.key_cancel)
     for camera in cameras:
         keyboard = inline_keybords.create_keyboard(camera[1])
-        photo = InputFile(os.path.join('commercial_proposal', 'images', data['brand'], camera[1] + '.jpg'))
+        photo = InputFile(os.path.join('commercial_proposal', 'images', 'camera', data['brand'],
+                                       camera[1].replace('/', '') + '.jpg'))
         await message.answer_photo(
             photo=photo,
             caption=f'{camera[1]}\nЦена: {camera[4]}₽',

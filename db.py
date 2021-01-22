@@ -12,6 +12,7 @@ conn = psycopg2.connect(
     host=config.HOST,
     port=config.PORT
 )
+
 cursor = conn.cursor()
 print('Database opened succsefully')
 
@@ -327,37 +328,56 @@ def insert_kp_tpl(name_tpl: str, id_tg: int):
     conn.commit()
 
 
-def insert_data_of_cameras(data, column=None):
+def insert_data_of_equipments(data, column=None, table=None):
     if not column:
         columns = ('model', 'description', 'specifications', 'price', 'image', 'view_cam', 'purpose', 'ppi', 'brand')
         columns = ', '.join(columns)
     else:
         columns = ', '.join(column)
-    cursor.execute('TRUNCATE data_cameras')
+    cursor.execute(f'TRUNCATE {table}')
     conn.commit()
     for camera in data:
         placeholders = ', '.join(['%s'] * len(camera))
-        cursor.execute(f'INSERT INTO data_cameras ({columns}) VALUES ({placeholders})', camera)
+        cursor.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', camera)
 
     conn.commit()
 
 
-def get_camera_types(column: str, filters: dict = None) -> set:
-    """Получает данные по колонке из базы данных с фильтрами"""
+def get_equipments_types(column: str, table: str, filters: dict = None) -> set:
+    """Получает данные по колонке из базы данных с фильтрами. Применяется для создания кнопок во время подбора"""
     if not filters:
-        request = f'SELECT {column} FROM data_cameras'
+        request = f'SELECT {column} FROM {table}'
         cursor.execute(request)
     else:
         cols = []
         for key in filters.keys():
             cols.append(f'{key}=%s')
         value = ' AND '.join(cols)
-        request = f'SELECT {column} FROM data_cameras WHERE {value}'
+        request = f'SELECT {column} FROM {table} WHERE {value}'
         cursor.execute(request, list(filters.values()))
 
     cams = cursor.fetchall()
 
     return set(i[0] for i in cams)
+
+
+def select_choice_equipment(value: str, data: dict, table: str):
+    """Возвращает подобронное пользователем оборудование. Если не выбрано возвращает None"""
+    filters = ' AND '.join([i + ' = %s' for i in data.keys()])
+    text = f'SELECT {value} FROM {table} WHERE {filters} AND id_tg = %s'
+    cursor.execute(text, data.values())
+    result = cursor.fetchone()
+    print(text)
+    return result
+
+
+def insert_choice_equipment(table: str, columns: str, values: tuple or dict):
+    """Вносит в базу данных выбранное пользователем оборудование"""
+    placeholders = ', '.join(['%s'] * len(values))
+    filters = ' AND '.join([i + ' = %s' for i in values.keys()])
+    cursor.execute(f'DELETE FROM {table} WHERE {filters}', tuple(values.values()))
+    cursor.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', tuple(values.values()))
+    conn.commit()
 
 
 def insert_choice_camera(view_cam, purpose, model, id_tg):
@@ -378,6 +398,24 @@ def insert_choice_camera(view_cam, purpose, model, id_tg):
     conn.commit()
 
 
+def get_data_equipments(table: str, columns: str, data: dict):
+    filters = ' AND '.join([i + ' = %s' for i in data.keys()])
+    text = f'SELECT {columns} FROM {table} WHERE {filters}'
+    print(text)
+    print(tuple(data.values()))
+    cursor.execute(text, tuple(data.values()))
+    results = cursor.fetchall()
+
+    return results
+
+
+def get_equipment_data_by_model(table: str, columns: str, model: str):
+    cursor.execute(f'SELECT {columns} FROM {table} WHERE model = %s', (model,))
+    result = cursor.fetchone()
+
+    return result
+
+
 def get_data_of_cameras(view_cam, purpose, ppi, brand):
     columns = ('id', 'model', 'description', 'specifications', 'price', 'image')
     columns = ', '.join(columns)
@@ -395,7 +433,8 @@ def get_data_of_cameras(view_cam, purpose, ppi, brand):
 
 
 def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
-    columns = ('model', 'description', 'specifications', 'price', 'ppi')
+    """Получает из базы данные по камере необходимые для КП"""
+    columns = ('model', 'description', 'specifications', 'price', 'ppi', 'brand')
     columns = ', '.join(columns)
     if model:
         cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = %s', (model,))
@@ -403,13 +442,13 @@ def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
         cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam = %s AND purpose = %s AND ppi = %s',
                        (view_cam, purpose, ppi))
     result = cursor.fetchone()
-    # print(f'get_price_of_camera - {result}')
     if not result:
         return False
     return result
 
 
 def get_model_camera_of_user(view_cam, purpose, id_tg):
+    """Получает модель камеры выбранную пользвателем по параметрам"""
     cursor.execute(f'SELECT model FROM choice_cams WHERE view_cam = %s AND purpose = %s AND id_tg = %s',
                    (view_cam, purpose, id_tg))
     model = cursor.fetchone()
@@ -482,7 +521,7 @@ def get_cursor():
 #     _init_db()
 
 
-def apply_script():
+def _apply_script():
     """Вспомогательная функция для добавления изменений в базу данных. Вызывается из терминала"""
     with open('createdb_psdb.sql', 'r', encoding='UTF-8') as file:
         cursor.execute(file.read())
