@@ -5,6 +5,21 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 
 
+# options = webdriver.ChromeOptions()
+# options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36')
+# options.add_argument("--disable-blink-features=AutomationControlled")
+# driver = webdriver.Chrome(options=options)
+# driver.get('https://sekundomer.net/')
+# # time.sleep(3)
+# key = driver.find_element_by_id('start')
+# key.click()
+# time.sleep(5)
+# for _ in range(10):
+#     timer = driver.find_element_by_id('timer')
+#     print(timer.text)
+# key.click()
+# time.sleep(2)
+# driver.close()
 class ParserLinks:
 
     # chrome_options = webdriver.ChromeOptions()

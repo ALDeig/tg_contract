@@ -5,8 +5,11 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 import db
 
 
-def create_keyboard_hdd():
-    buttons = db.get_equipments_types('brand', 'DataHDD')
+def create_keyboard_other(value, table, filters=None):
+    if filters:
+        buttons = db.get_equipments_types(value, table, filters)
+    else:
+        buttons = db.get_equipments_types(value, table)
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     buttons = list(buttons)
     buttons.sort()

@@ -4,3 +4,6 @@ from . import camera_selections
 from . import hdd_selections
 from . import switch_selections
 from . import box_selections
+from . import cable_selection
+from . import ibp_selections
+from . import gofra_selection

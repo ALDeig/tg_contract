@@ -18,9 +18,18 @@ choice_menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
+select_system = ReplyKeyboardMarkup([
+    [KeyboardButton(text='IP'), KeyboardButton(text='Аналоговая')]
+], resize_keyboard=True)
+
 yes_or_no = ReplyKeyboardMarkup([
     [KeyboardButton(text='Да')],
     [KeyboardButton(text='Нет')],
+    [KeyboardButton(text='↩️Отмена')]
+], resize_keyboard=True)
+
+yes = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Да')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
@@ -83,14 +92,28 @@ del_review = ReplyKeyboardMarkup([
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
+camera_selection_type = ReplyKeyboardMarkup([
+    [KeyboardButton(text='IP'), KeyboardButton(text='Аналоговые')]
+], resize_keyboard=True)
 
-def create_keyboard_kp(column, table, filters=None):
+
+def create_keyboard_kp(column, table, filters=None, ip_cam=True):
     buttons = db.get_equipments_types(column, table, filters)
     if not buttons:
         return False
+    if not ip_cam:
+        buttons.remove('IP')
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    cnt = 1
+    buttons = list(buttons)
+    buttons.sort()
     for button in buttons:
-        keyboard.add(KeyboardButton(text='🔘 ' + button if column == 'view_cam' else button))
+        if cnt == 1:
+            keyboard.add(KeyboardButton(text='🔘 ' + button if column == 'view_cam' else button))
+            cnt += 1
+        else:
+            keyboard.insert(KeyboardButton(text='🔘 ' + button if column == 'view_cam' else button))
+            cnt = 1
     keyboard.add(KeyboardButton(text='↩️Отмена'))
 
     return keyboard, buttons

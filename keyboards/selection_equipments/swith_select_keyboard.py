@@ -12,6 +12,8 @@ def create_keyboard_switch(column: str, table: str, filters: dict = None):
     buttons = db.get_equipments_types(column, table, filters)
     if not buttons:
         return False
+    buttons = list(buttons)
+    buttons.sort()
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
     for button in buttons:
         keyboard.add(KeyboardButton(text=button))

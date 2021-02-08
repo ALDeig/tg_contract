@@ -17,16 +17,78 @@ cursor = conn.cursor()
 print('Database opened succsefully')
 
 
-# def test():
-#     curs = con.cursor()
-#     curs.execute('SELECT * FROM users')
-#     res = curs.fetchall()
-#
-#     print(res)
-#     curs.close()
-#
-#
-# test()
+def get_recorder_channels(number_channels=None):
+    cur = conn.cursor()
+    if not number_channels:
+        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder ORDER BY number_channels')
+    else:
+        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder '
+                    'WHERE number_channels >= %s '
+                    'ORDER BY number_channels', (number_channels,))
+    res = cur.fetchall()
+    cur.close()
+    if len(res) == 0:
+        return False
+
+    return [item[0] for item in res]
+
+
+def get_recorder_channels_with_brand(brand, number_channels=None):
+    cur = conn.cursor()
+    if not number_channels:
+        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder WHERE brand = %s ORDER BY number_channels',
+                    (brand, ))
+    else:
+        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder '
+                    'WHERE number_channels >= %s AND brand = %s'
+                    'ORDER BY number_channels', (number_channels, brand))
+    res = cur.fetchall()
+    cur.close()
+    if len(res) == 0:
+        return False
+
+    return [item[0] for item in res]
+
+
+def get_options(table, column, filters=None, operator=None) -> list or bool:
+    cur = conn.cursor()
+    if not filters:
+        cur.execute(f'SELECT DISTINCT {column} FROM {table} ORDER BY {column}')
+    else:
+        cols = []
+        for key in filters.keys():
+            cols.append(f'{key} {operator} %s')
+        value = ' AND '.join(cols)
+        # print(table)
+        request = f'SELECT DISTINCT {column} FROM {table} WHERE {value} ORDER BY {column}'
+        cur.execute(request, tuple(filters.values()))
+    res = cur.fetchall()
+    cur.close()
+
+    return [item[0] for item in res] if len(res) != 0 else False
+
+# print(get_options('DataSwitch', 'number_ports', {'number_ports': 6}, '<'))
+
+# print(get_recorder_channels(10, 2))
+
+
+def get_hdd_memory_size(memory_size=6, brand=None):
+    cur = conn.cursor()
+    if brand:
+        cur.execute('''SELECT DISTINCT memory_size FROM DataHDD 
+        WHERE brand = %s AND memory_size <= %s 
+        ORDER BY memory_size''', (brand, memory_size))
+    else:
+        cur.execute('SELECT DISTINCT memory_size FROM DataHDD '
+                    'WHERE memory_size <= %s '
+                    'ORDER BY memory_size', (memory_size, ))
+    hdd = cur.fetchall()
+    cur.close()
+
+    return [item[0] for item in hdd]
+
+
+# print(get_hdd_memory_size())
 
 # import sqlite3
 
@@ -364,10 +426,10 @@ def get_equipments_types(column: str, table: str, filters: dict = None) -> set:
 def select_choice_equipment(value: str, data: dict, table: str):
     """Возвращает подобронное пользователем оборудование. Если не выбрано возвращает None"""
     filters = ' AND '.join([i + ' = %s' for i in data.keys()])
-    text = f'SELECT {value} FROM {table} WHERE {filters} AND id_tg = %s'
-    cursor.execute(text, data.values())
+    # text = f'SELECT {value} FROM {table} WHERE {filters} AND id_tg = %s'
+    text = f'SELECT {value} FROM {table} WHERE {filters}'
+    cursor.execute(text, tuple(data.values()))
     result = cursor.fetchone()
-    print(text)
     return result
 
 
@@ -401,10 +463,10 @@ def insert_choice_camera(view_cam, purpose, model, id_tg):
 def get_data_equipments(table: str, columns: str, data: dict):
     filters = ' AND '.join([i + ' = %s' for i in data.keys()])
     text = f'SELECT {columns} FROM {table} WHERE {filters}'
-    print(text)
-    print(tuple(data.values()))
     cursor.execute(text, tuple(data.values()))
     results = cursor.fetchall()
+    if len(results) == 0:
+        return False
 
     return results
 
@@ -416,31 +478,32 @@ def get_equipment_data_by_model(table: str, columns: str, model: str):
     return result
 
 
-def get_data_of_cameras(view_cam, purpose, ppi, brand):
+def get_data_of_cameras(type_cam, view_cam, purpose, ppi, brand):
     columns = ('id', 'model', 'description', 'specifications', 'price', 'image')
     columns = ', '.join(columns)
     cursor.execute(
         f'''SELECT {columns}
         FROM data_cameras
-        WHERE view_cam=%s
+        WHERE type_cam = %s 
+        AND view_cam=%s
         AND purpose=%s
         AND ppi=%s
-        AND brand=%s''', (view_cam, purpose, ppi, brand))
+        AND brand=%s''', (type_cam, view_cam, purpose, ppi, brand))
     cameras = cursor.fetchall()
     if len(cameras) == 0:
         return False
     return cameras
 
 
-def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
+def get_price_of_camera(model=None, type_cam=None, view_cam=None, purpose=None, ppi=None):
     """Получает из базы данные по камере необходимые для КП"""
     columns = ('model', 'description', 'specifications', 'price', 'ppi', 'brand')
     columns = ', '.join(columns)
     if model:
         cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = %s', (model,))
     else:
-        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam = %s AND purpose = %s AND ppi = %s',
-                       (view_cam, purpose, ppi))
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s AND purpose = %s AND ppi = %s',
+                       (type_cam, view_cam, purpose, ppi))
     result = cursor.fetchone()
     if not result:
         return False
@@ -527,6 +590,5 @@ def _apply_script():
         cursor.execute(file.read())
     conn.commit()
     conn.close()
-
 
 # check_db_exists()

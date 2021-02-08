@@ -1,5 +1,6 @@
 from . import general_commands
 from . import select_equipment
+from . import create_kp
 from . import check_in
 # from . import camera_selections
 from . import filling_the_contract

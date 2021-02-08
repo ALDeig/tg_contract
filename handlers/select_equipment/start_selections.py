@@ -12,8 +12,9 @@ class Selections(StatesGroup):
 @dp.message_handler(text='⚙️Подбор оборудования')
 async def step_1(message: Message, state: FSMContext):
     keyboard = ReplyKeyboardMarkup([
-        [KeyboardButton(text='Камера'), KeyboardButton(text='Регистратор')],
-        [KeyboardButton(text='Коммутатор'), KeyboardButton(text='HDD'), KeyboardButton(text='Ящик')]
+        [KeyboardButton(text='Камеры'), KeyboardButton(text='Регистраторы')],
+        [KeyboardButton(text='Коммутаторы'), KeyboardButton(text='HDD'), KeyboardButton(text='ТШ')],
+        [KeyboardButton(text='Кабель'), KeyboardButton(text='Гофрированная труба'), KeyboardButton(text='ИБП')]
     ], resize_keyboard=True)
     await message.answer('Выберите оборудование для подбора', reply_markup=keyboard)
     await Selections.q_1.set()

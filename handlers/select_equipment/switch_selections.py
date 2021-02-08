@@ -19,7 +19,7 @@ class SwitchSelection(StatesGroup):
     q_4 = State()
 
 
-@dp.message_handler(text='Коммутатор', state=Selections.q_1)
+@dp.message_handler(text='Коммутаторы', state=Selections.q_1)
 async def step_1(message: Message, state: FSMContext):
     keyboard = create_keyboard_reg_and_switch('brand', 'DataSwitch')
     if not keyboard:
@@ -46,7 +46,9 @@ async def step_2(message: Message, state: FSMContext):
 @dp.message_handler(state=SwitchSelection.q_2)
 async def step_3(message: Message, state: FSMContext):
     data = await state.get_data()
-    if message.text not in data['options']:
+    if int(message.text) not in data['options']:
+        print(data['options'])
+        print('error')
         await message.answer('Выбери вариант')
         return
     await state.update_data(number_ports=message.text)
@@ -57,8 +59,12 @@ async def step_3(message: Message, state: FSMContext):
     await message.answer('Выбери вариант')
     for switch in switches:
         keyboard = create_inline_keyboard(switch[1])
-        photo = InputFile(os.path.join('commercial_proposal', 'images', 'switch', data['brand'],
-                                       switch[1].replace('/', '') + '.jpg'))
+        try:
+            photo = InputFile(os.path.join('commercial_proposal', 'images', 'switch', data['brand'],
+                                           switch[1].replace('/', '') + '.jpg'))
+        except Exception as e:
+            print(e)
+            continue
         await message.answer_photo(
             photo=photo,
             caption=f'{switch[1]}\nЦена: {switch[2]}₽, Оптовая цена: {switch[3]}₽',
@@ -86,8 +92,6 @@ async def step_5(call: CallbackQuery, callback_data: dict, state: FSMContext):
     data.pop('options')
     data.pop('brand')
     columns = ', '.join(data.keys())
-    print(columns)
-    print(data.values())
     # return
     db.insert_choice_equipment('ChoiceSwitch', columns, data)
     await call.message.edit_reply_markup()

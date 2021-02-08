@@ -13,6 +13,8 @@ def create_keyboard_reg_and_switch(column: str, table: str, filters: dict = None
     if not buttons:
         return False
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = list(buttons)
+    buttons.sort()
     for button in buttons:
         keyboard.add(KeyboardButton(text=button))
     keyboard.add(KeyboardButton(text='↩️Отмена'))

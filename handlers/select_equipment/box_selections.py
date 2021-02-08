@@ -1,6 +1,5 @@
 import os
 
-
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InputFile, Message, CallbackQuery
@@ -20,7 +19,7 @@ class BoxSelection(StatesGroup):
     q_4 = State()
 
 
-@dp.message_handler(text='Ящик', state=Selections.q_1)
+@dp.message_handler(text='ТШ', state=Selections.q_1)
 async def step_1(message: Message, state: FSMContext):
     keyboard = create_keyboard_reg_and_switch('brand', 'DataBox')
     if not keyboard:
@@ -47,7 +46,7 @@ async def step_2(message: Message, state: FSMContext):
 @dp.message_handler(state=BoxSelection.q_2)
 async def step_3(message: Message, state: FSMContext):
     data = await state.get_data()
-    if message.text not in data['options']:
+    if int(message.text) not in data['options']:
         await message.answer('Выбери вариант')
         return
     await state.update_data(number_units=message.text)
@@ -58,8 +57,12 @@ async def step_3(message: Message, state: FSMContext):
     await message.answer('Выбери вариант')
     for box in boxes:
         keyboard = create_inline_keyboard(box[1])
-        photo = InputFile(os.path.join('commercial_proposal', 'images', 'box', data['brand'],
-                                       box[1].replace('/', '') + '.jpg'))
+        try:
+            photo = InputFile(os.path.join('commercial_proposal', 'images', 'box', data['brand'],
+                                           box[1].replace('/', '') + '.jpg'))
+        except Exception as e:
+            print(e)
+            continue
         await message.answer_photo(
             photo=photo,
             caption=f'{box[1]}\nЦена: {box[2]}₽, Оптовая цена: {box[3]}₽',
