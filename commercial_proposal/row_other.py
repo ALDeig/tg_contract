@@ -42,9 +42,9 @@ class Cable:
             price = str(data[1]).replace(',', '.')
             row = [f"Модель {data[0]}, {data[-1]}",
                    'м',
-                   self.meters_in,
+                   self.meters_out,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
-                   f"{(Decimal(price) * Decimal(str(self.meters_in).replace(',', '.'))).quantize(Decimal('.01'))}"]
+                   f"{(Decimal(price) * Decimal(str(self.meters_out).replace(',', '.'))).quantize(Decimal('.01'))}"]
             result.append(row)
         return result
 
@@ -89,9 +89,9 @@ class Pipe:
             price = str(data[1]).replace(',', '.')
             row = [f"{data[2]} {data[0]}, {data[-1]}",
                    'м',
-                   self.meters_in,
+                   self.meters_out,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
-                   f"{(Decimal(price) * Decimal(str(self.meters_in).replace(',', '.'))).quantize(Decimal('.01'))}"]
+                   f"{(Decimal(price) * Decimal(str(self.meters_out).replace(',', '.'))).quantize(Decimal('.01'))}"]
             result.append(row)
         return result
 
