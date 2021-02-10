@@ -5,17 +5,18 @@ import shutil
 import urllib.request
 import urllib.error
 import pygsheets
+from google_drive_downloader import GoogleDriveDownloader as gdd
 
 import config
 
-client = pygsheets.authorize(service_file=os.path.join('commercial_proposal', 'gsheets', 'creds.json'))
-# client = pygsheets.authorize(service_file=os.path.join('creds.json'))
+# client = pygsheets.authorize(service_file=os.path.join('commercial_proposal', 'gsheets', 'creds.json'))
+client = pygsheets.authorize(service_file=os.path.join('creds.json'))
 sh = client.open_by_key(config.SHEETS_ID)
 
 
 def get_info(table, directory, image_index=12):
     wks = sh.worksheet('index', table)
-    data = wks.range('B2:Q3000')
+    data = wks.range('B40:Q43')
     result = list()
     for row in data:
         if row[0].value != '':
@@ -25,6 +26,8 @@ def get_info(table, directory, image_index=12):
     print('Start save image')
     save_images(result, directory, image_index)
     return result
+
+
 #
 # get_info_test(1, 'dfads')
 
@@ -47,7 +50,7 @@ def get_info(table, directory, image_index=12):
 #     print('Start save images')
 #     save_images(result, directory, image_index)
 
-    # return result
+# return result
 # print(get_info(0, 'dfad'))
 
 
@@ -61,12 +64,29 @@ def delete_dirs(directory):
             shutil.rmtree(dir_[0])
 
 
+# gdd.download_file_from_google_drive(file_id='1iytA1n2z4go3uVCwE__vIKouTKyIDjEq',
+#                                     dest_path='./data/mnist.zip',
+#                                     unzip=True)
 def save_images(data, directory, image_index):
-    path = os.path.join('commercial_proposal', 'images', directory)
+    # path = os.path.join('commercial_proposal', 'images', directory)
+    path = os.path.join('images', directory)
     delete_dirs(directory)
     for camera in data:
         try:
-            img = urllib.request.urlopen(camera[image_index]).read()
+            # print(camera[image_index])
+            url = camera[image_index].split('/')
+            if url[2] == 'drive.google.com':
+                if not os.path.exists(os.path.join(path, camera[3])):
+                    os.mkdir(os.path.join(path, camera[3]))
+                name = camera[5].strip().replace('/', '').replace('\\', '')
+                path = os.path.join(path, camera[3], name + f'.jpg')
+                gdd.download_file_from_google_drive(file_id=url[-2], dest_path=path)
+                continue
+            else:
+            # img = urllib.request.urlopen(camera[image_index])
+            # print(img.headers)
+                img = urllib.request.urlopen(camera[image_index]).read()
+            # print(img)
         except urllib.error.HTTPError as er:
             print('Ошибка при скачивании фото: ', er)
             print(camera[image_index])
@@ -79,9 +99,12 @@ def save_images(data, directory, image_index):
         if not os.path.exists(os.path.join(path, camera[3])):
             os.mkdir(os.path.join(path, camera[3]))
         name = camera[5].strip().replace('/', '').replace('\\', '')
-        with open(os.path.join(path, camera[3], name + '.jpg'), 'wb') as file:
+        # type_file = camera[image_index].split('.')[-1]
+        with open(os.path.join(path, camera[3], name + f'.jpg'), 'wb') as file:
             file.write(img)
 
+
+get_info(3, 'switch', 11)
 # def get_info_of_recorder()
 #     result = list()
 #     for cnt in range(2, 1000):
@@ -90,8 +113,8 @@ def save_images(data, directory, image_index):
 #             result.append([i.value for i in data[0]])
 #         else:
 #             break
-#     save_images(result, 'camera')
-#
+#     save_images(result, 'camera'1QqdE8t9O7QDTIHa8EB1uHh2jnNjRQQVc)
+# 1RtXqqxdfYFW6tIrTscyNkEbvaqO8Ab0H3EqtipIB5u0#
 #     return result
 
 # img = urllib.request.urlopen('https://cctv.qtech.ru/upload/iblock/881/252K_280219_QVC_IPC_501Z_2.8_12_view.jpg').read()

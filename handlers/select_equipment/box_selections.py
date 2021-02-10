@@ -51,21 +51,23 @@ async def step_3(message: Message, state: FSMContext):
         return
     await state.update_data(number_units=message.text)
     data['number_units'] = message.text
-    columns = 'id, model, price, trade_price, specifications, description'
+    columns = 'id, model, price, image, specifications, description'
     data.pop('options')
     boxes = db.get_data_equipments('DataBox', columns, data)
     await message.answer('Выбери вариант')
     for box in boxes:
         keyboard = create_inline_keyboard(box[1])
         try:
+            name = box[1].strip().replace('/', '').replace('\\', '')
+            type_file = box[3].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'box', data['brand'],
-                                           box[1].replace('/', '') + '.jpg'))
+                                           name + f'.{type_file}'))
         except Exception as e:
             print(e)
             continue
         await message.answer_photo(
             photo=photo,
-            caption=f'{box[1]}\nЦена: {box[2]}₽, Оптовая цена: {box[3]}₽',
+            caption=f'{box[1]}\nЦена: {box[2]}₽',
             reply_markup=keyboard)
 
 

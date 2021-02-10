@@ -14,7 +14,8 @@ async def step_1(message: Message, state: FSMContext):
     keyboard = ReplyKeyboardMarkup([
         [KeyboardButton(text='Камеры'), KeyboardButton(text='Регистраторы')],
         [KeyboardButton(text='Коммутаторы'), KeyboardButton(text='HDD'), KeyboardButton(text='ТШ')],
-        [KeyboardButton(text='Кабель'), KeyboardButton(text='Гофра'), KeyboardButton(text='ИБП')]
+        [KeyboardButton(text='Кабель'), KeyboardButton(text='Гофра'), KeyboardButton(text='ИБП')],
+        [KeyboardButton(text='↩Отмена')]
     ], resize_keyboard=True)
     await message.answer('Выберите оборудование для подбора', reply_markup=keyboard)
     await Selections.q_1.set()

@@ -137,8 +137,10 @@ async def step_pagin(message: Message, state: FSMContext):
     for camera in cameras[start:end]:
         keyboard = inline_keybords.create_keyboard(camera[1])
         try:
+            name = camera[1].strip().replace('/', '').replace('\\', '')
+            # type_file = camera[-1].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'camera', data['brand'],
-                                           camera[1].replace('/', '') + '.jpg'))
+                                           name + '.jpg'))
             await message.answer_photo(
                 photo=photo,
                 caption=f'{camera[1]}\nЦена: {camera[4]}₽',
@@ -177,8 +179,10 @@ async def step_5(message: Message, state: FSMContext):
     for camera in cameras[:end]:
         keyboard = inline_keybords.create_keyboard(camera[1])
         try:
+            name = camera[1].strip().replace('/', '').replace('\\', '')
+            type_file = camera[-1].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'camera', data['brand'],
-                                           camera[1].replace('/', '') + '.jpg'))
+                                           name + f'.{type_file}'))
             await message.answer_photo(
                 photo=photo,
                 caption=f'{camera[1]}\nЦена: {camera[4]}₽',
@@ -196,33 +200,33 @@ async def step_5(message: Message, state: FSMContext):
     else:
         await message.answer('Это все варианты')
 
-
-@dp.message_handler(text='Да', state=CameraSelections.q_4)
-async def step_pagin(message: Message, state: FSMContext):
-    data = await state.get_data()
-    end = data['end'] + 5
-    start = data['start'] + 5
-    cameras = data['cameras']
-    for camera in cameras[start:end]:
-        keyboard = inline_keybords.create_keyboard(camera[1])
-        try:
-            photo = InputFile(os.path.join('commercial_proposal', 'images', 'camera', data['brand'],
-                                           camera[1].replace('/', '') + '.jpg'))
-            await message.answer_photo(
-                photo=photo,
-                caption=f'{camera[1]}\nЦена: {camera[4]}₽',
-                reply_markup=keyboard)
-        except FileNotFoundError as e:
-            print('Ошибка при отправке фото: ', e)
-            await message.answer(text=f'{camera[1]}\nЦена: {camera[4]}₽', reply_markup=keyboard)
-        except Exception as e:
-            print('Ошибка отправки сообщения: ', e)
-            continue
-    if end < len(cameras):
-        await state.update_data({'end': end, 'start': start})
-        await message.answer('Показать еще?', reply_markup=keyboards.yes)
-    else:
-        await message.answer('Это все варианты', reply_markup=keyboards.key_cancel_to_video)
+#
+# @dp.message_handler(text='Да', state=CameraSelections.q_4)
+# async def step_pagin(message: Message, state: FSMContext):
+#     data = await state.get_data()
+#     end = data['end'] + 5
+#     start = data['start'] + 5
+#     cameras = data['cameras']
+#     for camera in cameras[start:end]:
+#         keyboard = inline_keybords.create_keyboard(camera[1])
+#         try:
+#             photo = InputFile(os.path.join('commercial_proposal', 'images', 'camera', data['brand'],
+#                                            camera[1].replace('/', '') + '.jpg'))
+#             await message.answer_photo(
+#                 photo=photo,
+#                 caption=f'{camera[1]}\nЦена: {camera[4]}₽',
+#                 reply_markup=keyboard)
+#         except FileNotFoundError as e:
+#             print('Ошибка при отправке фото: ', e)
+#             await message.answer(text=f'{camera[1]}\nЦена: {camera[4]}₽', reply_markup=keyboard)
+#         except Exception as e:
+#             print('Ошибка отправки сообщения: ', e)
+#             continue
+#     if end < len(cameras):
+#         await state.update_data({'end': end, 'start': start})
+#         await message.answer('Показать еще?', reply_markup=keyboards.yes)
+#     else:
+#         await message.answer('Это все варианты', reply_markup=keyboards.key_cancel_to_video)
 
 
 @dp.callback_query_handler(inline_keybords.choice_cameras_callback.filter(make='show'), state=CameraSelections.q_4)

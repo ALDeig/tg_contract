@@ -241,10 +241,10 @@ def save_data():
                    'specifications', 'description', 'image')
         db.insert_data_of_equipments(cable, columns, 'DataCable')
         print('Cable done')
-        # bracing = sheets.get_info(7, 'bracing', 10)
-        # columns = ('country', 'currency', 'provider', 'brand', 'model', 'price', 'trade_price', 'mount_type',
-        #            'specifications', 'description', 'image')
-        # db.insert_data_of_equipments(bracing, columns, 'DataBracing')
+        bracing = sheets.get_info(7, 'bracing', 10)
+        columns = ('country', 'currency', 'provider', 'brand', 'model', 'price', 'trade_price', 'mount_type',
+                   'specifications', 'description', 'image')
+        db.insert_data_of_equipments(bracing, columns, 'DataBracing')
     except Exception as e:
         print(e)
         return

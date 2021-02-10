@@ -37,7 +37,7 @@ async def step_2(message: Message, state: FSMContext):
         await message.answer('Выбери вариант')
         return
     await state.update_data(brand=message.text)
-    keyboard = create_keyboard_reg_and_switch('number_ports', 'DataSwitch', {'brand': message.text})
+    keyboard = create_keyboard_reg_and_switch('ports_poe', 'DataSwitch', {'brand': message.text})
     await state.update_data(options=keyboard[1])
     await message.answer('Выбери количество портов', reply_markup=keyboard[0])
     await SwitchSelection.q_2.set()
@@ -51,20 +51,22 @@ async def step_3(message: Message, state: FSMContext):
         print('error')
         await message.answer('Выбери вариант')
         return
-    await state.update_data(number_ports=message.text)
+    await state.update_data(ports_poe=message.text)
     data['number_ports'] = message.text
-    columns = 'id, model, price, trade_price, specifications, description'
+    columns = 'id, model, price, image, specifications, description'
     data.pop('options')
     switches = db.get_data_equipments('DataSwitch', columns, data)
     await message.answer('Выбери вариант', reply_markup=keyboards.key_cancel_to_video)
     for switch in switches:
         keyboard = create_inline_keyboard(switch[1])
         try:
+            name = switch[1].strip().replace('/', '').replace('\\', '')
+            type_file = switch[3].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'switch', data['brand'],
-                                           switch[1].replace('/', '').replace('\\', '') + '.jpg'))
+                                           name + '.jpg'))
             await message.answer_photo(
                 photo=photo,
-                caption=f'{switch[1]}\nЦена: {switch[2]}₽, Оптовая цена: {switch[3]}₽',
+                caption=f'{switch[1]}\nЦена: {switch[2]}₽',
                 reply_markup=keyboard)
         except FileNotFoundError as e:
             print('Ошибка при отправке фото: ', e)

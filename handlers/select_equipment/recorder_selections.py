@@ -103,6 +103,37 @@ async def step_3(message: Message, state: FSMContext):
 #     await message.answer('Какое количество PoE портов?', reply_markup=keyboard[0])
 #     await RegSelections.q_4.set()
 
+
+# @dp.message_handler(text='Да', state=RegSelections.q_3)
+# async def step_pagin(message: Message, state: FSMContext):
+#     data = await state.get_data()
+#     end = data['end'] + 5
+#     start = data['start'] + 5
+#     cameras = data['cameras']
+#     for camera in cameras[start:end]:
+#         keyboard = inline_keybords.create_keyboard(camera[1])
+#         try:
+#             name = camera[1].strip().replace('/', '').replace('\\', '')
+#             type_file = camera[-1].split('.')[-1]
+#             photo = InputFile(os.path.join('commercial_proposal', 'images', 'camera', data['brand'],
+#                                            name + f'.{type_file}'))
+#             await message.answer_photo(
+#                 photo=photo,
+#                 caption=f'{camera[1]}\nЦена: {camera[4]}₽',
+#                 reply_markup=keyboard)
+#         except FileNotFoundError as e:
+#             print('Ошибка при отправке фото: ', e)
+#             await message.answer(text=f'{camera[1]}\nЦена: {camera[4]}₽', reply_markup=keyboard)
+#         except Exception as e:
+#             print('Ошибка отправки сообщения: ', e)
+#             continue
+#     if end < len(cameras):
+#         await state.update_data({'end': end, 'start': start})
+#         await message.answer('Показать еще?', reply_markup=keyboards.yes)
+#     else:
+#         await message.answer('Это все варианты', reply_markup=keyboards.key_cancel_to_video)
+
+
 @dp.message_handler(state=RegSelections.q_3)
 async def step_4(message: Message, state: FSMContext):
     data = await state.get_data()
@@ -112,16 +143,17 @@ async def step_4(message: Message, state: FSMContext):
     await state.update_data(number_hdd=message.text)
     data['number_hdd'] = message.text
     # data['number_poe'] = message.text
-    columns = 'id, model, price, trade_price, specifications, description'
+    columns = 'id, model, price, image, specifications, description'
     data.pop('options')
     recorders = db.get_data_equipments('DataRecorder', columns, data)
-    print(recorders, 'no recorders')
     await message.answer('Выберите вариант', reply_markup=keyboards.key_cancel_to_video)
     for recorder in recorders:
         keyboard = create_inline_keyboard(recorder[1])
         try:
+            name = recorder[1].strip().replace('/', '').replace('\\', '')
+            # type_file = recorder[3].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'recorder', data['brand'],
-                                           recorder[1].strip().replace('/', '').replace('\\', '') + '.jpg'))
+                                           name + '.jpg'))
             await message.answer_photo(
                 photo=photo,
                 caption=f'{recorder[1]}\nЦена: {recorder[2]}',
