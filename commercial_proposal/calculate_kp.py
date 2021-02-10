@@ -285,14 +285,14 @@ def create_row_disk(disks: list, result: list, prices: dict, price_categor: dict
     return result, price_categor
 
 
-def find_max_archive(disks, cams):
-    """Вычисляет максимальный архив для данного количества камер"""
-    all_memory = 0
-    for disk in disks:
-        all_memory += int(disk[0])
-    need_memory_one_day = int(cams) * 42.2
-    max_archive = int(all_memory * 1024 / need_memory_one_day)
-    return max_archive
+# def find_max_archive(disks, cams):
+#     """Вычисляет максимальный архив для данного количества камер"""
+#     all_memory = 0
+#     for disk in disks:
+#         all_memory += int(disk[0])
+#     need_memory_one_day = int(cams) * 42.2
+#     max_archive = int(all_memory * 1024 / need_memory_one_day)
+#     return max_archive
 
 
 # def find_disks_for_max_archive(reg, cams, archive):
@@ -312,14 +312,14 @@ def calculate_pipe(cams_out, cams_in, mt_cam):
     return pipe_out, pipe_in
 
 
-def calculate_locker(reg):
-    lockers = {1: 'locker_1', 2: 'locker_2', 3: 'locker_3', 4: 'locker_4', 5: 'locker_5', 6: 'locker_6'}
-    try:
-        locker = lockers[reg]
-    except KeyError:
-        locker = 'locker_6'
-
-    return locker
+# def calculate_locker(reg):
+#     lockers = {1: 'locker_1', 2: 'locker_2', 3: 'locker_3', 4: 'locker_4', 5: 'locker_5', 6: 'locker_6'}
+#     try:
+#         locker = lockers[reg]
+#     except KeyError:
+#         locker = 'locker_6'
+#
+#     return locker
 
 
 def create_row_camera(id_tg, type_camera, count_camera, purpose, details_camera):
