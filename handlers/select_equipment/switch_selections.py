@@ -56,7 +56,7 @@ async def step_3(message: Message, state: FSMContext):
     columns = 'id, model, price, trade_price, specifications, description'
     data.pop('options')
     switches = db.get_data_equipments('DataSwitch', columns, data)
-    await message.answer('Выбери вариант')
+    await message.answer('Выбери вариант', reply_markup=keyboards.key_cancel_to_video)
     for switch in switches:
         keyboard = create_inline_keyboard(switch[1])
         try:
