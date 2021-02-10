@@ -38,6 +38,9 @@ async def step_2(message: Message, state: FSMContext):
     if message.text not in data['options']:
         await message.answer('Выберите вариант из списка')
         return
+    if message.text != 'Сетевые (IP)':
+        await message.answer('В разработке', reply_markup=keyboards.key_cancel_to_video)
+        return
     await state.update_data(type_recorder=message.text)
     keyboard = create_keyboard_reg_and_switch('brand', 'DataRecorder', {'type_recorder': message.text})
     await state.update_data(options=keyboard[1])
@@ -113,12 +116,12 @@ async def step_4(message: Message, state: FSMContext):
     data.pop('options')
     recorders = db.get_data_equipments('DataRecorder', columns, data)
     print(recorders, 'no recorders')
-    await message.answer('Выберите вариант', reply_markup=keyboards.key_cancel)
+    await message.answer('Выберите вариант', reply_markup=keyboards.key_cancel_to_video)
     for recorder in recorders:
         keyboard = create_inline_keyboard(recorder[1])
         try:
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'recorder', data['brand'],
-                                           recorder[1].replace('/', '') + '.jpg'))
+                                           recorder[1].strip().replace('/', '').replace('\\', '') + '.jpg'))
             await message.answer_photo(
                 photo=photo,
                 caption=f'{recorder[1]}\nЦена: {recorder[2]}',

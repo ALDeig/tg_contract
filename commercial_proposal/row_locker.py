@@ -6,7 +6,7 @@ import db
 class Locker:
 
     def __init__(self, recorders, switches):
-        self.units = recorders + switches * 2
+        self.units = recorders + recorders * 2
         self.result = list()
 
     @staticmethod
@@ -38,7 +38,7 @@ class RowBox:
 
     def get_data_box(self, units):
         select_box = db.select_choice_equipment('model', {'number_units': units, 'id_tg': self.id_tg}, 'ChoiceBox')
-        columns = ', '.join(('model', 'price', 'description'))
+        columns = ', '.join(('model', 'price', 'brand', 'description'))
         if not select_box:
             box = db.get_data_equipments('DataBox', columns, {'number_units': units})[0]
         else:
@@ -60,7 +60,7 @@ class RowBox:
         switches = self.create_dict_boxes()
         for data, count in switches.items():
             price = str(data[1]).replace(',', '.')
-            row = [f"Модель {data[0]}\n{data[-1]}",
+            row = [f"{data[2]} {data[0]}\n{data[-1]}",
                    'шт',
                    count,
                    f"{Decimal(price).quantize(Decimal('.01'))}",

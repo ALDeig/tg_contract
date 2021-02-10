@@ -9,7 +9,7 @@ import analytics
 import db
 from keyboards import keyboards
 from commercial_proposal import calculate_kp, create_doc
-from handlers.get_cost_of_work import DataPrices
+# from handlers.get_cost_of_work import DataPrices
 from misc import dp
 
 
@@ -24,6 +24,13 @@ class DataPoll(StatesGroup):
     answer_total_price = State()
     answer_of_sale = State()
 
+
+class DataPrices(StatesGroup):
+    installation_cost_of_1_IP_camera = State()  # стоимость монтажа 1 IP камеры, без прокладки кабеля
+    installation_cost_of_1_meter = State()  # стоимость монтажа 1 метра кабеля в гофрированной трубе
+    meters_of_cable = State()  # сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру
+    cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
+    start_up_cost = State()  # стоимость пуско-наладочных работ
 
 def generate_choice_cam(id_tg, view_cam, purpose, type_cam):
     """Создает сообщение с фото после выборы типа камеры. Какая камера будет использоваться в КП"""
@@ -50,7 +57,7 @@ def generate_choice_cam(id_tg, view_cam, purpose, type_cam):
 @dp.message_handler(text='💰 Создать КП')
 async def start_poll(message: Message):
     if db.check_user_in(id_tg=message.from_user.id, column='id_tg', table='cost_work'):  # проверяет есть ли данные в базе
-        await message.answer('Какая будет использоваться система?', reply_markup=keyboards.select_system)
+        await message.answer('Выберите тип системы', reply_markup=keyboards.select_system)
         await DataPoll.first()
         return
     await message.answer('Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
@@ -61,7 +68,7 @@ async def start_poll(message: Message):
 @dp.message_handler(text='IP', state=DataPoll.system)
 async def step_0(message: Message, state: FSMContext):
     # await state.update_data(type_cam='IP')
-    await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel)
+    await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel_to_video)
     await DataPoll.next()
 
 
@@ -69,11 +76,11 @@ async def step_0(message: Message, state: FSMContext):
 async def step_1(message: Message, state: FSMContext):
     if not message.text.isdigit() or message.text == '0':
         await message.answer('Вы не верно указали количество. Сколько камер надо установить?',
-                             reply_markup=keyboards.key_cancel)
+                             reply_markup=keyboards.key_cancel_to_video)
         return
     await state.update_data(total_cams=message.text)
     await DataPoll.next()
-    await message.answer('Сколько камер будет в помещении?', reply_markup=keyboards.key_cancel)
+    await message.answer('Сколько камер будет в помещении?', reply_markup=keyboards.key_cancel_to_video)
 
 
 @dp.message_handler(state=DataPoll.indoor_cameras)
@@ -103,7 +110,7 @@ async def step_2(message: Message, state: FSMContext):
                              reply_markup=keyboards.create_keyboard_kp('view_cam', 'data_cameras', {'type_cam': 'IP', 'purpose': 'Уличные'})[0])
         await DataPoll.type_cams_on_street.set()
     else:
-        await message.answer(f'В помещении - {message.text}, значит на улице будет {int(total_cams) - int(message.text)}')
+        await message.answer(f'В помещении - {message.text}\nНа улице - {int(total_cams) - int(message.text)}')
         await message.answer(text='Какой тип камер будет установлен в помещении? Выбери варинат.',
                              reply_markup=keyboards.create_keyboard_kp('view_cam', 'data_cameras', {'type_cam': 'IP', 'purpose': 'Внутренние'})[0])
         await DataPoll.type_cams_in_room.set()
@@ -113,17 +120,19 @@ async def step_2(message: Message, state: FSMContext):
 async def step_4(message: Message, state: FSMContext):
     await state.update_data(type_cam_in_room=message.text)
     details_camera = generate_choice_cam(message.from_user.id, message.text[2:], 'Внутренние', 'IP')
-    file = InputFile(os.path.join('commercial_proposal', 'images', 'camera', details_camera[-1], details_camera[0] + '.jpg'))
+    print(details_camera)
+    name = details_camera[0].strip().replace('/', '').replace('\\', '')
+    file = InputFile(os.path.join('commercial_proposal', 'images', 'camera', details_camera[-1], name + '.jpg'))
     # print('Brand camera in ', details_camera[-1])
     await message.answer_photo(photo=file, caption=f'Будет использована камера:\n'
                                                    f'{details_camera[0]}, {details_camera[1]}\n'
-                                                   f'Цена: {details_camera[3]}')
+                                                   f'Цена: {details_camera[3]} руб.')
     await state.update_data(data_cam_in=details_camera)
     async with state.proxy() as data:
         if data['cams_on_indoor'] == data['total_cams']:
             data['type_cam_on_street'] = None
             await message.answer('Сколько дней хранить архив с камер видеонаблюдения?',
-                                 reply_markup=keyboards.key_cancel)
+                                 reply_markup=keyboards.key_cancel_to_video)
             await DataPoll.days_for_archive.set()
             return
     await message.answer(text='Какой тип камер будет установлен на улице?',
@@ -134,21 +143,22 @@ async def step_4(message: Message, state: FSMContext):
 @dp.message_handler(state=DataPoll.type_cams_on_street)
 async def step_5(message: Message, state: FSMContext):
     camera = generate_choice_cam(message.from_user.id, message.text[2:], 'Уличные', 'IP')
-    file = InputFile(os.path.join('commercial_proposal', 'images', 'camera', camera[-1], camera[0] + '.jpg'))
+    name = camera[0].strip().replace('/', '').replace('\\', '')
+    file = InputFile(os.path.join('commercial_proposal', 'images', 'camera', camera[-1], name + '.jpg'))
     # print('Brand camera out', camera[-1])
     await message.answer_photo(photo=file, caption=f'Будет использована камера:\n'
                                                    f'{camera[0]}, {camera[1]}\n'
-                                                   f'Цена: {camera[3]}')
+                                                   f'Цена: {camera[3]} руб.')
     await state.update_data(type_cam_on_street=message.text)
     await state.update_data(data_cam_out=camera)
-    await message.answer('Сколько дней хранить архив с камер видеонаблюдения?', reply_markup=keyboards.key_cancel)
+    await message.answer('Сколько дней хранить архив с камер видеонаблюдения?', reply_markup=keyboards.key_cancel_to_video)
     await DataPoll.next()
 
 
 @dp.message_handler(state=DataPoll.days_for_archive)
 async def step_6(message: Message, state: FSMContext):
     if not message.text.isdigit() or message.text == '0':
-        await message.answer('Вы не верно указали архив. Укажите число дней?', reply_markup=keyboards.key_cancel)
+        await message.answer('Вы не верно указали архив. Укажите число дней?', reply_markup=keyboards.key_cancel_to_video)
         return
     await state.update_data(days_for_archive=message.text)
     data = await state.get_data()
@@ -161,8 +171,8 @@ async def step_6(message: Message, state: FSMContext):
         # await message.answer(f'Слишком большой архив для данной конфигурации. Максимально возможный архив '
         #                      f'{table_data[1]} дн. Укажите сколько дней будем хранить архив.',
         #                      reply_markup=keyboards.key_cancel)
-        await message.answer(f'Слишком большой архив для данной конфигурации. Максимальный архив {table_data[1]:.2f}',
-                             reply_markup=keyboards.key_cancel)
+        await message.answer(f'Слишком большой архив для данной конфигурации. Максимальный архив {int(table_data[1])} дн.',
+                             reply_markup=keyboards.key_cancel_to_video)
         return
     file_name, number_kp = create_doc.save_kp(table_data[0], table_data[1]['total'], message.from_user.id)
 

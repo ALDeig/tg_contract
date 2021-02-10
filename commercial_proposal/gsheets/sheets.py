@@ -14,25 +14,40 @@ sh = client.open_by_key(config.SHEETS_ID)
 
 
 def get_info(table, directory, image_index=12):
-    # tables = {1: sh.worksheet('index', 1), 2: sh.sheet2, 3: sh.sheet3, 4: sh.sheet4, 5: sh.sheet5}
     wks = sh.worksheet('index', table)
+    data = wks.range('B2:Q3000')
     result = list()
-    now = datetime.now()
-    for cnt in range(2, 5000):
-        if cnt % 100 == 0:
-            print(now)
-            print(datetime.now() - now)
-            now = datetime.now()
-            print(cnt)
-        data = wks.range(f'B{cnt}:Q{cnt}')
-        if data[0][0].value:
-            result.append([i.value for i in data[0] if i.value or i.value == ' '])
-        else:
-            break
-    print('Start save images')
+    for row in data:
+        if row[0].value != '':
+            result.append([i.value for i in row if i.value])
+    # print(*result, sep='\n')
+    # return
+    print('Start save image')
     save_images(result, directory, image_index)
-
     return result
+#
+# get_info_test(1, 'dfads')
+
+# def get_info(table, directory, image_index=12):
+#     # tables = {1: sh.worksheet('index', 1), 2: sh.sheet2, 3: sh.sheet3, 4: sh.sheet4, 5: sh.sheet5}
+#     wks = sh.worksheet('index', table)
+#     result = list()
+#     now = datetime.now()
+#     for cnt in range(2, 5000):
+#         if cnt % 100 == 0:
+#             print(now)
+#             print(datetime.now() - now)
+#             now = datetime.now()
+#             print(cnt)
+#         data = wks.range(f'B{cnt}:Q{cnt}')
+#         if data[0][0].value:
+#             result.append([i.value for i in data[0] if i.value or i.value == ' '])
+#         else:
+#             break
+#     print('Start save images')
+#     save_images(result, directory, image_index)
+
+    # return result
 # print(get_info(0, 'dfad'))
 
 

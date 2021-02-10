@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS ChoiceBox(
 CREATE TABLE IF NOT EXISTS ChoiceCable(
     id SERIAL,
     id_tg INT,
+    type_system TEXT,
     use TEXT,
     brand TEXT
 );
@@ -231,6 +232,7 @@ CREATE TABLE IF NOT EXISTS DataCable(
     currency VARCHAR(255),
     provider VARCHAR(255),
     type_cable VARCHAR(255),
+    type_system VARCHAR(255),
     brand VARCHAR(255),
     model TEXT,
     price TEXT,

@@ -5,14 +5,15 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import db
 from misc import dp
 from keyboards import keyboards
+from handlers.questions_of_kp import DataPoll, DataPrices
 
 
-class DataPrices(StatesGroup):
-    installation_cost_of_1_IP_camera = State()  # стоимость монтажа 1 IP камеры, без прокладки кабеля
-    installation_cost_of_1_meter = State()  # стоимость монтажа 1 метра кабеля в гофрированной трубе
-    meters_of_cable = State()  # сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру
-    cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
-    start_up_cost = State()  # стоимость пуско-наладочных работ
+# class DataPrices(StatesGroup):
+#     installation_cost_of_1_IP_camera = State()  # стоимость монтажа 1 IP камеры, без прокладки кабеля
+#     installation_cost_of_1_meter = State()  # стоимость монтажа 1 метра кабеля в гофрированной трубе
+#     meters_of_cable = State()  # сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру
+#     cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
+#     start_up_cost = State()  # стоимость пуско-наладочных работ
 
 
 @dp.message_handler(text='⚒ Изменить стоимость работ', state='*')
@@ -79,9 +80,11 @@ async def step_5(message: types.Message, state: FSMContext):
         await message.answer('Вы не верно указали стоимость')
         return
     await state.update_data(start_up_cost=message.text)
-    await message.answer('Отлично, я сохранил эти данные и их не надо вводить каждый раз при создании КП, но есть '
-                         'возможность их изменить в любой момент', reply_markup=keyboards.menu)
+    await message.answer('Я сохранил стоимость работ и буду учитывать её при создании всех КП.\n\nПоменять стоимость '
+                         'работ можно в меню: 🎛 <b>Изменить данные</b>', parse_mode='HTML')
+    await message.answer('Выбери действие', reply_markup=keyboards.menu_video)
+    # await message.answer('Выберите тип системы', reply_markup=keyboards.select_system)
+    # await DataPoll.system.set()
     data = await state.get_data()
     db.delete_cost_work(message.from_user.id)
     db.insert_cost(data, message.from_user.id)
-    await state.finish()

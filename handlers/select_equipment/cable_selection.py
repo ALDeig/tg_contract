@@ -10,6 +10,7 @@ from handlers.select_equipment.start_selections import Selections
 
 
 class CableSelection(StatesGroup):
+    q_0 = State()
     q_1 = State()
     q_2 = State()
     q_3 = State()
@@ -18,7 +19,20 @@ class CableSelection(StatesGroup):
 # Гофрированная труба
 @dp.message_handler(text='Кабель', state=Selections.q_1)
 async def step_1(message: Message, state: FSMContext):
-    keyboard = create_keyboard_other('use', 'DataCable', {'type_cable': 'Кабель'})
+    keyboard = create_keyboard_other('type_system', 'DataCable', {'type_cable': 'Кабель'})
+    await state.update_data(options=keyboard[1])
+    await message.answer('Выберите тип системы', reply_markup=keyboard[0])
+    await CableSelection.q_0.set()
+
+
+@dp.message_handler(state=CableSelection.q_0)
+async def step_1(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if message.text not in data['options']:
+        await message.answer('Выбери вариант')
+        return
+    keyboard = create_keyboard_other('use', 'DataCable', {'type_system': message.text,'type_cable': 'Кабель'})
+    await state.update_data(type_system=message.text)
     await state.update_data(options=keyboard[1])
     await message.answer('Выберите назначение', reply_markup=keyboard[0])
     await CableSelection.q_1.set()
@@ -30,7 +44,7 @@ async def step_2(message: Message, state: FSMContext):
     if message.text not in data['options']:
         await message.answer('Выберите вариант')
         return
-    keyboard = create_keyboard_other('brand', 'DataCable', {'type_cable': 'Кабель', 'use': message.text})
+    keyboard = create_keyboard_other('brand', 'DataCable', {'type_system': data['type_system'],'type_cable': 'Кабель', 'use': message.text})
     await state.update_data(options=keyboard[1])
     await state.update_data(use=message.text)
     await message.answer('Выберите бренд', reply_markup=keyboard[0])

@@ -332,7 +332,7 @@ def create_row_camera(id_tg, type_camera, count_camera, purpose, details_camera)
     # print(details_camera)
     total_price = (Decimal(details_camera[3]) * count_camera).quantize(Decimal('.01'))
     row = [
-        f'Модель: {details_camera[0]}\n'
+        f'{details_camera[-1]} {details_camera[0]}\n'
         f'{details_camera[1]}',
         'шт',
         count_camera,
@@ -341,6 +341,13 @@ def create_row_camera(id_tg, type_camera, count_camera, purpose, details_camera)
     ]
 
     return row, total_price
+
+
+def check_switch(model, total_cam):
+    recorder = db.get_data_equipments('DataRecorder', 'number_poe', {'model': model})[0]
+    if recorder[0] >= int(total_cam):
+        return False
+    return True
 
 
 def calculate_result(data, id_tg):
@@ -360,6 +367,7 @@ def calculate_result(data, id_tg):
     # print(brand)
     reg = Recorders(cams=int(data['total_cams']), archive=int(data['days_for_archive']), brand=brand, id_tg=id_tg)
     reg = reg.main()
+    print('reg: ', reg)
     if not reg[0]:
         return False, reg[1]
     # camera = db.get_model_camera_of_user(
@@ -384,17 +392,18 @@ def calculate_result(data, id_tg):
                                     cams_on_street=int(data['cams_on_street']))
     # cable_in, cable_out = calculate_meter(total_cam=int(data['total_cams']), mt_cam=int(work[2]))
     pipe_out, pipe_in = calculate_pipe(cams_in=int(data['cams_on_indoor']), cams_out=int(data['cams_on_street']),
-                                       mt_cam=int(work[2]))
-    print('pipe_out: ', pipe_out, 'pipe_in: ', pipe_in)
+                                       mt_cam=float(work[2]))
     # locker = calculate_locker(len(reg))
     result.append(['Оборудование'])
     if data['cams_on_indoor'] != '0':
-        row_cam = create_row_camera(id_tg, data['type_cam_in_room'][2:], int(data['cams_on_indoor']), 'Внутренняя', data['data_cam_in'])
+        row_cam = create_row_camera(id_tg, data['type_cam_in_room'][2:], int(data['cams_on_indoor']), 'Внутренняя',
+                                    data['data_cam_in'])
         result.append(row_cam[0])
         price_of_categories['total'] += row_cam[1]
         price_of_categories['equipment'] += row_cam[1]
     if data['cams_on_street'] != '0':
-        row_cam = create_row_camera(id_tg, data['type_cam_on_street'][2:], int(data['cams_on_street']), 'Уличная', data['data_cam_out'])
+        row_cam = create_row_camera(id_tg, data['type_cam_on_street'][2:], int(data['cams_on_street']), 'Уличная',
+                                    data['data_cam_out'])
         result.append(row_cam[0])
         price_of_categories['total'] += row_cam[1]
         price_of_categories['equipment'] += row_cam[1]
@@ -408,21 +417,25 @@ def calculate_result(data, id_tg):
         price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(rows_recorder_and_hdd)
     # result, price_of_categories = create_row_disk(switch, result, prices, price_of_categories)
-    switch = Switch(int(data['total_cams']), brand)
-    switch = switch.calculate_switch()
-    rows_switch = RowsSwitch(switch, id_tg, brand).create_rows()
-    # rows_switch = rows_switch.create_rows()
-    for row in rows_switch:
-        price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
-        price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
-    result.extend(rows_switch)
-    row = [f"Модель {prices['cable_organizer']['model']} - Кабельный организатор",
+    check_switch_result = check_switch(reg[0][0][1], data['total_cams'])
+    if check_switch_result:
+        switch = Switch(int(data['total_cams']), brand)
+        switch = switch.calculate_switch()
+        rows_switch = RowsSwitch(switch, id_tg, brand).create_rows()
+        # rows_switch = rows_switch.create_rows()
+        for row in rows_switch:
+            price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
+            price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
+        result.extend(rows_switch)
+    else:
+        switch = None
+    row = [f"{prices['cable_organizer']['model']} - Кабельный организатор",
            'шт',
-           len(switch),
+           len(switch if switch else reg),
            f"{Decimal(prices['cable_organizer']['price'])}",
-           f"{(Decimal(prices['cable_organizer']['price']) * len(switch)).quantize(c)}"]
-    price_of_categories['total'] += (Decimal(prices['cable_organizer']['price']) * len(switch)).quantize(c)
-    price_of_categories['equipment'] += (Decimal(prices['cable_organizer']['price']) * len(switch)).quantize(c)
+           f"{(Decimal(prices['cable_organizer']['price']) * len(switch if switch else reg)).quantize(c)}"]
+    price_of_categories['total'] += (Decimal(prices['cable_organizer']['price']) * len(switch if switch else reg)).quantize(c)
+    price_of_categories['equipment'] += (Decimal(prices['cable_organizer']['price']) * len(switch if switch else reg)).quantize(c)
     result.append(row)
     ibp = row_other.Ibp(total_cam=int(data['total_cams']), id_tg=id_tg).create_row()
 
@@ -438,7 +451,7 @@ def calculate_result(data, id_tg):
     price_of_categories['total'] += Decimal(ibp[0][-1]).quantize(c)
     price_of_categories['equipment'] += Decimal(ibp[0][-1]).quantize(c)
     result.extend(ibp)
-    locker = Locker(len(reg), len(switch))
+    locker = Locker(len(reg), len(switch) if switch else None)
     locker = locker.calculate_box()
     row_locker = RowBox(id_tg, locker)
     row_locker = row_locker.create_rows()
@@ -480,17 +493,27 @@ def calculate_result(data, id_tg):
     price_of_categories['total'] += (int(data['total_cams']) * Decimal(work[3])).quantize(c)
     price_of_categories['materials'] += (int(data['total_cams']) * Decimal(work[3])).quantize(c)
     result.append(row)
+    box = row_other.Box(
+        data['cams_on_indoor'],
+        data['cams_on_street'],
+        data['data_cam_in'][-2] if 'data_cam_in' in data else None,
+        data['data_cam_out'][-2] if 'data_cam_out' in data else None
+    )
+    row_box = box.create_row()
+    for row in row_box:
+        price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
+        price_of_categories['materials'] += Decimal(row[-1]).quantize(Decimal('.01'))
+    result.extend(row_box)
     cable = row_other.Cable(pipe_in, pipe_out, id_tg).create_row()
     for row in cable:
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
-        price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
+        price_of_categories['materials'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(cable)
     pipe = row_other.Pipe(pipe_in, pipe_out, id_tg).create_row()
     for row in pipe:
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
-        price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
+        price_of_categories['materials'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(pipe)
-
 
     # price_cable = Decimal(prices['cctv_cable']['price']) / 305
     # row = [f"Модель {prices['cctv_cable']['model']} {prices['cctv_cable']['name']}",

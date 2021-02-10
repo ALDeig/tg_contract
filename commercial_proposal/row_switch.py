@@ -13,7 +13,6 @@ class Switch:
 
     def check_brand(self):
         brand = db.get_options('DataSwitch', 'brand')
-        print('Brands switch: ', brand)
         if self.brand in brand:
             return True
         else:
@@ -56,7 +55,6 @@ class RowsSwitch:
 
     def check_brand(self):
         brand = db.get_options('DataSwitch', 'brand')
-        print('Brands switch: ', brand)
         if self.brand in brand:
             return True
         else:
@@ -65,7 +63,7 @@ class RowsSwitch:
     def get_data_switch(self, ports):
         brand = self.check_brand()
         select_switch = db.select_choice_equipment('model', {'number_ports': ports, 'id_tg': self.id_tg}, 'ChoiceSwitch')
-        columns = ', '.join(('model', 'price', 'description'))
+        columns = ', '.join(('model', 'price', 'brand', 'description'))
         if not select_switch:
             if brand:
                 switch = db.get_data_equipments('DataSwitch', columns, {'number_ports': ports, 'brand': self.brand})[0]
@@ -91,7 +89,7 @@ class RowsSwitch:
         switches = self.create_dict_switches()
         for data, count in switches.items():
             price = str(data[1]).replace(',', '.')
-            row = [f"Модель {data[0]}\n{data[-1]}",
+            row = [f"{data[2]} {data[0]}\n{data[-1]}",
                    'шт',
                    count,
                    f"{Decimal(price).quantize(Decimal('.01'))}",

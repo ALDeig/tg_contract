@@ -9,13 +9,13 @@ import handlers
 
 async def set_default_commands(dp):
     await dp.bot.set_my_commands([
-        types.BotCommand("start", "Запустить бота"),
-        types.BotCommand("get_analytics", "Получить аналитику (только для администратора)"),
-        types.BotCommand("document", "Изменить ответ на кнопку Документы (только для администратора)"),
-        types.BotCommand("get_reviews", "Отзывы (только для администратора)"),
-        types.BotCommand("send_message", "Отправить сообщение всем пользователям (только для администратора)"),
-        types.BotCommand("get_limit", "Остаток ИНН и БИК (только для администартора)"),
-        types.BotCommand("save_cameras", "Сохранить данные из таблицы в базу (только для админа)")
+        types.BotCommand("start", "Запустить бота")
+        # types.BotCommand("get_analytics", "Получить аналитику (только для администратора)"),
+        # types.BotCommand("document", "Изменить ответ на кнопку Документы (только для администратора)"),
+        # types.BotCommand("get_reviews", "Отзывы (только для администратора)"),
+        # types.BotCommand("send_message", "Отправить сообщение всем пользователям (только для администратора)"),
+        # types.BotCommand("get_limit", "Остаток ИНН и БИК (только для администартора)"),
+        # types.BotCommand("save_cameras", "Сохранить данные из таблицы в базу (только для админа)")
     ])
 
 

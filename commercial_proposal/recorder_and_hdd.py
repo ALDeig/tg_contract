@@ -55,7 +55,6 @@ class Recorders:
             sizes_hdd = db.get_options('DataHDD', 'memory_size', {'brand': brand, 'memory_size': recorder[-1]}, '<=')
         else:
             sizes_hdd = db.get_options('DataHDD', 'memory_size', {'memory_size': recorder[-1]}, '<=')
-        print(sizes_hdd)
         need_size = cams * 24 * self.archive / 1024
         hdd = None
         number_hdd = None
@@ -113,7 +112,6 @@ class Recorders:
                                                   })
                 hdd = self.find_hdd(recorder[0], channels[-1])
                 if not hdd[0]:
-                    print('First')
                     return False, hdd[-1] * recorder[0][0] * 1024 / 24 / channels[-1]
                 cams -= channels[-1]
                 records.append([recorder[0], hdd])
@@ -128,7 +126,6 @@ class Recorders:
                                               {'brand': self.brand, 'number_channels': number_channels, 'type_recorder': 'Сетевые (IP)'})
             hdd = self.find_hdd(recorder[0], cams)
             if not hdd[0]:
-                print('Second', cams)
                 return False, hdd[-1] * recorder[0][0] * 1024 / 24 / cams
             records.append([recorder[0], hdd])
             break
@@ -154,7 +151,6 @@ class Recorders:
                                                   })
                 hdd = self.find_hdd(recorder[0], channels[-1])
                 if not hdd[0]:
-                    print('First')
                     return False, hdd[-1] * recorder[0][0] * 1024 / 24 / channels[-1]
                 cams -= channels[-1]
                 records.append([recorder[0], hdd])
@@ -169,7 +165,6 @@ class Recorders:
                                               {'number_channels': number_channels, 'type_recorder': 'Сетевые (IP)', 'number_poe': 0})
             hdd = self.find_hdd(recorder[0], cams)
             if not hdd[0]:
-                print('Second', cams)
                 return False, hdd[-1] * recorder[0][0] * 1024 / 24 / cams
             records.append([recorder[0], hdd])
             break
@@ -264,7 +259,6 @@ class Recorders:
         recorder = self.find_recorder_in_selected()
         if not recorder:
             brand = self.check_brand()
-            print('Not selected')
             if brand:
                 recorder = self.find_recorder_with_brand(self.cams)
             else:
@@ -291,11 +285,10 @@ class RowRecorderAndHDD:
         self.recorders = recorders
         self.id_tg = id_tg
         self.result = list()
-        print('Self recorders: ', self.recorders)
 
     @staticmethod
     def get_data_recorder(model):
-        columns = 'model, price, description'
+        columns = 'model, price, brand, description'
         recorder = db.get_data_equipments('DataRecorder', columns, {'model': model})
 
         return recorder
@@ -314,11 +307,9 @@ class RowRecorderAndHDD:
     def create_row_recorder(self):
         recorders = self.create_dict_recorder()
         for model, cnt in recorders.items():
-            print('model: ', model)
             data = self.get_data_recorder(model)[0]
-            print('Data: ', data)
             price = str(data[1]).replace(',', '.')
-            row = [f"Модель {data[0]}\n{data[-1]}",
+            row = [f"{data[2]} {data[0]}\n{data[-1]}",
                    'шт',
                    cnt,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
@@ -328,7 +319,7 @@ class RowRecorderAndHDD:
 
     def get_data_hdd(self, hdd):
         brand = db.select_choice_equipment('brand', {'id_tg': self.id_tg}, 'ChoiceHDD')
-        columns = 'model, price, description'
+        columns = 'model, price, brand, description'
         if not brand:
             data = db.get_data_equipments('DataHDD', columns, {'memory_size': hdd[0]})
             return data
@@ -348,9 +339,8 @@ class RowRecorderAndHDD:
         disks = self.create_dict_hdd()
         for model, cnt in disks.items():
             data = self.get_data_hdd(model)[0]
-            print('Data HDD: ', data)
             price = str(data[1]).replace(',', '.')
-            row = [f"Модель {data[0]}\n{data[-1]}",
+            row = [f"{data[2]} {data[0]}\n{data[-1]}",
                    'шт',
                    cnt,
                    f"{Decimal(price).quantize(Decimal('.01'))}",

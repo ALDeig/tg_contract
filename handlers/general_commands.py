@@ -14,7 +14,7 @@ from misc import dp, bot
 from keyboards import keyboards
 from work_with_api import get_limit_api_inn, get_limit_api_bik
 
-start_message = "Отлично! Надо пройти небольшую регистрацию. Всего 3 вопроса.\n Жми кнопку <b>Регистрация</b>."
+start_message = "Отлично!\n\nНадо пройти небольшую регистрацию. Всего 3 вопроса.\n\nЖми кнопку <b>Регистрация👇</b>."
 
 
 class Document(StatesGroup):
@@ -42,6 +42,18 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await message.answer(text=start_message, parse_mode='HTML', reply_markup=keyboard)
     else:
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
+
+
+@dp.message_handler(text='↩Отмена', state='*')
+@dp.message_handler(commands=['start'], state='*')
+async def cmd_start(message: types.Message, state: FSMContext):
+    """Обработка команды старт внутри некоторых функций"""
+    await state.finish()
+    if not db.check_user_in(message.from_user.id, 'id_tg', 'users'):  # Если пользователя нет в базе.
+        keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация')
+        await message.answer(text=start_message, parse_mode='HTML', reply_markup=keyboard)
+    else:
+        await message.answer('Выберите действие', reply_markup=keyboards.menu_video)
 
 
 @dp.message_handler(commands='get_analytics', user_id=config.ADMIN_ID)
@@ -182,55 +194,55 @@ async def send_message_all_users_2(message: types.Message, state: FSMContext):
 
 def save_data():
     try:
-        camera = sheets.get_info(0, 'camera', 12)
-        # columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'trade_price', 'view_cam',
-        #            'purpose', 'ppi', 'specifications', 'description', 'image')  # , 'box')
-        columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'view_cam',
-                   'purpose', 'ppi', 'specifications', 'description', 'image')
-        db.insert_data_of_equipments(data=camera, column=columns, table='data_cameras')
-        print('Cameras done')
-        recorder = sheets.get_info(1, 'recorder', 13)
-        # columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'trade_price', 'ppi',
-        #            'number_channels', 'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image')
-        columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'number_channels',
-                   'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image')
-        db.insert_data_of_equipments(data=recorder, column=columns, table='DataRecorder')
-        print('Recorder done')
-        hdd = sheets.get_info(2, 'hdd')
-        columns = ('country', 'currency', 'provider', 'brand', 'memory_size', 'model', 'price', 'trade_price', 'serial',
-                   'type_hdd', 'interface', 'description', 'image')
-        db.insert_data_of_equipments(data=hdd, column=columns, table='DataHDD')
-        del hdd
-        print('HDD done')
-        switch = sheets.get_info(3, 'switch')
-        columns = (
-            'country', 'currency', 'provider', 'brand', 'number_ports', 'model', 'price', 'trade_price', 'ports_poe',
-            'power', 'specifications', 'description', 'image')
-        db.insert_data_of_equipments(data=switch, column=columns, table='DataSwitch')
-        del switch
-        print('Switch done')
-        box = sheets.get_info(4, 'box')
-        columns = ('country', 'currency', 'provider', 'brand', 'number_units', 'model', 'price', 'trade_price',
-                   'mounting_type', 'dimensions', 'specifications', 'description', 'image')
-        db.insert_data_of_equipments(data=box, column=columns, table='DataBox')
-        del box
-        print('Box done')
-        ibp = sheets.get_info(5, 'IBP')
-        columns = (
-            'country', 'currency', 'provider', 'brand', 'model', 'power', 'price', 'trade_price', 'mounting_type',
-            'profile', 'specifications', 'description', 'image')
-        db.insert_data_of_equipments(data=ibp, column=columns, table='DataIBP')
-        print('IBP done')
-        del ibp
-        cable = sheets.get_info(6, 'cable', 11)
-        columns = ('country', 'currency', 'provider', 'type_cable', 'brand', 'model', 'price', 'trade_price', 'use',
+        # camera = sheets.get_info(0, 'camera', 12)
+        # # columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'trade_price', 'view_cam',
+        # #            'purpose', 'ppi', 'specifications', 'description', 'image')  # , 'box')
+        # columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'view_cam',
+        #            'purpose', 'ppi', 'specifications', 'description', 'image', 'box')
+        # db.insert_data_of_equipments(data=camera, column=columns, table='data_cameras')
+        # print('Cameras done')
+        # recorder = sheets.get_info(1, 'recorder', 13)
+        # # columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'trade_price', 'ppi',
+        # #            'number_channels', 'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image')
+        # columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'number_channels',
+        #            'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image')
+        # db.insert_data_of_equipments(data=recorder, column=columns, table='DataRecorder')
+        # print('Recorder done')
+        # hdd = sheets.get_info(2, 'hdd')
+        # columns = ('country', 'currency', 'provider', 'brand', 'memory_size', 'model', 'price', 'trade_price', 'serial',
+        #            'type_hdd', 'interface', 'description', 'image')
+        # db.insert_data_of_equipments(data=hdd, column=columns, table='DataHDD')
+        # del hdd
+        # print('HDD done')
+        # switch = sheets.get_info(3, 'switch', 11)
+        # columns = (
+        #     'country', 'currency', 'provider', 'brand', 'number_ports', 'model', 'price', 'ports_poe',
+        #     'power', 'specifications', 'description', 'image')
+        # db.insert_data_of_equipments(data=switch, column=columns, table='DataSwitch')
+        # del switch
+        # print('Switch done')
+        # box = sheets.get_info(4, 'box')
+        # columns = ('country', 'currency', 'provider', 'brand', 'number_units', 'model', 'price', 'trade_price',
+        #            'mounting_type', 'dimensions', 'specifications', 'description', 'image')
+        # db.insert_data_of_equipments(data=box, column=columns, table='DataBox')
+        # del box
+        # print('Box done')
+        # ibp = sheets.get_info(5, 'IBP')
+        # columns = (
+        #     'country', 'currency', 'provider', 'brand', 'model', 'power', 'price', 'trade_price', 'mounting_type',
+        #     'profile', 'specifications', 'description', 'image')
+        # db.insert_data_of_equipments(data=ibp, column=columns, table='DataIBP')
+        # print('IBP done')
+        # del ibp
+        cable = sheets.get_info(6, 'cable')
+        columns = ('country', 'currency', 'provider', 'type_cable', 'type_system', 'brand', 'model', 'price', 'trade_price', 'use',
                    'specifications', 'description', 'image')
         db.insert_data_of_equipments(cable, columns, 'DataCable')
         print('Cable done')
-        bracing = sheets.get_info(7, 'bracing', 10)
-        columns = ('country', 'currency', 'provider', 'brand', 'model', 'price', 'trade_price', 'mount_type',
-                   'specifications', 'description', 'image')
-        db.insert_data_of_equipments(bracing, columns, 'DataBracing')
+        # bracing = sheets.get_info(7, 'bracing', 10)
+        # columns = ('country', 'currency', 'provider', 'brand', 'model', 'price', 'trade_price', 'mount_type',
+        #            'specifications', 'description', 'image')
+        # db.insert_data_of_equipments(bracing, columns, 'DataBracing')
     except Exception as e:
         print(e)
         return

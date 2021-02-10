@@ -42,7 +42,7 @@ async def step_1(message: Message, state: FSMContext):
         await message.answer('Выберите бренд', reply_markup=keyboard[0])
         await CameraSelections.q_1.set()
     elif message.text == 'Аналоговые':
-        await message.answer('В разработке', reply_markup=keyboards.key_cancel)
+        await message.answer('В разработке', reply_markup=keyboards.key_cancel_to_video)
         return
         keyboard = keyboards.create_keyboard_kp('type_cam', 'data_cameras', ip_cam=False)
         if not keyboard:
@@ -103,7 +103,7 @@ async def step_3(message: Message, state: FSMContext):
                                             {'type_cam': data['type_cam'], 'brand': data['brand'],
                                              'view_cam': message.text[2:]})
     if not keyboard:
-        await message.answer('Вариантов нет', reply_markup=keyboards.key_cancel)
+        await message.answer('Вариантов нет', reply_markup=keyboards.key_cancel_to_video)
         return
     await state.update_data(options=keyboard[1])
     await message.answer('Уличная или внутреняя?', reply_markup=keyboard[0])
@@ -153,7 +153,7 @@ async def step_pagin(message: Message, state: FSMContext):
         await state.update_data({'end': end, 'start': start})
         await message.answer('Показать еще?', reply_markup=keyboards.yes)
     else:
-        await message.answer('Это все варианты', reply_markup=keyboards.key_cancel)
+        await message.answer('Это все варианты', reply_markup=keyboards.key_cancel_to_video)
 
 
 @dp.message_handler(state=CameraSelections.q_4)
@@ -167,11 +167,11 @@ async def step_5(message: Message, state: FSMContext):
     if not cameras:
         await message.answer('Таких камер нет. Выберети другие параметры.')
         await message.answer('Выберите тип камеры',
-                             reply_markup=keyboards.create_keyboard_kp('type_cam', 'data_cameras'))
+                             reply_markup=keyboards.camera_selection_type)
         await state.finish()
-        await CameraSelections.q_1.set()
+        await CameraSelections.q_0_0.set()
         return
-    await message.answer('Выберите камеру:', reply_markup=keyboards.key_cancel)
+    await message.answer('Выберите камеру:', reply_markup=keyboards.key_cancel_to_video)
     await state.update_data(cameras=cameras)
     end = 5
     for camera in cameras[:end]:
@@ -222,7 +222,7 @@ async def step_pagin(message: Message, state: FSMContext):
         await state.update_data({'end': end, 'start': start})
         await message.answer('Показать еще?', reply_markup=keyboards.yes)
     else:
-        await message.answer('Это все варианты', reply_markup=keyboards.key_cancel)
+        await message.answer('Это все варианты', reply_markup=keyboards.key_cancel_to_video)
 
 
 @dp.callback_query_handler(inline_keybords.choice_cameras_callback.filter(make='show'), state=CameraSelections.q_4)

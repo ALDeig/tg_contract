@@ -19,11 +19,11 @@ class Cable:
 
     def get_data(self, use):
         brand = self.get_brand(use)
-        columns = 'model, price, description'
+        columns = 'model, price, brand, description'
         if brand:
-            data = db.get_data_equipments('DataCable', columns, {'type_cable': 'Кабель', 'brand': brand, 'use': use})
+            data = db.get_data_equipments('DataCable', columns, {'type_system': 'IP', 'type_cable': 'Кабель', 'brand': brand, 'use': use})
         else:
-            data = db.get_data_equipments('DataCable', columns, {'type_cable': 'Кабель', 'use': use})
+            data = db.get_data_equipments('DataCable', columns, {'type_system': 'IP', 'type_cable': 'Кабель', 'use': use})
         return data[0]
 
     def create_row(self):
@@ -31,11 +31,11 @@ class Cable:
         if self.meters_in != 0:
             data = self.get_data('Внутренний')
             price = str(data[1]).replace(',', '.')
-            row = [f"Модель {data[0]}, {data[-1]}",
+            row = [f"{data[2]} {data[0]}, {data[-1]}",
                    'м',
                    self.meters_in,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
-                   f"{(Decimal(price) * self.meters_in).quantize(Decimal('.01'))}"]
+                   f"{(Decimal(price) * Decimal(str(self.meters_in).replace(',', '.'))).quantize(Decimal('.01'))}"]
             result.append(row)
         if self.meters_out != 0:
             data = self.get_data('Внешний')
@@ -44,7 +44,7 @@ class Cable:
                    'м',
                    self.meters_in,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
-                   f"{(Decimal(price) * self.meters_in).quantize(Decimal('.01'))}"]
+                   f"{(Decimal(price) * Decimal(str(self.meters_in).replace(',', '.'))).quantize(Decimal('.01'))}"]
             result.append(row)
         return result
 
@@ -65,7 +65,7 @@ class Pipe:
 
     def get_data(self, use):
         brand = self.get_brand(use)
-        columns = 'model, price, description'
+        columns = 'model, price, brand, description'
         if brand:
             data = db.get_data_equipments('DataCable', columns,
                                           {'type_cable': 'Гофрированная труба', 'brand': brand, 'use': use})
@@ -78,20 +78,20 @@ class Pipe:
         if self.meters_in != 0:
             data = self.get_data('Внутренняя')
             price = str(data[1]).replace(',', '.')
-            row = [f"Модель {data[0]}, {data[-1]}",
+            row = [f"{data[2]} {data[0]}, {data[-1]}",
                    'м',
                    self.meters_in,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
-                   f"{(Decimal(price) * self.meters_in).quantize(Decimal('.01'))}"]
+                   f"{(Decimal(price) * Decimal(str(self.meters_in).replace(',', '.'))).quantize(Decimal('.01'))}"]
             result.append(row)
         if self.meters_out != 0:
             data = self.get_data('Уличная')
             price = str(data[1]).replace(',', '.')
-            row = [f"Модель {data[0]}, {data[-1]}",
+            row = [f"{data[2]} {data[0]}, {data[-1]}",
                    'м',
                    self.meters_in,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
-                   f"{(Decimal(price) * self.meters_in).quantize(Decimal('.01'))}"]
+                   f"{(Decimal(price) * Decimal(str(self.meters_in).replace(',', '.'))).quantize(Decimal('.01'))}"]
             result.append(row)
         return result
 
@@ -110,7 +110,7 @@ class Ibp:
 
     def get_data(self, power):
         brand = self.get_brand(power)
-        columns = 'model, price, description'
+        columns = 'model, price, brand, description'
         if brand:
             data = db.get_data_equipments('DataIBP', columns, {'power': power, 'brand': brand})
         else:
@@ -125,10 +125,64 @@ class Ibp:
             power = 1000
         data = self.get_data(power)[0]
         price = str(data[1]).replace(',', '.')
-        row = [f"Модель {data[0]}\n{data[-1]}",
+        row = [f"{data[2]} {data[0]}\n{data[-1]}",
                'шт',
                1,
                f"{Decimal(price).quantize(Decimal('.01'))}",
                f"{Decimal(price).quantize(Decimal('.01'))}"]
         result.append(row)
         return result
+
+
+class Box:
+
+    def __init__(self, cams_in, cams_out, model_in=None, model_out=None):
+        self.cams_out = int(cams_out)
+        self.cams_in = int(cams_in)
+        self.model_in = model_in
+        self.model_out = model_out
+
+    @staticmethod
+    def get_data(model):
+        columns = 'model, price, brand, description'
+        data = db.get_data_equipments('DataBracing', columns, {'model': model})
+        return data[0]
+
+    def create_row(self):
+        result = list()
+        if self.model_out == self.model_in:
+            data = self.get_data(model=self.model_in)
+            price = str(data[1]).replace(',', '.')
+            row = [
+                f"{data[2]} {data[0]}\n{data[-1]}",
+                'шт',
+                self.cams_out + self.cams_in,
+                f"{Decimal(price).quantize(Decimal('.01'))}",
+                Decimal(price).quantize(Decimal('.01')) * (self.cams_out + self.cams_in)
+            ]
+            result.append(row)
+            return result
+        if self.model_in:
+            data = self.get_data(model=self.model_in)
+            price = str(data[1]).replace(',', '.')
+            row = [
+                f"{data[2]} {data[0]}\n{data[-1]}",
+                'шт',
+                self.cams_in,
+                f"{Decimal(price).quantize(Decimal('.01'))}",
+                Decimal(price).quantize(Decimal('.01')) * self.cams_in
+            ]
+            result.append(row)
+        if self.model_out:
+            data = self.get_data(model=self.model_out)
+            price = str(data[1]).replace(',', '.')
+            row = [
+                f"{data[2]} {data[0]}\n{data[-1]}",
+                'шт',
+                self.cams_out,
+                f"{Decimal(price).quantize(Decimal('.01'))}",
+                Decimal(price).quantize(Decimal('.01')) * self.cams_out
+            ]
+            result.append(row)
+        return result
+

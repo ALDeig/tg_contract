@@ -497,7 +497,7 @@ def get_data_of_cameras(type_cam, view_cam, purpose, ppi, brand):
 
 def get_price_of_camera(model=None, type_cam=None, view_cam=None, purpose=None, ppi=None):
     """Получает из базы данные по камере необходимые для КП"""
-    columns = ('model', 'description', 'specifications', 'price', 'ppi', 'brand')
+    columns = ('model', 'description', 'specifications', 'price', 'ppi', 'box', 'brand')
     columns = ', '.join(columns)
     if model:
         cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = %s', (model,))

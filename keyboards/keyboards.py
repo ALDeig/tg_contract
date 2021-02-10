@@ -19,7 +19,8 @@ choice_menu = ReplyKeyboardMarkup([
 ], resize_keyboard=True)
 
 select_system = ReplyKeyboardMarkup([
-    [KeyboardButton(text='IP'), KeyboardButton(text='Аналоговая')]
+    [KeyboardButton(text='IP'), KeyboardButton(text='Аналоговая')],
+    [KeyboardButton(text='↩Отмена')]
 ], resize_keyboard=True)
 
 yes_or_no = ReplyKeyboardMarkup([
@@ -35,6 +36,10 @@ yes = ReplyKeyboardMarkup([
 
 key_cancel = ReplyKeyboardMarkup([
     [KeyboardButton(text='↩️Отмена')]
+], resize_keyboard=True)
+
+key_cancel_to_video = ReplyKeyboardMarkup([
+    [KeyboardButton(text='↩Отмена')]
 ], resize_keyboard=True)
 
 phone_key = ReplyKeyboardMarkup([[KeyboardButton(text='Отправить свой номер', request_contact=True)]],
@@ -93,7 +98,8 @@ del_review = ReplyKeyboardMarkup([
 ], resize_keyboard=True)
 
 camera_selection_type = ReplyKeyboardMarkup([
-    [KeyboardButton(text='IP'), KeyboardButton(text='Аналоговые')]
+    [KeyboardButton(text='IP'), KeyboardButton(text='Аналоговые')],
+    [KeyboardButton(text='↩Отмена')]
 ], resize_keyboard=True)
 
 
@@ -114,7 +120,7 @@ def create_keyboard_kp(column, table, filters=None, ip_cam=True):
         else:
             keyboard.insert(KeyboardButton(text='🔘 ' + button if column == 'view_cam' else button))
             cnt = 1
-    keyboard.add(KeyboardButton(text='↩️Отмена'))
+    keyboard.add(KeyboardButton(text='↩Отмена'))
 
     return keyboard, buttons
 
