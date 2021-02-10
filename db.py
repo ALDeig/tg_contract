@@ -522,7 +522,7 @@ def get_model_camera_of_user(view_cam, purpose, id_tg):
 
 
 def get_kp_tpl(id_tg: int):
-    cursor.execute(f'SELECT kp_tpl FROM users WHERE id_tg = {id_tg}')
+    cursor.execute(f'SELECT kp_tpl FROM users WHERE id_tg = %s', (id_tg,))
     kp_tpl = cursor.fetchone()
 
     return kp_tpl[0]
@@ -530,7 +530,7 @@ def get_kp_tpl(id_tg: int):
 
 def get_data_cost(id_tg):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
-    cursor.execute(f'SELECT {columns} FROM cost_work WHERE id_tg={id_tg}')
+    cursor.execute(f'SELECT {columns} FROM cost_work WHERE id_tg= %s', (id_tg,))
     data = cursor.fetchone()
 
     return data
@@ -553,12 +553,12 @@ def get_reviews_with_id():
 
 def insert_reviews(text: str):
     """Запись отзыва в таблицу"""
-    cursor.execute(f'INSERT INTO reviews (review) VALUES ("{text}")')
+    cursor.execute(f'INSERT INTO reviews (review) VALUES (%s)', (text,))
     conn.commit()
 
 
 def del_review(num_id):
-    cursor.execute(f'DELETE FROM reviews WHERE id = {num_id}')
+    cursor.execute(f'DELETE FROM reviews WHERE id = %s', (num_id,))
     conn.commit()
 
 
