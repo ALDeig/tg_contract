@@ -76,10 +76,10 @@ def save_images(data, directory, image_index):
             # print(camera[image_index])
             url = camera[image_index].split('/')
             if url[2] == 'drive.google.com':
-                if not os.path.exists(os.path.join(path, camera[3])):
-                    os.mkdir(os.path.join(path, camera[3]))
+                if not os.path.exists(os.path.join(path, camera[3].strip())):
+                    os.mkdir(os.path.join(path, camera[3].strip()))
                 name = camera[5].strip().replace('/', '').replace('\\', '')
-                path_file = os.path.join(path, camera[3], name + f'.jpg')
+                path_file = os.path.join(path, camera[3].strip(), name + f'.jpg')
                 gdd.download_file_from_google_drive(file_id=url[-2], dest_path=path_file)
                 continue
             else:
@@ -96,11 +96,11 @@ def save_images(data, directory, image_index):
             # print(image_index)
             print(camera[image_index])
             continue
-        if not os.path.exists(os.path.join(path, camera[3])):
-            os.mkdir(os.path.join(path, camera[3]))
+        if not os.path.exists(os.path.join(path, camera[3].strip())):
+            os.mkdir(os.path.join(path, camera[3].strip()))
         name = camera[5].strip().replace('/', '').replace('\\', '')
         # type_file = camera[image_index].split('.')[-1]
-        with open(os.path.join(path, camera[3], name + f'.jpg'), 'wb') as file:
+        with open(os.path.join(path, camera[3].strip(), name + f'.jpg'), 'wb') as file:
             file.write(img)
 
 
