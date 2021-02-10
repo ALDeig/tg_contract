@@ -310,7 +310,7 @@ class RowRecorderAndHDD:
             print('Модель регистратора при создании строки для КП: ', model)
             data = self.get_data_recorder(model)[0]
             price = str(data[1]).replace(',', '.')
-            row = [f"{data[2]} {data[0]}\n{data[-1]}",
+            row = [f"{data[2]} {data[0]} {data[-1]}",
                    'шт',
                    cnt,
                    f"{Decimal(price).quantize(Decimal('.01'))}",

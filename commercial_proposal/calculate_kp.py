@@ -332,7 +332,7 @@ def create_row_camera(id_tg, type_camera, count_camera, purpose, details_camera)
     # print(details_camera)
     total_price = (Decimal(details_camera[3]) * count_camera).quantize(Decimal('.01'))
     row = [
-        f'{details_camera[-1]} {details_camera[0]}\n'
+        f'{details_camera[-1]} {details_camera[0]} '
         f'{details_camera[1]}',
         'шт',
         count_camera,

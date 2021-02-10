@@ -65,7 +65,7 @@ class RowBox:
         switches = self.create_dict_boxes()
         for data, count in switches.items():
             price = str(data[1]).replace(',', '.')
-            row = [f"{data[2]} {data[0]}\n{data[-1]}",
+            row = [f"{data[2]} {data[0]} {data[-1]}",
                    'шт',
                    count,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
