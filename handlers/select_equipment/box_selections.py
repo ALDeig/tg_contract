@@ -59,16 +59,15 @@ async def step_3(message: Message, state: FSMContext):
         keyboard = create_inline_keyboard(box[1])
         try:
             name = box[1].strip().replace('/', '').replace('\\', '')
-            type_file = box[3].split('.')[-1]
+            # type_file = box[3].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'box', data['brand'],
-                                           name + f'.{type_file}'))
+                                           name + '.jpg'))
+            await message.answer_photo(
+                photo=photo,
+                caption=f'{box[1]}\nЦена: {box[2]}₽',
+                reply_markup=keyboard)
         except Exception as e:
-            print(e)
-            continue
-        await message.answer_photo(
-            photo=photo,
-            caption=f'{box[1]}\nЦена: {box[2]}₽',
-            reply_markup=keyboard)
+            await message.answer(text=f'{box[1]}\nЦена: {box[2]}₽')
 
 
 @dp.callback_query_handler(choice_reg_callback.filter(make='show'), state=BoxSelection.q_2)
