@@ -15,8 +15,16 @@ def create_keyboard_switch(column: str, table: str, filters: dict = None):
     buttons = list(buttons)
     buttons.sort()
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+    cnt = 1
     for button in buttons:
-        keyboard.add(KeyboardButton(text=button))
-    keyboard.add(KeyboardButton(text='↩️Отмена'))
+        if cnt == 1:
+            keyboard.add(KeyboardButton(text=button))
+            cnt += 1
+        else:
+            keyboard.insert(KeyboardButton(text=button))
+            cnt = 1
+    # for button in buttons:
+    #     keyboard.add(KeyboardButton(text=button))
+    keyboard.add(KeyboardButton(text='↩Отмена'))
 
     return keyboard, buttons

@@ -15,6 +15,6 @@ def create_keyboard_other(value, table, filters=None):
     buttons.sort()
     for button in buttons:
         keyboard.add(KeyboardButton(text=button))
-    keyboard.add(KeyboardButton(text='↩️Отмена'))
+    keyboard.add(KeyboardButton(text='↩Отмена'))
 
     return keyboard, buttons

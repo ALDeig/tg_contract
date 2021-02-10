@@ -31,6 +31,9 @@ async def step_1(message: Message, state: FSMContext):
     if message.text not in data['options']:
         await message.answer('Выбери вариант')
         return
+    if message.text == 'Аналоговый':
+        await message.answer('В разработке', reply_markup=keyboards.key_cancel_to_video)
+        return
     keyboard = create_keyboard_other('use', 'DataCable', {'type_system': message.text,'type_cable': 'Кабель'})
     await state.update_data(type_system=message.text)
     await state.update_data(options=keyboard[1])

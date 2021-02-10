@@ -11,7 +11,7 @@ class Cable:
         self.id_tg = id_tg
 
     def get_brand(self, use):
-        brand = db.select_choice_equipment('brand', {'use': use}, 'ChoiceCable')
+        brand = db.select_choice_equipment('brand', {'type_system': 'IP', 'use': use}, 'ChoiceCable')
         if brand:
             return brand
         else:
