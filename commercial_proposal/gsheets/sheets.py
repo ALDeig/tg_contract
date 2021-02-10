@@ -9,14 +9,14 @@ from google_drive_downloader import GoogleDriveDownloader as gdd
 
 import config
 
-# client = pygsheets.authorize(service_file=os.path.join('commercial_proposal', 'gsheets', 'creds.json'))
-client = pygsheets.authorize(service_file=os.path.join('creds.json'))
+client = pygsheets.authorize(service_file=os.path.join('commercial_proposal', 'gsheets', 'creds.json'))
+# client = pygsheets.authorize(service_file=os.path.join('creds.json'))
 sh = client.open_by_key(config.SHEETS_ID)
 
 
 def get_info(table, directory, image_index=12):
     wks = sh.worksheet('index', table)
-    data = wks.range('B40:Q43')
+    data = wks.range('B2:Q3000')
     result = list()
     for row in data:
         if row[0].value != '':
@@ -68,8 +68,8 @@ def delete_dirs(directory):
 #                                     dest_path='./data/mnist.zip',
 #                                     unzip=True)
 def save_images(data, directory, image_index):
-    # path = os.path.join('commercial_proposal', 'images', directory)
-    path = os.path.join('images', directory)
+    path = os.path.join('commercial_proposal', 'images', directory)
+    # path = os.path.join('images', directory)
     delete_dirs(directory)
     for camera in data:
         try:
@@ -104,7 +104,7 @@ def save_images(data, directory, image_index):
             file.write(img)
 
 
-get_info(3, 'switch', 11)
+# get_info(3, 'switch', 11)
 # def get_info_of_recorder()
 #     result = list()
 #     for cnt in range(2, 1000):
