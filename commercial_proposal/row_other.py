@@ -154,7 +154,7 @@ class Box:
             data = self.get_data(model=self.model_in)
             price = str(data[1]).replace(',', '.')
             row = [
-                f"{data[2]} {data[0]}\n{data[-1]}",
+                f"{data[2]} {data[0]} {data[-1]}",
                 'шт',
                 self.cams_out + self.cams_in,
                 f"{Decimal(price).quantize(Decimal('.01'))}",

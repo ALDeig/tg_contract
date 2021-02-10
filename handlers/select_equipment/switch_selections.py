@@ -47,12 +47,10 @@ async def step_2(message: Message, state: FSMContext):
 async def step_3(message: Message, state: FSMContext):
     data = await state.get_data()
     if int(message.text) not in data['options']:
-        print(data['options'])
-        print('error')
         await message.answer('Выбери вариант')
         return
     await state.update_data(ports_poe=message.text)
-    data['number_ports'] = message.text
+    data['ports_poe'] = message.text
     columns = 'id, model, price, image, specifications, description'
     data.pop('options')
     switches = db.get_data_equipments('DataSwitch', columns, data)
