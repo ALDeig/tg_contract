@@ -16,9 +16,9 @@ class GofraSelection(StatesGroup):
     q_4 = State()
 
 
-@dp.message_handler(text='Гофрированная труба', state=Selections.q_1)
+@dp.message_handler(text='Гофра', state=Selections.q_1)
 async def step_1(message: Message, state: FSMContext):
-    keyboard = create_keyboard_other('brand', 'DataCable', {'type_cable': 'Гофрированная труба'})
+    keyboard = create_keyboard_other('brand', 'DataCable', {'type_cable': 'Гофра'})
     await state.update_data(options=keyboard[1])
     await message.answer('Выберите бренд', reply_markup=keyboard[0])
     await GofraSelection.q_1.set()
