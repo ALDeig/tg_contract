@@ -61,18 +61,19 @@ async def step_3(message: Message, state: FSMContext):
         keyboard = create_inline_keyboard(switch[1])
         try:
             name = switch[1].strip().replace('/', '').replace('\\', '')
-            type_file = switch[3].split('.')[-1]
+            # type_file = switch[3].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'switch', data['brand'],
                                            name + '.jpg'))
             await message.answer_photo(
                 photo=photo,
                 caption=f'{switch[1]}\nЦена: {switch[2]}₽',
                 reply_markup=keyboard)
-        except FileNotFoundError as e:
-            print('Ошибка при отправке фото: ', e)
-            await message.answer(text=f'{switch[1]}\nЦена: {switch[4]}₽', reply_markup=keyboard)
+        # except FileNotFoundError as e:
+        #     print('Ошибка при отправке фото: ', e)
+        #     await message.answer(text=f'{switch[1]}\nЦена: {switch[4]}₽', reply_markup=keyboard)
         except Exception as e:
-            print('Ошибка отправки сообщения: ', e)
+            # print('Ошибка отправки сообщения: ', e)
+            await message.answer(text=f'{switch[1]}\nЦена: {switch[4]}₽', reply_markup=keyboard)
             continue
 
 

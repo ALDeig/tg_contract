@@ -180,9 +180,9 @@ async def step_5(message: Message, state: FSMContext):
         keyboard = inline_keybords.create_keyboard(camera[1])
         try:
             name = camera[1].strip().replace('/', '').replace('\\', '')
-            type_file = camera[-1].split('.')[-1]
+            # type_file = camera[-1].split('.')[-1]
             photo = InputFile(os.path.join('commercial_proposal', 'images', 'camera', data['brand'],
-                                           name + f'.{type_file}'))
+                                           name + f'.jpg'))
             await message.answer_photo(
                 photo=photo,
                 caption=f'{camera[1]}\nЦена: {camera[4]}₽',

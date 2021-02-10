@@ -68,9 +68,9 @@ class Pipe:
         columns = 'model, price, brand, description'
         if brand:
             data = db.get_data_equipments('DataCable', columns,
-                                          {'type_cable': 'Гофрированная труба', 'brand': brand, 'use': use})
+                                          {'type_cable': 'Гофра', 'brand': brand, 'use': use})
         else:
-            data = db.get_data_equipments('DataCable', columns, {'type_cable': 'Гофрированная труба', 'use': use})
+            data = db.get_data_equipments('DataCable', columns, {'type_cable': 'Гофра', 'use': use})
         return data[0]
 
     def create_row(self):

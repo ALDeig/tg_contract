@@ -39,8 +39,9 @@ def generate_choice_cam(id_tg, view_cam, purpose, type_cam):
     if not camera:
         details_camera = db.get_price_of_camera(type_cam=type_cam, view_cam=view_cam, purpose=purpose, ppi='2')
     else:
-        details_camera = db.get_price_of_camera(
-            camera[0])  # 'model', 'description', 'specifications', 'price', 'ppi', 'box', 'image', 'brand'
+        details_camera = db.get_price_of_camera(camera[0])  # 'model', 'description', 'specifications', 'price', 'ppi', 'box', 'image', 'brand'
+        if not details_camera:
+            details_camera = db.get_price_of_camera(type_cam=type_cam, view_cam=view_cam, purpose=purpose, ppi='2')
 
     return details_camera
 

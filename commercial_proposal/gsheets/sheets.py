@@ -79,8 +79,8 @@ def save_images(data, directory, image_index):
                 if not os.path.exists(os.path.join(path, camera[3])):
                     os.mkdir(os.path.join(path, camera[3]))
                 name = camera[5].strip().replace('/', '').replace('\\', '')
-                path = os.path.join(path, camera[3], name + f'.jpg')
-                gdd.download_file_from_google_drive(file_id=url[-2], dest_path=path)
+                path_file = os.path.join(path, camera[3], name + f'.jpg')
+                gdd.download_file_from_google_drive(file_id=url[-2], dest_path=path_file)
                 continue
             else:
             # img = urllib.request.urlopen(camera[image_index])
@@ -92,9 +92,9 @@ def save_images(data, directory, image_index):
             print(camera[image_index])
             continue
         except Exception as e:
-            print('Ошибка при скачивании фото: ', e)
-            print(image_index)
-            print(camera)
+            print('Неизвестная Ошибка при скачивании фото: ', e)
+            # print(image_index)
+            print(camera[image_index])
             continue
         if not os.path.exists(os.path.join(path, camera[3])):
             os.mkdir(os.path.join(path, camera[3]))

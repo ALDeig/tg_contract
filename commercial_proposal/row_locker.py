@@ -26,23 +26,28 @@ class Locker:
             if flg:
                 return self.result
             else:
-                return self.result.append(options_units[-1])
+                self.result.append(options_units[-1])
+                return self.result
 
 
 class RowBox:
 
     def __init__(self, id_tg, boxes):
         self.boxes = boxes
+        print('Boxes: ', self.boxes)
         self.id_tg = id_tg
         self.result = list()
 
     def get_data_box(self, units):
         select_box = db.select_choice_equipment('model', {'number_units': units, 'id_tg': self.id_tg}, 'ChoiceBox')
+        print('Select box: ', select_box)
         columns = ', '.join(('model', 'price', 'brand', 'description'))
         if not select_box:
             box = db.get_data_equipments('DataBox', columns, {'number_units': units})[0]
         else:
-            box = db.get_equipment_data_by_model('DataBox', columns, select_box)
+            box = db.get_data_equipments('DataBox', columns, {'model': select_box})[0]
+            if not box:
+                box = db.get_data_equipments('DataBox', columns, {'number_units': units})[0]
         return box
 
     def create_dict_boxes(self):
