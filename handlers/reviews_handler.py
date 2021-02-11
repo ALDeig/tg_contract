@@ -60,7 +60,8 @@ async def send_more_reviews(message: Message, state: FSMContext):
 
 @dp.message_handler(state=Reviews.answer)
 async def get_review(message: Message, state: FSMContext):
-    await bot.send_message(chat_id=config.ADMIN_ID, text=f'Новый отзыв:\n{message.text}')
+    await bot.send_message(chat_id=config.ADMIN_ID[0],
+                           text=f'Новый отзыв:\n{message.text}\nОт пользователя: {message.from_user.first_name}')
     await message.answer('Спасибо за ваш отзыв!', reply_markup=keyboards.key_cancel)
     await state.finish()
 
