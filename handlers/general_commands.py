@@ -159,7 +159,8 @@ async def change_data(message: types.Message):
 
 @dp.message_handler(text='📤 Загрузить шаблон КП', state='*')
 async def add_tpl_kp(message: types.Message):
-    await message.answer('Отправьте файл шаблона', reply_markup=keyboards.key_cancel)
+    await message.answer('Инструкция, как использовать свой шаблон - https://clck.ru/S8SjN\n'
+                         '\nОтправьте мне файл шаблона с вашими контактами👇', reply_markup=keyboards.key_cancel)
     await Document.tpl.set()
 
 

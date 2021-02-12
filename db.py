@@ -37,7 +37,7 @@ def get_recorder_channels_with_brand(brand, number_channels=None):
     cur = conn.cursor()
     if not number_channels:
         cur.execute('SELECT DISTINCT number_channels FROM DataRecorder WHERE brand = %s ORDER BY number_channels',
-                    (brand, ))
+                    (brand,))
     else:
         cur.execute('SELECT DISTINCT number_channels FROM DataRecorder '
                     'WHERE number_channels >= %s AND brand = %s'
@@ -67,6 +67,7 @@ def get_options(table, column, filters=None, operator=None) -> list or bool:
 
     return [item[0] for item in res] if len(res) != 0 else False
 
+
 # print(get_options('DataSwitch', 'number_ports', {'number_ports': 6}, '<'))
 
 # print(get_recorder_channels(10, 2))
@@ -81,7 +82,7 @@ def get_hdd_memory_size(memory_size=6, brand=None):
     else:
         cur.execute('SELECT DISTINCT memory_size FROM DataHDD '
                     'WHERE memory_size <= %s '
-                    'ORDER BY memory_size', (memory_size, ))
+                    'ORDER BY memory_size', (memory_size,))
     hdd = cur.fetchall()
     cur.close()
 
@@ -391,16 +392,17 @@ def insert_kp_tpl(name_tpl: str, id_tg: int):
 
 
 def insert_data_of_equipments(data, column=None, table=None):
+    cur = conn.cursor()
     if not column:
         columns = ('model', 'description', 'specifications', 'price', 'image', 'view_cam', 'purpose', 'ppi', 'brand')
         columns = ', '.join(columns)
     else:
         columns = ', '.join(column)
-    cursor.execute(f'TRUNCATE {table}')
+    cur.execute(f'TRUNCATE {table}')
     conn.commit()
     for camera in data:
         placeholders = ', '.join(['%s'] * len(camera))
-        cursor.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', camera)
+        cur.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', camera)
 
     conn.commit()
 
@@ -481,14 +483,18 @@ def get_equipment_data_by_model(table: str, columns: str, model: str):
 def get_data_of_cameras(type_cam, view_cam, purpose, ppi, brand):
     columns = ('id', 'model', 'description', 'specifications', 'price', 'image')
     columns = ', '.join(columns)
-    cursor.execute(
-        f'''SELECT {columns}
-        FROM data_cameras
-        WHERE type_cam = %s 
-        AND view_cam=%s
-        AND purpose=%s
-        AND ppi=%s
-        AND brand=%s''', (type_cam, view_cam, purpose, ppi, brand))
+    if not purpose:
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s '
+                       f'AND ppi = %s AND brand = %s', (type_cam, view_cam, ppi, brand))
+    else:
+        cursor.execute(
+            f'''SELECT {columns}
+            FROM data_cameras
+            WHERE type_cam = %s 
+            AND view_cam=%s
+            AND purpose=%s
+            AND ppi=%s
+            AND brand=%s''', (type_cam, view_cam, purpose, ppi, brand))
     cameras = cursor.fetchall()
     if len(cameras) == 0:
         return False
@@ -502,8 +508,9 @@ def get_price_of_camera(model=None, type_cam=None, view_cam=None, purpose=None, 
     if model:
         cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = %s', (model,))
     else:
-        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s AND purpose = %s AND ppi = %s',
-                       (type_cam, view_cam, purpose, ppi))
+        cursor.execute(
+            f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s AND purpose = %s AND ppi = %s',
+            (type_cam, view_cam, purpose, ppi))
     result = cursor.fetchone()
     if not result:
         return False

@@ -117,13 +117,19 @@ async def step_4(message: Message, state: FSMContext):
     if message.text not in data['options']:
         await message.answer('Выберите вариант')
         return
-    keyboard = keyboards.create_keyboard_kp('ppi', 'data_cameras',
-                                            {'type_cam': data['type_cam'], 'brand': data['brand'],
-                                             'view_cam': data['view_cam']})
+    if message.text == 'Уличные':
+        filters = {'type_cam': data['type_cam'], 'brand': data['brand'], 'view_cam': data['view_cam'], 'purpose': message.text}
+        purpose = message.text
+        choice_purpose = message.text
+    else:
+        filters = {'type_cam': data['type_cam'], 'brand': data['brand'], 'view_cam': data['view_cam']}
+        purpose = None
+        choice_purpose = message.text
+    keyboard = keyboards.create_keyboard_kp('ppi', 'data_cameras', filters)
     if not keyboard:
         await message.answer('Вариантов нет')
         return
-    await state.update_data({'options': keyboard[1], 'purpose': message.text})
+    await state.update_data({'options': keyboard[1], 'purpose': purpose, 'choice_purpose': choice_purpose})
     await message.answer('Разрешение камеры в Мп.?', reply_markup=keyboard[0])
     await CameraSelections.next()
 
@@ -233,13 +239,11 @@ async def step_5(message: Message, state: FSMContext):
 async def step_6(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=5)
     camera = db.get_price_of_camera(model=callback_data.get('model'))
-    print(camera)
     caption = f'{camera[0]}\n' \
               f'{camera[1]}\n' \
               f'{camera[2][:900]}\n' \
               f'Цена: {camera[3]}₽'
     keyboard = inline_keybords.create_keyboard_2(callback_data.get('model'))
-    print(callback_data.get('model'))
     # await call.messExceptioage.edit_caption(caption=caption, reply_markup=keyboard)
     # print(call.message)
     # await call.message.edit_caption(caption=caption, reply_markup=keyboard)
@@ -247,7 +251,6 @@ async def step_6(call: CallbackQuery, callback_data: dict, state: FSMContext):
         # print('photo')
         await call.message.edit_caption(caption=caption, reply_markup=keyboard)
     except BadRequest:
-        print('message')
         await call.message.edit_text(text=caption, reply_markup=keyboard)
 
 
@@ -255,7 +258,7 @@ async def step_6(call: CallbackQuery, callback_data: dict, state: FSMContext):
 async def step_7(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=30)
     data = await state.get_data()
-    db.insert_choice_camera(data['view_cam'], data['purpose'], callback_data.get('model'), call.from_user.id)
+    db.insert_choice_camera(data['view_cam'], data['choice_purpose'], callback_data.get('model'), call.from_user.id)
     await call.message.edit_reply_markup()
     await call.message.answer(f'Вы выбрали {callback_data.get("model")}', reply_markup=keyboards.menu_video)
     await state.finish()
