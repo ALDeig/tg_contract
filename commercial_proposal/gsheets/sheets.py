@@ -16,7 +16,7 @@ sh = client.open_by_key(config.SHEETS_ID)
 
 def get_info(table, directory, image_index=12):
     wks = sh.worksheet('index', table)
-    data = wks.range('B2:Q3000')
+    data = wks.range('B2:Q2000')
     result = list()
     for row in data:
         if row[0].value != '':

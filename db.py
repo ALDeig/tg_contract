@@ -405,6 +405,7 @@ def insert_data_of_equipments(data, column=None, table=None):
         cur.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', camera)
 
     conn.commit()
+    cur.close()
 
 
 def get_equipments_types(column: str, table: str, filters: dict = None) -> set:
