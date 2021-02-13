@@ -72,7 +72,6 @@ async def step_3(message: Message, state: FSMContext):
         except Exception as e:
             # print('Ошибка отправки сообщения: ', e)
             await message.answer(text=f'{switch[1]}\nЦена: {switch[4]}₽', reply_markup=keyboard)
-            continue
 
 
 @dp.callback_query_handler(choice_reg_callback.filter(make='show'), state=SwitchSelection.q_2)

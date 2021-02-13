@@ -200,7 +200,7 @@ async def step_5(message: Message, state: FSMContext):
             await message.answer(text=f'{camera[1]}\nЦена: {camera[4]}₽', reply_markup=keyboard)
         except Exception as e:
             print('Ошибка отправки сообщения: ', e)
-            continue
+            await message.answer(text=f'{camera[1]}\nЦена: {camera[4]}₽', reply_markup=keyboard)
     if end < len(cameras):
         await state.update_data({'start': 0, 'end': end})
         keyboard = keyboards.yes

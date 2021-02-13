@@ -162,7 +162,7 @@ async def step_4(message: Message, state: FSMContext):
             await message.answer(text=f'{recorder[1]}\nЦена: {recorder[2]}', reply_markup=keyboard)
         except Exception as e:
             print(e)
-            continue
+            await message.answer(text=f'{recorder[1]}\nЦена: {recorder[2]}', reply_markup=keyboard)
     # filters = {'type_recorder': data['type_recorder'], 'brand': data['brand'], 'number_hdd': message.text}
     # keyboard = create_keyboard_reg_and_switch('number_poe', 'DataRecorder', filters)
     # await state.update_data(options=keyboard[1])
