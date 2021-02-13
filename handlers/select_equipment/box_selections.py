@@ -94,7 +94,7 @@ async def step_5(call: CallbackQuery, callback_data: dict, state: FSMContext):
     print(columns)
     print(data.values())
     # return
-    db.insert_choice_equipment('ChoiceBox', columns, data)
+    db.insert_choice_equipment('ChoiceBox', columns, data, data)
     await call.message.edit_reply_markup()
     await call.message.answer(f'Вы выбрали {callback_data.get("model")}', reply_markup=keyboards.menu_video)
     await state.finish()

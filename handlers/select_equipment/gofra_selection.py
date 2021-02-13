@@ -33,6 +33,6 @@ async def step_2(message: Message, state: FSMContext):
     data.update({'id_tg': message.from_user.id, 'brand': message.text})
     data.pop('options')
     columns = ', '.join(data.keys())
-    db.insert_choice_equipment('ChoiceGofra', columns, data)
+    db.insert_choice_equipment('ChoiceGofra', columns, data, data)
     await message.answer(f'Вы выбрали {message.text}', reply_markup=keyboards.menu_video)
     await state.finish()

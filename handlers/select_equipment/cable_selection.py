@@ -62,7 +62,9 @@ async def step_3(message: Message, state: FSMContext):
         return
     data.update({'id_tg': message.from_user.id, 'brand': message.text})
     data.pop('options')
+    data_for_del = data.copy()
+    data_for_del.pop('brand')
     columns = ', '.join(data.keys())
-    db.insert_choice_equipment('ChoiceCable', columns, data)
+    db.insert_choice_equipment('ChoiceCable', columns, data, data_for_del)
     await message.answer(f'Вы выбрали {message.text}', reply_markup=keyboards.menu_video)
     await state.finish()

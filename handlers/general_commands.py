@@ -196,16 +196,12 @@ async def send_message_all_users_2(message: types.Message, state: FSMContext):
 def save_data():
     try:
         camera = sheets.get_info(0, 'camera', 12)
-        # columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'trade_price', 'view_cam',
-        #            'purpose', 'ppi', 'specifications', 'description', 'image')  # , 'box')
         columns = ('country', 'currency', 'provider', 'brand', 'type_cam', 'model', 'price', 'view_cam',
                    'purpose', 'ppi', 'specifications', 'description', 'image', 'box')
         db.insert_data_of_equipments(data=camera, column=columns, table='data_cameras')
         del camera
         print('Cameras done')
         recorder = sheets.get_info(1, 'recorder', 13)
-        # columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'trade_price', 'ppi',
-        #            'number_channels', 'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image')
         columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'number_channels',
                    'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image')
         db.insert_data_of_equipments(data=recorder, column=columns, table='DataRecorder')

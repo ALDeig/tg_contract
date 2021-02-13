@@ -220,9 +220,11 @@ async def step_7(call: CallbackQuery, callback_data: dict, state: FSMContext):
     data.update({'id_tg': call.from_user.id, 'model': callback_data.get('model')})
     data.pop('options')
     data.pop('brand')
+    data_for_del = data.copy()
+    data_for_del.pop('model')
     columns = ', '.join(data.keys())
     # return
-    db.insert_choice_equipment('ChoiceRecorder', columns, data)
+    db.insert_choice_equipment('ChoiceRecorder', columns, data, data_for_del)
     await call.message.edit_reply_markup()
     await call.message.answer(f'Вы выбрали {callback_data.get("model")}', reply_markup=keyboards.menu_video)
     await state.finish()

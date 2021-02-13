@@ -436,11 +436,12 @@ def select_choice_equipment(value: str, data: dict, table: str):
     return result
 
 
-def insert_choice_equipment(table: str, columns: str, values: tuple or dict):
+def insert_choice_equipment(table: str, columns: str, values: dict, filter_for_del: dict):
     """Вносит в базу данных выбранное пользователем оборудование"""
     placeholders = ', '.join(['%s'] * len(values))
     filters = ' AND '.join([i + ' = %s' for i in values.keys()])
-    cursor.execute(f'DELETE FROM {table} WHERE {filters}', tuple(values.values()))
+    filters_for_del = ' AND '.join([i + ' = %s' for i in filter_for_del.keys()])
+    cursor.execute(f'DELETE FROM {table} WHERE {filters_for_del}', tuple(filter_for_del.values()))
     cursor.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', tuple(values.values()))
     conn.commit()
 
