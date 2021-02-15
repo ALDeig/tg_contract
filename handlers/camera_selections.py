@@ -48,12 +48,13 @@ async def step_3(message: Message, state: FSMContext):
         await message.answer('Выебрите вариант')
         return
     await state.update_data(view_cam=message.text[2:])
-    keyboard = keyboards.create_keyboard_kp('purpose', {'brand': data['brand'], 'view_cam': message.text[2:]})
+    # keyboard = keyboards.create_keyboard_kp('purpose', {'brand': data['brand'], 'view_cam': message.text[2:]})
+    keyboard = keyboards.test_key
     if not keyboard:
         await message.answer('Вариантов нет', reply_markup=keyboards.key_cancel)
         return
-    await state.update_data(options=keyboard[1])
-    await message.answer('Уличная или внутреняя?', reply_markup=keyboard[0])
+    await state.update_data(options=['Уличные', 'Внутренние'])
+    await message.answer('Уличная или внутреняя?', reply_markup=keyboard)
     await CameraSelections.next()
 
 

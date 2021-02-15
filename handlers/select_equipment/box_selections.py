@@ -91,8 +91,6 @@ async def step_5(call: CallbackQuery, callback_data: dict, state: FSMContext):
     data.pop('options')
     data.pop('brand')
     columns = ', '.join(data.keys())
-    print(columns)
-    print(data.values())
     # return
     db.insert_choice_equipment('ChoiceBox', columns, data, data)
     await call.message.edit_reply_markup()

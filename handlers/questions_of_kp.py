@@ -155,8 +155,7 @@ async def step_4(message: Message, state: FSMContext):
 
 @dp.message_handler(state=DataPoll.type_cams_on_street)
 async def step_5(message: Message, state: FSMContext):
-    camera = generate_choice_cam(message.from_user.id, message.text[2:], 'Уличные',
-                                 'IP')  # 'model', 'description', 'specifications', 'price', 'ppi', 'image', 'box', 'brand'
+    camera = generate_choice_cam(message.from_user.id, message.text[2:], 'Уличные', 'IP')  # 'model', 'description', 'specifications', 'price', 'ppi', 'image', 'box', 'brand'
     name = camera[0].strip().replace('/', '').replace('\\', '')
     # type_file = camera[-3].split('.')[-1]
     try:

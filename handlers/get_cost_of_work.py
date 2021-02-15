@@ -88,3 +88,4 @@ async def step_5(message: types.Message, state: FSMContext):
     data = await state.get_data()
     db.delete_cost_work(message.from_user.id)
     db.insert_cost(data, message.from_user.id)
+    await state.finish()
