@@ -1,7 +1,7 @@
 from aiogram import executor, types
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+# from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from commercial_proposal.parser_prices import save_prices
+# from commercial_proposal.parser_prices import save_prices
 # from commercial_proposal import parser
 from misc import dp
 import handlers
@@ -19,8 +19,8 @@ async def set_default_commands(dp):
     ])
 
 
-scheduler = AsyncIOScheduler()
-scheduler.add_job(save_prices, 'cron', day='*', hour='7', minute='00')
+# scheduler = AsyncIOScheduler()
+# scheduler.add_job(save_prices, 'cron', day='*', hour='7', minute='00')
 
 if __name__ == '__main__':
     # save_prices()

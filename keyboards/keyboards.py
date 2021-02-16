@@ -1,11 +1,11 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup  # MediaGroup
-from aiogram.utils.callback_data import CallbackData
+# from aiogram.utils.callback_data import CallbackData
 
 import db
 
 menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='📑 Договор на монтаж видеонаблюдения')],
-    [KeyboardButton(text='💰 Коммерческие предложение')],
+    [KeyboardButton(text='💰 Коммерческие предложения')],
     [KeyboardButton(text='🎛 Изменить данные')],
     [KeyboardButton(text='😀 Отзывы')],
     [KeyboardButton(text='🗃 Документы')]
