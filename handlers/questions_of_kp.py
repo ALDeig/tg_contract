@@ -198,7 +198,7 @@ async def step_6(message: Message, state: FSMContext):
     file_name, number_kp = create_doc.save_kp(table_data[0], table_data[1]['total'], message.from_user.id)
 
     await state.finish()
-    await message.answer(text=f'💰 <b>Общая стоимость - {table_data[1]["total"]:.2f}₽</b>\n\n'
+    await message.answer(text=f'💰<b>Общая стоимость - {table_data[1]["total"]:.2f}₽</b>\n\n'
                               f'1️⃣Стоимость оборудования - {table_data[1]["equipment"]:.2f}₽\n'
                               f'2️⃣Стоимость материалов - {table_data[1]["materials"]:.2f}₽\n'
                               f'3️⃣Стоимость работы - {table_data[1]["work"]:.2f}₽',
@@ -208,6 +208,9 @@ async def step_6(message: Message, state: FSMContext):
     await asyncio.sleep(10)
     file = InputFile(file_name)
     await message.answer_document(file)
+    old_tpl = db.get_kp_tpl(message.from_user.id)
+    if not old_tpl:
+        await message.answer(text='Загрузите свой шаблон КП:  https://clck.ru/S8SjN.', disable_web_page_preview=True)
     await message.answer(text='КП готов, что дальше?', reply_markup=keyboards.menu)
     analytics.insert_data('kp')
     db.write_number_kp(message.from_user.id, number_kp=int(number_kp) + 1)

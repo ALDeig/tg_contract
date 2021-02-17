@@ -138,7 +138,7 @@ async def send_documents(message: types.Message):
     except FileNotFoundError:
         await message.answer('Документов нет', reply_markup=keyboards.key_cancel)
         return
-    await message.answer(text)
+    await message.answer(text, disable_web_page_preview=True)
 
 
 @dp.message_handler(text='🎥 Видеонаблюдение')
