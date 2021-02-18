@@ -1,6 +1,7 @@
 import os
 
 from num2words import num2words
+from loguru import logger
 import psycopg2
 
 import config
@@ -14,7 +15,7 @@ conn = psycopg2.connect(
 )
 
 cursor = conn.cursor()
-print('Database opened succsefully')
+logger.info('Database opened succsefully')
 
 
 def get_recorder_channels(number_channels=None):
