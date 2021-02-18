@@ -1,102 +1,11 @@
 import os
 
+import sqlite3
+
 from num2words import num2words
-from loguru import logger
-import psycopg2
 
-import config
-
-conn = psycopg2.connect(
-    database=config.DATABASE,
-    user=config.USER_DB,
-    password=config.PASSWORD,
-    host=config.HOST,
-    port=config.PORT
-)
-
+conn = sqlite3.connect(os.path.join("db", "users.db"))
 cursor = conn.cursor()
-logger.info('Database opened succsefully')
-
-
-def get_recorder_channels(number_channels=None):
-    cur = conn.cursor()
-    if not number_channels:
-        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder ORDER BY number_channels')
-    else:
-        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder '
-                    'WHERE number_channels >= %s '
-                    'ORDER BY number_channels', (number_channels,))
-    res = cur.fetchall()
-    cur.close()
-    if len(res) == 0:
-        return False
-
-    return [item[0] for item in res]
-
-
-def get_recorder_channels_with_brand(brand, number_channels=None):
-    cur = conn.cursor()
-    if not number_channels:
-        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder WHERE brand = %s ORDER BY number_channels',
-                    (brand,))
-    else:
-        cur.execute('SELECT DISTINCT number_channels FROM DataRecorder '
-                    'WHERE number_channels >= %s AND brand = %s'
-                    'ORDER BY number_channels', (number_channels, brand))
-    res = cur.fetchall()
-    cur.close()
-    if len(res) == 0:
-        return False
-
-    return [item[0] for item in res]
-
-
-def get_options(table, column, filters=None, operator=None) -> list or bool:
-    cur = conn.cursor()
-    if not filters:
-        cur.execute(f'SELECT DISTINCT {column} FROM {table} ORDER BY {column}')
-    else:
-        cols = []
-        for key in filters.keys():
-            cols.append(f'{key} {operator} %s')
-        value = ' AND '.join(cols)
-        # print(table)
-        request = f'SELECT DISTINCT {column} FROM {table} WHERE {value} ORDER BY {column}'
-        cur.execute(request, tuple(filters.values()))
-    res = cur.fetchall()
-    cur.close()
-
-    return [item[0] for item in res] if len(res) != 0 else False
-
-
-# print(get_options('DataSwitch', 'number_ports', {'number_ports': 6}, '<'))
-
-# print(get_recorder_channels(10, 2))
-
-
-def get_hdd_memory_size(memory_size=6, brand=None):
-    cur = conn.cursor()
-    if brand:
-        cur.execute('''SELECT DISTINCT memory_size FROM DataHDD 
-        WHERE brand = %s AND memory_size <= %s 
-        ORDER BY memory_size''', (brand, memory_size))
-    else:
-        cur.execute('SELECT DISTINCT memory_size FROM DataHDD '
-                    'WHERE memory_size <= %s '
-                    'ORDER BY memory_size', (memory_size,))
-    hdd = cur.fetchall()
-    cur.close()
-
-    return [item[0] for item in hdd]
-
-
-# print(get_hdd_memory_size())
-
-# import sqlite3
-
-
-# conn = sqlite3.connect(os.path.join("db", "users.db"))
-# cursor = conn.cursor()
 
 
 def choice_of_ending(number: str) -> str:
@@ -127,7 +36,7 @@ def get_users():
 
 
 def get_info(columns: str, table: str, id_tg: int, column: str):
-    cursor.execute(f'SELECT {columns} FROM {table} WHERE {column} = %s', (id_tg,))
+    cursor.execute(f'SELECT {columns} FROM {table} WHERE {column} = ?', (id_tg,))
     info = cursor.fetchone()
 
     return info
@@ -179,9 +88,9 @@ def create_data_to_db(data: dict):
 
 def insert(table: str, columns: list, data: dict):
     columns = ', '.join(columns)
-    values = tuple(data.values())
-    placeholders = ", ".join(["%s"] * len(data.keys()))
-    cursor.execute(
+    values = [tuple(data.values())]
+    placeholders = ", ".join("?" * len(data.keys()))
+    cursor.executemany(
         f"INSERT INTO {table} "
         f"({columns}) "
         f"VALUES ({placeholders})",
@@ -379,7 +288,7 @@ def insert_cost(data: dict, id_tg: int):
     data.update({'id_tg': id_tg})
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost', 'id_tg'])
     values = [tuple(data.values())]
-    placeholders = ", ".join(["%s"] * len(data.keys()))
+    placeholders = ", ".join("?" * len(data.keys()))
     cursor.executemany(
         f'INSERT INTO cost_work '
         f'({columns}) '
@@ -392,34 +301,35 @@ def insert_kp_tpl(name_tpl: str, id_tg: int):
     conn.commit()
 
 
-def insert_data_of_equipments(data, column=None, table=None):
-    cur = conn.cursor()
+def insert_data_of_cameras(data, column=None):
     if not column:
         columns = ('model', 'description', 'specifications', 'price', 'image', 'view_cam', 'purpose', 'ppi', 'brand')
         columns = ', '.join(columns)
     else:
         columns = ', '.join(column)
-    cur.execute(f'TRUNCATE {table}')
-    conn.commit()
+    cursor.executescript("""
+    DELETE FROM data_cameras;
+    REINDEX data_cameras;
+    VACUUM;
+    """)
     for camera in data:
-        placeholders = ', '.join(['%s'] * len(camera))
-        cur.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', camera)
+        placeholders = ', '.join('?' * len(camera))
+        cursor.execute(f'INSERT INTO data_cameras ({columns}) VALUES ({placeholders})', camera)
 
     conn.commit()
-    cur.close()
 
 
-def get_equipments_types(column: str, table: str, filters: dict = None) -> set:
-    """Получает данные по колонке из базы данных с фильтрами. Применяется для создания кнопок во время подбора"""
+def get_camera_types(column: str, filters: dict = None) -> set:
+    """Получает данные по колонке из базы данных с фильтрами"""
     if not filters:
-        request = f'SELECT {column} FROM {table}'
+        request = f'SELECT {column} FROM data_cameras'
         cursor.execute(request)
     else:
         cols = []
         for key in filters.keys():
-            cols.append(f'{key}=%s')
+            cols.append(f'{key}=?')
         value = ' AND '.join(cols)
-        request = f'SELECT {column} FROM {table} WHERE {value}'
+        request = f'SELECT {column} FROM data_cameras WHERE {value}'
         cursor.execute(request, list(filters.values()))
 
     cams = cursor.fetchall()
@@ -427,102 +337,57 @@ def get_equipments_types(column: str, table: str, filters: dict = None) -> set:
     return set(i[0] for i in cams)
 
 
-def select_choice_equipment(value: str, data: dict, table: str):
-    """Возвращает подобронное пользователем оборудование. Если не выбрано возвращает None"""
-    filters = ' AND '.join([i + ' = %s' for i in data.keys()])
-    # text = f'SELECT {value} FROM {table} WHERE {filters} AND id_tg = %s'
-    text = f'SELECT {value} FROM {table} WHERE {filters}'
-    cursor.execute(text, tuple(data.values()))
-    result = cursor.fetchone()
-    return result
-
-
-def insert_choice_equipment(table: str, columns: str, values: dict, filter_for_del: dict):
-    """Вносит в базу данных выбранное пользователем оборудование"""
-    placeholders = ', '.join(['%s'] * len(values))
-    filters = ' AND '.join([i + ' = %s' for i in values.keys()])
-    filters_for_del = ' AND '.join([i + ' = %s' for i in filter_for_del.keys()])
-    cursor.execute(f'DELETE FROM {table} WHERE {filters_for_del}', tuple(filter_for_del.values()))
-    cursor.execute(f'INSERT INTO {table} ({columns}) VALUES ({placeholders})', tuple(values.values()))
-    conn.commit()
-
-
 def insert_choice_camera(view_cam, purpose, model, id_tg):
     cursor.execute(f'SELECT model FROM choice_cams '
-                   f'WHERE id_tg = %s AND view_cam = %s '
-                   f'AND purpose = %s', (id_tg, view_cam, purpose))
+                   f'WHERE id_tg = ? AND view_cam = ? '
+                   f'AND purpose = ?', (id_tg, view_cam, purpose))
     old_choice = cursor.fetchone()
     # print(old_choice)
     # exit()
     if not old_choice:
         # print(old_choice)
-        cursor.execute(f'INSERT INTO choice_cams (id_tg, view_cam, purpose, model) VALUES (%s, %s, %s, %s)',
+        cursor.execute(f'INSERT INTO choice_cams (id_tg, view_cam, purpose, model) VALUES (?, ?, ?, ?)',
                        (id_tg, view_cam, purpose, model))
     else:
         # print('else')
-        cursor.execute(f'UPDATE choice_cams SET model = %s WHERE id_tg = %s'
-                       f'AND view_cam = %s AND purpose = %s', (model, id_tg, view_cam, purpose))
+        cursor.execute(f'UPDATE choice_cams SET model = ? WHERE id_tg = ?'
+                       f'AND view_cam = ? AND purpose = ?', (model, id_tg, view_cam, purpose))
     conn.commit()
 
 
-def get_data_equipments(table: str, columns: str, data: dict):
-    filters = ' AND '.join([i + ' = %s' for i in data.keys()])
-    text = f'SELECT {columns} FROM {table} WHERE {filters}'
-    cursor.execute(text, tuple(data.values()))
-    results = cursor.fetchall()
-    if len(results) == 0:
-        return False
-
-    return results
-
-
-def get_equipment_data_by_model(table: str, columns: str, model: str):
-    cursor.execute(f'SELECT {columns} FROM {table} WHERE model = %s', (model,))
-    result = cursor.fetchone()
-
-    return result
-
-
-def get_data_of_cameras(type_cam, view_cam, purpose, ppi, brand):
+def get_data_of_cameras(view_cam, purpose, ppi, brand):
     columns = ('id', 'model', 'description', 'specifications', 'price', 'image')
     columns = ', '.join(columns)
-    if not purpose:
-        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s '
-                       f'AND ppi = %s AND brand = %s', (type_cam, view_cam, ppi, brand))
-    else:
-        cursor.execute(
-            f'''SELECT {columns}
-            FROM data_cameras
-            WHERE type_cam = %s 
-            AND view_cam=%s
-            AND purpose=%s
-            AND ppi=%s
-            AND brand=%s''', (type_cam, view_cam, purpose, ppi, brand))
+    cursor.execute(
+        f'''SELECT {columns}
+        FROM data_cameras
+        WHERE view_cam=?
+        AND purpose=?
+        AND ppi=?
+        AND brand=?''', (view_cam, purpose, ppi, brand))
     cameras = cursor.fetchall()
     if len(cameras) == 0:
         return False
     return cameras
 
 
-def get_price_of_camera(model=None, type_cam=None, view_cam=None, purpose=None, ppi=None):
-    """Получает из базы данные по камере необходимые для КП"""
-    columns = ('model', 'description', 'specifications', 'price', 'ppi', 'image', 'box', 'brand')
+def get_price_of_camera(model=None, view_cam=None, purpose=None, ppi=None):
+    columns = ('model', 'description', 'specifications', 'price', 'ppi')
     columns = ', '.join(columns)
     if model:
-        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = %s', (model,))
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = ?', (model,))
     else:
-        cursor.execute(
-            f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s AND purpose = %s AND ppi = %s',
-            (type_cam, view_cam, purpose, ppi))
+        cursor.execute(f'SELECT {columns} FROM data_cameras WHERE view_cam = ? AND purpose = ? AND ppi = ?',
+                       (view_cam, purpose, ppi))
     result = cursor.fetchone()
+    # print(f'get_price_of_camera - {result}')
     if not result:
         return False
     return result
 
 
 def get_model_camera_of_user(view_cam, purpose, id_tg):
-    """Получает модель камеры выбранную пользвателем по параметрам"""
-    cursor.execute(f'SELECT model FROM choice_cams WHERE view_cam = %s AND purpose = %s AND id_tg = %s',
+    cursor.execute(f'SELECT model FROM choice_cams WHERE view_cam = ? AND purpose = ? AND id_tg = ?',
                    (view_cam, purpose, id_tg))
     model = cursor.fetchone()
     # if not model:
@@ -532,7 +397,7 @@ def get_model_camera_of_user(view_cam, purpose, id_tg):
 
 
 def get_kp_tpl(id_tg: int):
-    cursor.execute(f'SELECT kp_tpl FROM users WHERE id_tg = %s', (id_tg,))
+    cursor.execute(f'SELECT kp_tpl FROM users WHERE id_tg = {id_tg}')
     kp_tpl = cursor.fetchone()
 
     return kp_tpl[0]
@@ -540,7 +405,7 @@ def get_kp_tpl(id_tg: int):
 
 def get_data_cost(id_tg):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
-    cursor.execute(f'SELECT {columns} FROM cost_work WHERE id_tg= %s', (id_tg,))
+    cursor.execute(f'SELECT {columns} FROM cost_work WHERE id_tg={id_tg}')
     data = cursor.fetchone()
 
     return data
@@ -563,12 +428,12 @@ def get_reviews_with_id():
 
 def insert_reviews(text: str):
     """Запись отзыва в таблицу"""
-    cursor.execute(f'INSERT INTO reviews (review) VALUES (%s)', (text,))
+    cursor.execute(f'INSERT INTO reviews (review) VALUES ("{text}")')
     conn.commit()
 
 
 def del_review(num_id):
-    cursor.execute(f'DELETE FROM reviews WHERE id = %s', (num_id,))
+    cursor.execute(f'DELETE FROM reviews WHERE id = {num_id}')
     conn.commit()
 
 
@@ -576,29 +441,30 @@ def get_cursor():
     return cursor
 
 
-# def _init_db():
-#     """Инициализирует БД"""
-#     with open("createdb.sql", "r") as f:
-#         sql = f.read()
-#     cursor.executescript(sql)
-#     conn.commit()
+def _init_db():
+    """Инициализирует БД"""
+    with open("createdb.sql", "r") as f:
+        sql = f.read()
+    cursor.executescript(sql)
+    conn.commit()
 
 
-# def check_db_exists():
-#     """Проверяет, инициализирована ли БД, если нет — инициализирует"""
-#     cursor.execute("SELECT name FROM sqlite_master "
-#                    "WHERE type='table' AND name='users'")
-#     table_exists = cursor.fetchall()
-#     if table_exists:
-#         return
-#     _init_db()
+def check_db_exists():
+    """Проверяет, инициализирована ли БД, если нет — инициализирует"""
+    cursor.execute("SELECT name FROM sqlite_master "
+                   "WHERE type='table' AND name='users'")
+    table_exists = cursor.fetchall()
+    if table_exists:
+        return
+    _init_db()
 
 
-def _apply_script():
+def apply_script():
     """Вспомогательная функция для добавления изменений в базу данных. Вызывается из терминала"""
-    with open('createdb_psdb.sql', 'r', encoding='UTF-8') as file:
-        cursor.execute(file.read())
+    with open('changedb.sql', 'r', encoding='UTF-8') as file:
+        cursor.executescript(file.read())
     conn.commit()
     conn.close()
 
-# check_db_exists()
+
+check_db_exists()

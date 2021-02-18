@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import analytics
 from misc import dp
 import db
-import keyboards
+from keyboards import keyboards
 import work_with_api
 
 
@@ -29,6 +29,13 @@ class DataRegistrationExecutor(StatesGroup):
 @dp.message_handler(text='Регистрация', state='*')
 @dp.message_handler(text='👨‍🔧 Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
+    info = db.get_info('name, city, phone', 'users', message.from_user.id, 'id_tg')
+    if info:
+        text = f'Текущие данные:\n'\
+               f'Имя: {info[0]}\n'\
+               f'Город: {info[1]}\n'\
+               f'Телефон: {info[2]}'
+        await message.answer(text)
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
 
@@ -51,7 +58,7 @@ async def reg_step_2(message: types.Message, state: FSMContext):
 @dp.message_handler(state=DataRegistrationUser.phone, content_types=types.ContentTypes.CONTACT)
 async def reg_step_3(message: types.Message, state: FSMContext):
     phone = message.contact.phone_number
-    await state.update_data(phone=phone)
+    await state.update_data(phone=phone.replace('+', ''))
     user_data = await state.get_data()
     await DataRegistrationUser.next()
     await message.answer(f"Проверь данные:\n"
@@ -94,23 +101,38 @@ async def reg_step_4(message: types.Message, state: FSMContext):
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)
 
         await state.finish()
-        # if db.check_executor_in(message.from_user.id):
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
-        # else:
-            # keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
-            # await message.answer('Введи данные исполнителя (подготовь ИНН, БИК банка и номер расчетный счёта) '
-            #                      'Нажимай кнопку "Регистрация исполнителя"',
-            #                      reply_markup=keyboard)
     else:
         await state.finish()
         await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
         await DataRegistrationUser.name.set()
 
 
+def get_info(table: str, id_tg: int, type_executor: str) -> str or bool:
+    if type_executor == 'ИП':
+        columns = ', '.join(['name_ip', 'inn', 'ogrn', 'address', 'bik', 'name_bank', 'warranty'])
+    else:
+        columns = ', '.join(['name_org', 'inn', 'ogrn', 'address', 'bik', 'name_bank', 'warranty'])
+
+    info = db.get_info(columns, table, id_tg, 'user_id_tg')
+    if not info:
+        return False
+    text = f'Текущие данные:\nИмя: {info[0]}\nИНН: {info[1]}\nОГРН: {info[2]}\nАдрес: {info[3]}\n' \
+           f'БИК: {info[4]}\nБанк: {info[5]}\nГарантия: {info[6]}'
+    return text
+
+
 @dp.message_handler(text='Регистрация исполнителя', state='*')
 @dp.message_handler(text='🏢 Изменить данные исполнителя', state='*')
-# @dp.message_handler(text='Договор на монтаж видеонаблюдения', state='*')
 async def start_registration_executor(message: types.Message):
+    if message.text == '🏢 Изменить данные исполнителя':
+        type_executor = db.get_type_executor(message.from_user.id)
+        table = 'executor_ip' if type_executor == 'ИП' else 'executor_ooo'
+        info = get_info(table, message.from_user.id, type_executor)
+        if info:
+            await message.answer(info)
+        else:
+            await message.answer('Введите данные')
     await message.answer('Введи ИНН исполнителя', reply_markup=keyboards.key_cancel)
     await DataRegistrationExecutor.inn.set()
 

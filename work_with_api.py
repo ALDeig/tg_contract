@@ -19,6 +19,44 @@ def _get_data_from_api_bik(bik):
     return result
 
 
+def get_limit_api_inn() -> tuple or bool:
+    """Функция возвращает количество запросов, сколько заросов использовано и сколько осталось.
+    По методу ИНН"""
+    result = requests.get(f'https://api-fns.ru/api/stat?key={config.KEY_EGR}')
+    try:
+        data_json = result.json()
+    except json.JSONDecodeError:
+        return False
+    try:
+        limit = data_json['Методы']['egr']['Лимит']
+        spend = data_json['Методы']['egr']['Истрачено']
+        expiration_date = data_json['ДатаОконч']
+    except KeyError:
+        return False
+    left = int(limit) - int(spend)
+
+    return limit, spend, left, expiration_date
+
+
+def get_limit_api_bik() -> tuple or bool:
+    """Функция возвращает количество запросов, сколько заросов использовано и сколько осталось.
+    По методу bic"""
+    result = requests.get(f'https://analizbankov.ru/api/stat?key={config.KEY_BANK_INFO}')
+    try:
+        data_json = result.json()
+    except json.JSONDecodeError:
+        return False
+    try:
+        limit = data_json['Методы']['bankbic']['Лимит']
+        spend = data_json['Методы']['bankbic']['Истрачено']
+        expiration_date = data_json['ДатаОконч']
+    except KeyError:
+        return False
+    left = int(limit) - int(spend)
+
+    return limit, spend, left, expiration_date
+
+
 def parse_answer_inn(inn_erg: str):
     """Компанует в словарь ответ от API по ИНН"""
     try:
@@ -36,6 +74,7 @@ def parse_answer_inn(inn_erg: str):
     except KeyError:
         data = answer['items'][0]['ИП']
         flg = 'ИП'
+<<<<<<< HEAD
         # address = data['Адрес']['АдресПолн']
         # data_address = data['История']['Адрес']
         # for i in data_address.keys():
@@ -44,6 +83,8 @@ def parse_answer_inn(inn_erg: str):
         #     except KeyError:
         #         address = data['Адрес']['АдресПолн']
         #     break
+=======
+>>>>>>> dev
 
     if flg == 'ЮЛ':
         result = {'name_ip': data['НаимПолнЮЛ'],
@@ -60,7 +101,7 @@ def parse_answer_inn(inn_erg: str):
                   'address': data['Адрес']['АдресПолн']}  # data['Адрес']['АдресПолн']}
 
     return result, flg
-#'initials': data['ФИОПолн'],
+
 
 def parse_answer_bik(bik):
     """Компанует в словарь ответ от API по БИК"""

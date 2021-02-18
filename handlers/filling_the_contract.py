@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import analytics
 import db
-import keyboards
+from keyboards import keyboards
 import work_with_api
 from create_contract import filling_contract
 from misc import dp
@@ -26,16 +26,18 @@ class FillingContract(StatesGroup):  # информация о клиенте
     api_bik_ = State()
 
 
-@dp.message_handler(text='📑 Договор на монтаж видеонаблюдения')
-async def start_create_contract(message: types.Message):
+@dp.message_handler(text='📑 Договор на монтаж видеонаблюдения', state='*')
+async def start_create_contract(message: types.Message, state: FSMContext):
     if not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ip') \
             and not db.check_user_in(message.from_user.id, 'user_id_tg', 'executor_ooo'):  # Если у пользователя нет исп
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True).add('Регистрация исполнителя')
         keyboard.add('↩️Отмена')
         await message.answer('Зарегистрируйте исполнителя', reply_markup=keyboard)
+        await state.finish()
         return
-    await message.answer('Введи ИНН клиента', reply_markup=keyboards.key_cancel)
+    await state.finish()
     await FillingContract.inn.set()
+    await message.answer('Введи ИНН клиента', reply_markup=keyboards.key_cancel)
 
 
 @dp.message_handler(state=FillingContract.inn)

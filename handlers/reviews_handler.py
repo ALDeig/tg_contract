@@ -5,7 +5,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 import config
 from db import get_reviews, insert_reviews
 from misc import dp, bot
-import keyboards
+from keyboards import keyboards
 
 
 class Reviews(StatesGroup):
@@ -17,24 +17,24 @@ class Reviews(StatesGroup):
 async def start_reviews(message: Message, state: FSMContext):
     reviews = get_reviews()
     if len(reviews) > 3:
-        await message.answer(f'Ваши отзывы о нас:\n\n'
+        await message.answer(f'Отзывы наших пользователей::\n\n'
                              f'1. {reviews[0][0]}\n'
                              f'2. {reviews[1][0]}\n'
                              f'3. {reviews[2][0]}\n\n'
-                             f'Оставьте свой отзыв или пожелания', reply_markup=keyboards.reviews_key)
+                             f'Напишите свой отзыв👇', reply_markup=keyboards.reviews_key)
         await state.update_data({'reviews': reviews, 'cnt': 3})
         await Reviews.answer.set()
     else:
         if len(reviews) == 0:
-            await message.answer('Отзывов пока нет. Оставьте свой отзыв или пожелания', reply_markup=keyboards.key_cancel)
+            await message.answer('Отзывов пока нет. Оставьте свой отзыв или пожелания👇', reply_markup=keyboards.key_cancel)
             await Reviews.answer.set()
             return
-        text = str()
+        text = 'Отзывы наших пользователей:\n'
         cnt = 1
         for review in reviews:
             text += f'{cnt}. {review[0]}\n'
             cnt += 1
-        await message.answer(f'{text}\nОставьте свой отзыв или пожелания', reply_markup=keyboards.key_cancel)
+        await message.answer(f'{text}\nНапишите свой отзыв👇', reply_markup=keyboards.key_cancel)
         await Reviews.answer.set()
 
 
@@ -55,17 +55,19 @@ async def send_more_reviews(message: Message, state: FSMContext):
         await state.update_data(cnt=cnt)
     else:
         keyboard = keyboards.key_cancel
-    await message.answer(f'{text}\n Оставьте свой отзыв или пожелания.', reply_markup=keyboard)
+    await message.answer(f'{text}\n Оставьте свой отзыв или пожелания👇', reply_markup=keyboard)
 
 
 @dp.message_handler(state=Reviews.answer)
 async def get_review(message: Message, state: FSMContext):
-    await bot.send_message(chat_id=config.ADMIN_ID, text=f'Новый отзыв:\n{message.text}')
+    await bot.send_message(chat_id=config.ADMIN_ID[0],
+                           text=f'Новый отзыв:\n{message.text}\nОт пользователя: {message.from_user.first_name}')
     await message.answer('Спасибо за ваш отзыв!', reply_markup=keyboards.key_cancel)
     await state.finish()
 
 
 @dp.message_handler(text='Отзыв', user_id=config.ADMIN_ID, state='*')
+@dp.message_handler(text='отзыв', user_id=config.ADMIN_ID, state='*')
 async def write_review(message: Message, state: FSMContext):
     await message.answer('Пришли отзыв!')
     await Reviews.insert.set()

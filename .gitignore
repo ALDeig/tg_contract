@@ -5,6 +5,8 @@ db/analytics.json
 __pycache__
 .venv
 .idea
+images
 prices.json
 document.txt
 Dockerfile
+.env

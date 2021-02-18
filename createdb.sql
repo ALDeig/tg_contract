@@ -5,7 +5,16 @@ CREATE TABLE users(
     phone INTEGER,
     id_tg INTEGER,
     type_executor VARCHAR(100),
-    number_kp INTEGER
+    number_kp INTEGER,
+    kp_tpl VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS choice_cams(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_tg INTEGER,
+    view_cam TEXT,
+    purpose TEXT,
+    model TEXT
 );
 
 CREATE TABLE executor_ooo(
@@ -53,4 +62,27 @@ CREATE TABLE cost_work(
     cost_mounting TEXT,
     start_up_cost TEXT,
     id_tg INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS reviews(
+    id integer PRIMARY KEY AUTOINCREMENT,
+    review TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS data_cameras(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    country VARCHAR(50),
+    currency TEXT,
+    provider VARCHAR(100),
+    brand VARCHAR(100),
+    type_cam VARCHAR(20),
+    model VARCHAR(50),
+    price VARCHAR(50),
+    trade_price TEXT,
+    view_cam VARCHAR(50),
+    purpose VARCHAR(50),
+    ppi VARCHAR(50),
+    specifications TEXT,
+    description TEXT,
+    image VARCHAR(50)
 );
