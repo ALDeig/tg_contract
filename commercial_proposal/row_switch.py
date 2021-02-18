@@ -62,13 +62,13 @@ class RowsSwitch:
 
     def get_data_switch(self, ports):
         brand = self.check_brand()
-        select_switch = db.select_choice_equipment('model', {'number_ports': ports, 'id_tg': self.id_tg}, 'ChoiceSwitch')
+        select_switch = db.select_choice_equipment('model', {'ports_poe': ports, 'id_tg': self.id_tg}, 'ChoiceSwitch')
         columns = ', '.join(('model', 'price', 'brand', 'description'))
         if not select_switch:
             if brand:
-                switch = db.get_data_equipments('DataSwitch', columns, {'number_ports': ports, 'brand': self.brand})[0]
+                switch = db.get_data_equipments('DataSwitch', columns, {'ports_poe': ports, 'brand': self.brand})[0]
             else:
-                switch = db.get_data_equipments('DataSwitch', columns, {'number_ports': ports})[0]
+                switch = db.get_data_equipments('DataSwitch', columns, {'ports_poe': ports})[0]
         else:
             switch = db.get_equipment_data_by_model('DataSwitch', columns, select_switch)
 

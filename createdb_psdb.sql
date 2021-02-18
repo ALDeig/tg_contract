@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS ChoiceRecorder(
 CREATE TABLE IF NOT EXISTS ChoiceSwitch(
     id SERIAL,
     id_tg INT,
-    number_ports INT,
+    ports_poe INT,
     model VARCHAR(255)
 );
 
@@ -105,6 +105,16 @@ CREATE TABLE IF NOT EXISTS executor_ip(
 );
 
 CREATE TABLE IF NOT EXISTS cost_work(
+    id SERIAL,
+    cost_1_cam TEXT,
+    cost_1_m TEXT,
+    cnt_m TEXT,
+    cost_mounting TEXT,
+    start_up_cost TEXT,
+    id_tg INT
+);
+
+CREATE TABLE IF NOT EXISTS cost_work_analog(
     id SERIAL,
     cost_1_cam TEXT,
     cost_1_m TEXT,
