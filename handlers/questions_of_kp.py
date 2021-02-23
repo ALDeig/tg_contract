@@ -59,14 +59,14 @@ def generate_choice_cam(id_tg, view_cam, purpose, type_cam):
 
 @dp.message_handler(text='💰 Создать КП')
 async def start_poll(message: Message):
-    if db.check_user_in(id_tg=message.from_user.id, column='id_tg',
-                        table='cost_work'):  # проверяет есть ли данные в базе
-        await message.answer('Выберите тип системы', reply_markup=keyboards.select_system)
-        await DataPoll.first()
-        return
-    await message.answer('Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
-                         reply_markup=keyboards.key_cancel)
-    await DataPrices.first()
+    # if db.check_user_in(id_tg=message.from_user.id, column='id_tg',
+    #                     table='cost_work'):  # проверяет есть ли данные в базе
+    await message.answer('Выберите тип системы', reply_markup=keyboards.select_system)
+    await DataPoll.first()
+        # return
+    # await message.answer('Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
+    #                      reply_markup=keyboards.key_cancel)
+    # await DataPrices.first()
 
 
 @dp.message_handler(text='IP', state=DataPoll.system)
