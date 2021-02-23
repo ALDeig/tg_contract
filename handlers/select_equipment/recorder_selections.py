@@ -4,6 +4,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InputFile, Message, CallbackQuery
 from aiogram.utils.exceptions import BadRequest
+from loguru import logger
 
 import db
 from keyboards import keyboards
@@ -38,9 +39,9 @@ async def step_2(message: Message, state: FSMContext):
     if message.text not in data['options']:
         await message.answer('Выберите вариант из списка')
         return
-    if message.text != 'Сетевые (IP)':
-        await message.answer('В разработке', reply_markup=keyboards.key_cancel_to_video)
-        return
+    # if message.text != 'Сетевые (IP)':
+    #     await message.answer('В разработке', reply_markup=keyboards.key_cancel_to_video)
+    #     return
     await state.update_data(type_recorder=message.text)
     keyboard = create_keyboard_reg_and_switch('brand', 'DataRecorder', {'type_recorder': message.text})
     await state.update_data(options=keyboard[1])
@@ -217,6 +218,7 @@ async def step_6(call: CallbackQuery, callback_data: dict, state: FSMContext):
 async def step_7(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=30)
     data = await state.get_data()
+    logger.debug(data)
     data.update({'id_tg': call.from_user.id, 'model': callback_data.get('model')})
     data.pop('options')
     data.pop('brand')

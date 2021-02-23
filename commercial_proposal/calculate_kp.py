@@ -2,7 +2,8 @@ from decimal import Decimal
 
 import db
 from commercial_proposal import parser_prices
-from commercial_proposal.recorder_and_hdd import Recorders, RowRecorderAndHDD
+# from commercial_proposal.recorder_and_hdd import Recorders, RowRecorderAndHDD
+from commercial_proposal.analog_kp.recorder_and_hdd import Recorders, RowRecorderAndHDD
 from commercial_proposal.row_switch import Switch, RowsSwitch
 from commercial_proposal.row_locker import Locker, RowBox
 from commercial_proposal import row_other
@@ -357,7 +358,7 @@ def calculate_result(data, id_tg):
     # type_cam = {'🔘 Купольная': 'cup', '🔘 Цилиндрическая': 'cyl', '🔘 Компактная': 'com'}
     result = []
     prices = parser_prices.open_prices()
-    work = db.get_data_cost(id_tg)
+    work = db.get_data_cost(id_tg, 'cost_work')
     # reg = calculate_registrar(total_cam=int(data['total_cams']), days_archive=int(data['days_for_archive']), result=[])
     # print(data['data_cam_in'])
     # print(data['data_cam_out'])
@@ -365,9 +366,9 @@ def calculate_result(data, id_tg):
     print('Choice brand cam', brand)
     # print(data['total_cams'])
     # print(brand)
-    reg = Recorders(cams=int(data['total_cams']), archive=int(data['days_for_archive']), brand=brand, id_tg=id_tg)
+    reg = Recorders(cams=int(data['total_cams']), archive=int(data['days_for_archive']), brand=brand, id_tg=id_tg,
+                    system_ip=True)
     reg = reg.main()
-    print('reg: ', reg)
     if not reg[0]:
         return False, reg[1]
     # camera = db.get_model_camera_of_user(

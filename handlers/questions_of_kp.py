@@ -71,6 +71,16 @@ async def start_poll(message: Message):
 
 @dp.message_handler(text='IP', state=DataPoll.system)
 async def step_0(message: Message, state: FSMContext):
+    if db.check_user_in(id_tg=message.from_user.id, column='id_tg',
+                        table='cost_work'):  # проверяет есть ли данные в базе
+        await message.answer('Какое общее количество камер надо установить?',
+                             reply_markup=keyboards.key_cancel_to_video)
+        await DataPoll.next()
+        return
+    await message.answer('Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
+                         reply_markup=keyboards.key_cancel)
+    await DataPrices.first()
+    return
     # await state.update_data(type_cam='IP')
     await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel_to_video)
     await DataPoll.next()

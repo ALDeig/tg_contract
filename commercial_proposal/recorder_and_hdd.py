@@ -295,9 +295,7 @@ class RowRecorderAndHDD:
 
     def create_dict_recorder(self):
         dict_rec = {}
-        # print(self.recorders)
         for recorder in self.recorders:
-            # print(recorder[0][1])
             if recorder[0][1] in dict_rec:
                 dict_rec[recorder[0][1]] += 1
             else:
@@ -307,11 +305,10 @@ class RowRecorderAndHDD:
     def create_row_recorder(self):
         recorders = self.create_dict_recorder()
         for model, cnt in recorders.items():
-            print('Модель регистратора при создании строки для КП: ', model)
             data = self.get_data_recorder(model)[0]
             price = str(data[1]).replace(',', '.')
             row = [f"{data[2]} {data[0]} {data[-1]}",
-                   'шт',
+                   "шт",
                    cnt,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
                    f"{(Decimal(price) * cnt).quantize(Decimal('.01'))}"]

@@ -15,6 +15,7 @@ choice_menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='👨‍🔧 Изменить свои данные')],
     [KeyboardButton(text='🏢 Изменить данные исполнителя')],
     [KeyboardButton(text='⚒ Изменить стоимость работ')],
+    [KeyboardButton(text='⚒ Изменить стоимость работ (аналоговая система)')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
