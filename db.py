@@ -413,7 +413,7 @@ def insert_cost(table: str, data: dict, id_tg: int):
     placeholders = ", ".join(["%s"] * len(data.keys()))
     with conn:
         with conn.cursor() as curs:
-            cursor.execute(
+            curs.execute(
                 f'INSERT INTO {table} '
                 f'({columns}) '
                 f'VALUES ({placeholders})', values)
