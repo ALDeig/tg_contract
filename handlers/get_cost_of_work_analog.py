@@ -29,7 +29,7 @@ async def start_change_cost(message: types.Message):
         await message.answer(text)
     else:
         await message.answer('Введите данные')
-    await message.answer(text='Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
+    await message.answer(text='Укажите стоимость монтажа 1 камеры, без прокладки кабеля',
                          reply_markup=keyboards.key_cancel)
     await PricesAnalogKp.first()
 
@@ -50,7 +50,7 @@ async def step_2(message: types.Message, state: FSMContext):
         await message.answer(text='Вы не верно указали количество')
         return
     await state.update_data(installation_cable=message.text)
-    await message.answer('Укажите сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру')
+    await message.answer('Укажите сколько метров кабеля в среднем надо учитывать в КП на 1 камеру')
     await PricesAnalogKp.next()
 
 
@@ -60,7 +60,7 @@ async def step_3(message: types.Message, state: FSMContext):
         await message.answer('Вы не верно указали количество')
         return
     await state.update_data(meters_cable=message.text)
-    await message.answer('Укажите стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP '
+    await message.answer('Укажите стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 '
                          'камеры')
     await PricesAnalogKp.next()
 
@@ -72,7 +72,7 @@ async def step_4(message: types.Message, state: FSMContext):
         return
     await state.update_data(cost_mount_kit=message.text)
     await message.answer('Укажите стоимость пуско-наладочных работ(настройка параметров камеры и записи на '
-                         'регистраторе, юстировка) 1 IP камеры')
+                         'регистраторе, юстировка) 1 камеры')
     await PricesAnalogKp.next()
 
 
