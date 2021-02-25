@@ -4,8 +4,10 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import db
 from misc import dp
-from keyboards import keyboards
+from keyboards import keyboards, cost_work_keyboard
 from handlers.questions_of_kp import DataPoll, DataPrices
+from states.analog_kp import PricesAnalogKp
+from states.start_cost_work import CostWork
 
 
 # class DataPrices(StatesGroup):
@@ -15,8 +17,19 @@ from handlers.questions_of_kp import DataPoll, DataPrices
 #     cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
 #     start_up_cost = State()  # стоимость пуско-наладочных работ
 
+@dp.message_handler(text='⚒ Изменить стоимость работ', state='*')
+async def select_system(message: types.Message, state: FSMContext):
+    await message.answer('Выберите систему', reply_markup=cost_work_keyboard.type_system)
+    await CostWork.type_system.set()
 
-@dp.message_handler(text='⚒ Изменить стоимость работ (аналоговая система)', state='*')
+
+@dp.message_handler(state=CostWork.type_system)
+async def select_type_video(message: types.Message, state: FSMContext):
+    await message.answer('Выберите тип', reply_markup=cost_work_keyboard.type_video)
+    await CostWork.next()
+
+
+@dp.message_handler(text='IP', state=CostWork.type_video)
 async def start_change_cost(message: types.Message):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
     info = db.get_info(columns, 'cost_work', message.from_user.id, 'id_tg')

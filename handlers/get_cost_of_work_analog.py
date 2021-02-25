@@ -7,6 +7,7 @@ from misc import dp
 from keyboards import keyboards
 from handlers.questions_of_kp import DataPoll
 from states.analog_kp import PricesAnalogKp
+from states.start_cost_work import CostWork
 
 
 # class DataPrices(StatesGroup):
@@ -17,7 +18,7 @@ from states.analog_kp import PricesAnalogKp
 #     start_up_cost = State()  # стоимость пуско-наладочных работ
 
 
-@dp.message_handler(text='⚒ Изменить стоимость работ (аналоговая система)', state='*')
+@dp.message_handler(text='Аналоговая', state=CostWork.type_video)
 async def start_change_cost(message: types.Message):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
     info = db.get_info(columns, 'cost_work_analog', message.from_user.id, 'id_tg')

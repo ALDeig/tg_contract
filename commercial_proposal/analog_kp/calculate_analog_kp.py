@@ -134,14 +134,14 @@ def calculate_result(data, id_tg):
     #     result.extend(rows_switch)
     # else:
     #     switch = None
-    row = [f"{prices['cable_organizer']['model']} - Кабельный организатор",
-           'шт',
-           len(reg),
-           f"{Decimal(prices['cable_organizer']['price'])}",
-           f"{(Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)}"]
-    price_of_categories['total'] += (Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)
-    price_of_categories['equipment'] += (Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)
-    result.append(row)
+    # row = [f"{prices['cable_organizer']['model']} - Кабельный организатор",
+    #        'шт',
+    #        len(reg),
+    #        f"{Decimal(prices['cable_organizer']['price'])}",
+    #        f"{(Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)}"]
+    # price_of_categories['total'] += (Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)
+    # price_of_categories['equipment'] += (Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)
+    # result.append(row)
     ibp = row_other.Ibp(total_cam=int(data['total_cams']), id_tg=id_tg).create_row()
     price_of_categories['total'] += Decimal(ibp[0][-1]).quantize(c)
     price_of_categories['equipment'] += Decimal(ibp[0][-1]).quantize(c)
