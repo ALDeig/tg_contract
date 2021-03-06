@@ -11,6 +11,7 @@ from keyboards import keyboards
 from commercial_proposal import calculate_kp, create_doc
 # from handlers.get_cost_of_work import DataPrices
 from misc import dp
+from utils.gmail.sendMessage import send_message
 
 
 class DataPoll(StatesGroup):
@@ -21,7 +22,7 @@ class DataPoll(StatesGroup):
     type_cams_in_room = State()  # type_cam_on_street
     type_cams_on_street = State()  # type_cam_in_room
     days_for_archive = State()  # days_for_archive
-    answer_total_price = State()
+    send_kp = State()
     answer_of_sale = State()
 
 
@@ -192,22 +193,15 @@ async def step_6(message: Message, state: FSMContext):
         return
     await state.update_data(days_for_archive=message.text)
     data = await state.get_data()
-    # if int(data['total_cams']) >= 16 and int(message.text) > 18:
-    #     await message.answer(f'Слишком большой архив для данной конфигурации. Максимально возможный архив '
-    #                          f'18 дн. Укажите сколько дней будем хранить архив.', reply_markup=keyboards.key_cancel)
-    #     return
     table_data = calculate_kp.calculate_result(data=data, id_tg=message.from_user.id)
     if not table_data[0]:
-        # await message.answer(f'Слишком большой архив для данной конфигурации. Максимально возможный архив '
-        #                      f'{table_data[1]} дн. Укажите сколько дней будем хранить архив.',
-        #                      reply_markup=keyboards.key_cancel)
         await message.answer(
             f'Слишком большой архив для данной конфигурации. Максимальный архив {int(table_data[1])} дн.',
             reply_markup=keyboards.key_cancel_to_video)
         return
     file_name, number_kp = create_doc.save_kp(table_data[0], table_data[1]['total'], message.from_user.id)
 
-    await state.finish()
+    # await state.finish()
     await message.answer(text=f'💰<b>Общая стоимость - {table_data[1]["total"]:.2f}₽</b>\n\n'
                               f'1️⃣Стоимость оборудования - {table_data[1]["equipment"]:.2f}₽\n'
                               f'2️⃣Стоимость материалов - {table_data[1]["materials"]:.2f}₽\n'
@@ -222,7 +216,31 @@ async def step_6(message: Message, state: FSMContext):
     if not old_tpl:
         await message.answer(text='Загрузите свой шаблон КП:  https://clck.ru/S8SjN.', disable_web_page_preview=True)
     await message.answer(text='КП готов, что дальше?', reply_markup=keyboards.menu)
+    # await message.answer(text='КП готов. Отправьте поставщику, чтобы получить предложение.\nОтправить?',
+    #                      reply_markup=keyboards.yes_or_no)
+    # await state.update_data({'file': file_name, 'to_provider': table_data[-1]})
+    # await DataPoll.send_kp.set()
     analytics.insert_data('kp')
     db.write_number_kp(message.from_user.id, number_kp=int(number_kp) + 1)
+    await state.finish()
+    # return
+    # send_message('You won 1 mln $', file_name, 'alkin.denis@gmail.com', 'Test email')
     await asyncio.sleep(5)
     os.remove(file_name)
+
+
+# @dp.message_handler(state=DataPoll.send_kp)
+# async def send_kp_to_provider(message: Message, state: FSMContext):
+#     data = await state.get_data()
+#     if message.text == 'Да':
+#         city = db.get_data('name, phone, city', 'users', {'id_tg': ('=', message.from_user.id)})
+#         text = f'Пользователь: {message.from_user.full_name}, ID: {message.from_user.id}\n' \
+#                f'Имя в базе: {city[0].name}\n' \
+#                f'Телефон: {city[0].phone}\n' \
+#                f'Город: {city[0].city}'
+#         file_name = create_doc.save_table_to_provider(data['to_provider'], message.from_user.id)
+#         send_message(text, file_name, '112@rommo.ru', 'KP for provider')
+#         os.remove(file_name)
+#     await state.finish()
+#     await message.answer('Готово!', reply_markup=keyboards.menu)
+#     await asyncio.sleep(5)

@@ -49,7 +49,7 @@ class Recorders:
         model = db.get_types('model', 'ChoiceRecorder',
                              {'id_tg': ['=', self.id_tg], 'type_recorder': [self.ip, 'Сетевые (IP)'],
                               'number_channels': ['=', number_channels]})
-        columns = 'number_hdd, model, max_size_hdd'
+        columns = 'number_hdd, model, box, max_size_hdd'
         recorder = db.get_data(columns, 'DataRecorder', {'model': ('=', model[0])})[0]
         hdd = self.find_hdd(recorder, self.cams)
         if hdd[0]:
@@ -79,7 +79,7 @@ class Recorders:
 
     def find_recorder_with_brand(self, cams):
         records = list()
-        columns = 'number_hdd, model, max_size_hdd'
+        columns = 'number_hdd, model, box, max_size_hdd'
         while True:
             channels = db.get_types('number_channels', 'DataRecorder',
                                     {'brand': ['=', self.brand],
@@ -130,7 +130,7 @@ class Recorders:
 
     def find_recorder(self, cams):
         records = list()
-        columns = 'number_hdd, model, max_size_hdd'
+        columns = 'number_hdd, model, box, max_size_hdd'
         while True:
             channels = db.get_types('number_channels', 'DataRecorder',
                                     {'number_channels': ['>=', cams],

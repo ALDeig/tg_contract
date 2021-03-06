@@ -480,9 +480,7 @@ def get_data(columns: str, table: str, filters: dict):
             curs.execute(request, [value[1] for value in filters.values()])
             data = curs.fetchall()
     return data
-# print(get_data_cam({'model': ('=', 'DS-2CD2083G0-I')})[0])
-# columns = 'model, description, specifications, price, ppi, image, box, brand'
-# print(get_data(columns, 'data_cameras', {'model': ('=', 'DS-2CD2083G0-I')})[0])
+
 
 def get_types(column: str, table: str, filters: dict = None):
     """Ищет все варианты по одному столбцу по фильтру или без него"""
@@ -497,12 +495,9 @@ def get_types(column: str, table: str, filters: dict = None):
                 request = f'SELECT DISTINCT {column} FROM {table} WHERE {value}'
                 curs.execute(request, [value[1] for value in filters.values()])
             cams = curs.fetchall()
-    return [item[0] for item in cams]
-# print(get_types('brand', 'data_cameras'))
-# model = get_types('model', 'ChoiceRecorder',
-#                      {'id_tg': ['=', 381428187], 'type_recorder': ['=', 'Сетевые (IP)'],
-#                       'number_channels': ['=', 16]})
-# print(model)
+    types = [item[0] for item in cams]
+    types.sort()
+    return types
 # Конец функций аналогового КП
 
 def get_equipments_types(column: str, table: str, filters: dict = None) -> set:

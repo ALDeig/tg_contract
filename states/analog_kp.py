@@ -16,3 +16,4 @@ class DataPollAnalog(StatesGroup):
     type_cams_in_room = State()  # type_cam_on_street
     type_cams_on_street = State()  # type_cam_in_room
     days_for_archive = State()  # days_for_archive
+    send_kp = State()

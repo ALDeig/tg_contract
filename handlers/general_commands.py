@@ -5,6 +5,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Command
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.utils.exceptions import BotBlocked
+from loguru import logger
 
 import analytics
 import config
@@ -202,44 +203,44 @@ def save_data():
                    'purpose', 'ppi', 'specifications', 'description', 'image', 'box')
         db.insert_data_of_equipments(data=camera, column=columns, table='data_cameras')
         del camera
-        print('Cameras done')
+        logger.info('Cameras done')
         recorder = sheets.get_info(1, 'recorder', 13)
         columns = ('country', 'currency', 'provider', 'brand', 'type_recorder', 'model', 'price', 'number_channels',
-                   'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image')
+                   'number_hdd', 'max_size_hdd', 'number_poe', 'specifications', 'description', 'image', 'box')
         db.insert_data_of_equipments(data=recorder, column=columns, table='DataRecorder')
         del recorder
-        print('Recorder done')
+        logger.info('Recorder done')
         hdd = sheets.get_info(2, 'hdd')
         columns = ('country', 'currency', 'provider', 'brand', 'memory_size', 'model', 'price', 'trade_price', 'serial',
                    'type_hdd', 'interface', 'description', 'image')
         db.insert_data_of_equipments(data=hdd, column=columns, table='DataHDD')
         del hdd
-        print('HDD done')
+        logger.info('HDD done')
         switch = sheets.get_info(3, 'switch', 11)
         columns = (
             'country', 'currency', 'provider', 'brand', 'number_ports', 'model', 'price', 'ports_poe',
             'power', 'specifications', 'description', 'image')
         db.insert_data_of_equipments(data=switch, column=columns, table='DataSwitch')
         del switch
-        print('Switch done')
-        box = sheets.get_info(4, 'box')
-        columns = ('country', 'currency', 'provider', 'brand', 'number_units', 'model', 'price', 'trade_price',
-                   'mounting_type', 'dimensions', 'specifications', 'description', 'image')
+        logger.info('Switch done')
+        box = sheets.get_info(4, 'box', 13)
+        columns = ('country', 'currency', 'provider', 'brand', 'type_box', 'number_units', 'model', 'price',
+                   'trade_price', 'mounting_type', 'dimensions', 'specifications', 'description', 'image')
         db.insert_data_of_equipments(data=box, column=columns, table='DataBox')
         del box
-        print('Box done')
-        ibp = sheets.get_info(5, 'IBP')
+        logger.info('Box done')
+        ibp = sheets.get_info(5, 'IBP', 13)
         columns = (
             'country', 'currency', 'provider', 'brand', 'model', 'power', 'price', 'trade_price', 'mounting_type',
-            'profile', 'specifications', 'description', 'image')
+            'type_ibp', 'profile', 'specifications', 'description', 'image')
         db.insert_data_of_equipments(data=ibp, column=columns, table='DataIBP')
-        print('IBP done')
+        logger.info('IBP done')
         del ibp
         cable = sheets.get_info(6, 'cable')
         columns = ('country', 'currency', 'provider', 'type_cable', 'type_system', 'brand', 'model', 'price', 'trade_price', 'use',
                    'specifications', 'description', 'image')
         db.insert_data_of_equipments(cable, columns, 'DataCable')
-        print('Cable done')
+        logger.info('Cable done')
         bracing = sheets.get_info(7, 'bracing', 10)
         columns = ('country', 'currency', 'provider', 'brand', 'model', 'price', 'trade_price', 'mount_type',
                    'specifications', 'description', 'image')

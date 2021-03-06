@@ -4,7 +4,7 @@ import db
 from commercial_proposal import parser_prices
 from commercial_proposal.analog_kp.recorder_and_hdd import Recorders, RowRecorderAndHDD
 # from commercial_proposal.analog_kp.row_switch import Switch, RowsSwitch
-from commercial_proposal.analog_kp.row_locker import Locker, RowBox
+from commercial_proposal.analog_kp.row_locker import Locker
 from commercial_proposal.analog_kp import row_other
 
 
@@ -123,33 +123,12 @@ def calculate_result(data, id_tg):
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
         price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(rows_recorder_and_hdd)
-    # check_switch_result = check_switch(reg[0][0][1], data['total_cams'])
-    # if check_switch_result:
-    #     switch = Switch(int(data['total_cams']), brand)
-    #     switch = switch.calculate_switch()
-    #     rows_switch = RowsSwitch(switch, id_tg, brand).create_rows()
-    #     for row in rows_switch:
-    #         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
-    #         price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
-    #     result.extend(rows_switch)
-    # else:
-    #     switch = None
-    # row = [f"{prices['cable_organizer']['model']} - Кабельный организатор",
-    #        'шт',
-    #        len(reg),
-    #        f"{Decimal(prices['cable_organizer']['price'])}",
-    #        f"{(Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)}"]
-    # price_of_categories['total'] += (Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)
-    # price_of_categories['equipment'] += (Decimal(prices['cable_organizer']['price']) * len(reg)).quantize(c)
-    # result.append(row)
     ibp = row_other.Ibp(total_cam=int(data['total_cams']), id_tg=id_tg).create_row()
     price_of_categories['total'] += Decimal(ibp[0][-1]).quantize(c)
     price_of_categories['equipment'] += Decimal(ibp[0][-1]).quantize(c)
     result.extend(ibp)
-    locker = Locker(len(reg), None)
-    locker = locker.calculate_box()
-    row_locker = RowBox(id_tg, locker)
-    row_locker = row_locker.create_rows()
+    locker = Locker(len(reg), None, reg[0][0].box, id_tg)
+    row_locker = locker.main()
     for row in row_locker:
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
         price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))

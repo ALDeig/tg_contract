@@ -102,7 +102,7 @@ class Ibp:
         self.id_tg = id_tg
 
     def get_brand(self, use):
-        brand = db.select_choice_equipment('brand', {'id_tg': self.id_tg}, 'ChoiceIBP')
+        brand = db.select_choice_equipment('brand', {'id_tg': self.id_tg, 'type_ibp': 'IP'}, 'ChoiceIBP')
         if brand:
             return brand
         else:
@@ -112,9 +112,9 @@ class Ibp:
         brand = self.get_brand(power)
         columns = 'model, price, brand, description'
         if brand:
-            data = db.get_data_equipments('DataIBP', columns, {'power': power, 'brand': brand})
+            data = db.get_data_equipments('DataIBP', columns, {'power': power, 'brand': brand, 'type_ibp': 'IP'})
         else:
-            data = db.get_data_equipments('DataIBP', columns, {'power': power})
+            data = db.get_data_equipments('DataIBP', columns, {'power': power, 'type_ibp': 'IP'})
         return data
 
     def create_row(self):

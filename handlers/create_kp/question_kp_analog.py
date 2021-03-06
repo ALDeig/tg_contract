@@ -15,6 +15,7 @@ from commercial_proposal import create_doc
 from handlers.questions_of_kp import DataPoll
 from misc import dp
 from states.analog_kp import PricesAnalogKp, DataPollAnalog
+from utils.gmail.sendMessage import send_message
 
 
 def generate_choice_cam(filters):
@@ -179,7 +180,27 @@ async def step_5(message: Message, state: FSMContext):
     if not old_tpl:
         await message.answer(text='Загрузите свой шаблон КП:  https://clck.ru/S8SjN.', disable_web_page_preview=True)
     await message.answer(text='КП готов, что дальше?', reply_markup=keyboards.menu)
+    # await message.answer(text='КП готов. Отправьте поставщику, чтобы получить предложение.\nОтправить?',
+    #                      reply_markup=keyboards.yes_or_no)
+    # await state.update_data(file=file_name)
+    # await DataPollAnalog.send_kp.set()
     analytics.insert_data('kp')
     db.write_number_kp(message.from_user.id, number_kp=int(number_kp) + 1)
+    await state.finish()
+    # return
     await asyncio.sleep(5)
     os.remove(file_name)
+
+
+@dp.message_handler(state=DataPollAnalog.send_kp)
+async def send_kp_to_provider(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if message.text == 'Да':
+        city = db.get_data('city', 'users', {'id_tg': ('=', message.from_user.id)})
+        text = f'Пользователь: {message.from_user.full_name}, ID: {message.from_user.id}\n' \
+               f'Город: {city[0].city}'
+        send_message(text, data['file'], 'alkin.denis@gmail.com', 'KP for provider')
+        await asyncio.sleep(5)
+    await state.finish()
+    os.remove(data['file'])
+    await message.answer('Готово!', reply_markup=keyboards.menu)

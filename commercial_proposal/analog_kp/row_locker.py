@@ -5,18 +5,15 @@ import db
 
 class Locker:
 
-    def __init__(self, recorders, switches):
+    def __init__(self, recorders, switches, type_box, id_tg):
         self.units = recorders + recorders * 2
+        self.type_box = type_box
+        self.id_tg = id_tg
         self.result = list()
 
-    @staticmethod
-    def get_options_units():
-        options_units = db.get_options('DataBox', 'number_units')
-        return options_units
-
-    def calculate_box(self):
+    def calculate_box_type_1(self):
         while True:
-            options_units = self.get_options_units()
+            options_units = db.get_types('number_units', 'DataBox', {'type_box': ('=', 1)})
             flg = False
             for units in options_units:
                 if self.units < units:
@@ -27,30 +24,35 @@ class Locker:
                 return self.result
             else:
                 self.result.append(options_units[-1])
-                return self.result
+                self.units -= options_units[-1]
+                # return self.result
 
-
-class RowBox:
-
-    def __init__(self, id_tg, boxes):
-        self.boxes = boxes
-        self.id_tg = id_tg
-        self.result = list()
+    def calculate_box_type_0(self):
+        choice_box = db.get_data('model', 'ChoiceBox', {'type_box': ('=', 0), 'id_tg': ('=', self.id_tg)})
+        columns = 'model, price, brand, description'
+        if not choice_box:
+            box = db.get_data(columns, 'DataBox', {'type_box': ('=', 0)})
+        else:
+            box = db.get_data(columns, 'DataBox', {'model': ('=', choice_box[0].model)})
+        return {box[0]: 1}
 
     def get_data_box(self, units):
-        select_box = db.select_choice_equipment('model', {'number_units': units, 'id_tg': self.id_tg}, 'ChoiceBox')
+        select_box = db.get_data('model', 'ChoiceBox', {'number_units': ('=', units),
+                                                        'id_tg': ('=', self.id_tg),
+                                                        'type_box': ('=', 1)})
         columns = ', '.join(('model', 'price', 'brand', 'description'))
         if not select_box:
-            box = db.get_data_equipments('DataBox', columns, {'number_units': units})[0]
+            box = db.get_data(columns, 'DataBox', {'number_units': ('=', units), 'type_box': ('=', 1)})
         else:
-            box = db.get_data_equipments('DataBox', columns, {'model': select_box})[0]
+            box = db.get_data(columns, 'DataBox', {'model': ('=', select_box)})
             if not box:
-                box = db.get_data_equipments('DataBox', columns, {'number_units': units})[0]
-        return box
+                box = db.get_data(columns, 'DataBox', {'number_units': ('=', units), 'type_box': ('=', 1)})
+        print(box[0])
+        return box[0]
 
-    def create_dict_boxes(self):
+    def create_dict_boxes(self, boxes):
         result = {}
-        for box in self.boxes:
+        for box in boxes:
             data = self.get_data_box(box)
             if data in result:
                 result[data] += 1
@@ -59,15 +61,25 @@ class RowBox:
 
         return result
 
-    def create_rows(self):
-        switches = self.create_dict_boxes()
-        for data, count in switches.items():
+    @staticmethod
+    def create_rows(boxes):
+        result = list()
+        for data, count in boxes.items():
             price = str(data[1]).replace(',', '.')
             row = [f"{data[2]} {data[0]} {data[-1]}",
                    'шт',
                    count,
                    f"{Decimal(price).quantize(Decimal('.01'))}",
                    f"{(Decimal(price) * count).quantize(Decimal('.01'))}"]
-            self.result.append(row)
+            result.append(row)
 
-        return self.result
+        return result
+
+    def main(self):
+        if self.type_box == 0:
+            box = self.calculate_box_type_0()
+        else:
+            units = self.calculate_box_type_1()
+            box = self.create_dict_boxes(units)
+        row = self.create_rows(box)
+        return row

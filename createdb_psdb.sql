@@ -64,7 +64,8 @@ CREATE TABLE IF NOT EXISTS DataRecorder(
     number_poe INT,
     specifications TEXT,
     description TEXT,
-    image TEXT
+    image TEXT,
+    box INT
 );
 
 CREATE TABLE IF NOT EXISTS ChoiceSwitch(
@@ -118,6 +119,7 @@ CREATE TABLE IF NOT EXISTS ChoiceBox(
     id SERIAL,
     id_tg INT,
     number_units INT,
+    type_box INT,
     model VARCHAR(255)
 );
 
@@ -127,6 +129,7 @@ CREATE TABLE IF NOT EXISTS DataBox(
     currency VARCHAR(255),
     provider VARCHAR(255),
     brand VARCHAR(255),
+    type_box INT,
     number_units INT,
     model VARCHAR(255),
     price VARCHAR(255),
@@ -166,6 +169,7 @@ CREATE TABLE IF NOT EXISTS DataCable(
 CREATE TABLE IF NOT EXISTS ChoiceIBP(
     id SERIAL,
     id_tg INT,
+    type_ibp VARCHAR(255),
     brand TEXT
 );
 
@@ -180,6 +184,7 @@ CREATE TABLE IF NOT EXISTS DataIBP(
     price TEXT,
     trade_price TEXT,
     mounting_type TEXT,
+    type_ibp VARCHAR(255),
     profile TEXT,
     specifications TEXT,
     description TEXT,

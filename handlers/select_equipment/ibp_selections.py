@@ -15,16 +15,27 @@ class IBPSelection(StatesGroup):
     q_3 = State()
     q_4 = State()
 
-
 @dp.message_handler(text='ИБП', state=Selections.q_1)
-async def step_1(message: Message, state: FSMContext):
-    keyboard = create_keyboard_other('brand', 'DataIBP')
+async def step_0(message: Message, state: FSMContext):
+    keyboard = create_keyboard_other('type_ibp', 'DataIBP')
     await state.update_data(options=keyboard[1])
-    await message.answer('Выберите бренд', reply_markup=keyboard[0])
+    await message.answer('Выберите систему', reply_markup=keyboard[0])
     await IBPSelection.q_1.set()
 
 
 @dp.message_handler(state=IBPSelection.q_1)
+async def step_1(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if message.text not in data.get('options'):
+        await message.answer('Выберите вариант')
+        return
+    keyboard = create_keyboard_other('brand', 'DataIBP', {'type_ibp': message.text})
+    await state.update_data({'options': keyboard[1], 'type_ibp': message.text})
+    await message.answer('Выберите бренд', reply_markup=keyboard[0])
+    await IBPSelection.q_2.set()
+
+
+@dp.message_handler(state=IBPSelection.q_2)
 async def step_2(message: Message, state: FSMContext):
     data = await state.get_data()
     if message.text not in data['options']:
