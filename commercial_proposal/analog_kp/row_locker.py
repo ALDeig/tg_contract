@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from loguru import logger
+
 import db
 
 
@@ -75,6 +77,18 @@ class Locker:
 
         return result
 
+    @staticmethod
+    def create_row_dsk():
+        columns = 'model, price, brand, description'
+        data = db.get_data(columns=columns, table='DataBox', filters={'type_box': ('=', 2)})[0]
+        price = str(data.price).replace(',', '.')
+        row = [f"{data.brand} {data.model} {data.description}",
+               'шт',
+               1,
+               f"{Decimal(price).quantize(Decimal('.01'))}",
+               f"{(Decimal(price) * 1).quantize(Decimal('.01'))}"]
+        return row
+
     def main(self):
         if self.type_box == 0:
             box = self.calculate_box_type_0()
@@ -82,4 +96,7 @@ class Locker:
             units = self.calculate_box_type_1()
             box = self.create_dict_boxes(units)
         row = self.create_rows(box)
+        if self.type_box == 0:
+            row.append(self.create_row_dsk())
+        logger.debug(row)
         return row

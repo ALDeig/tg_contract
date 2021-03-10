@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from loguru import logger
 
 import db
 from misc import dp
@@ -89,5 +90,7 @@ async def step_5(message: types.Message, state: FSMContext):
     # await DataPoll.system.set()
     data = await state.get_data()
     db.delete_cost_work('cost_work_analog', message.from_user.id)
+    logger.debug('Delete done')
+    logger.debug(data)
     db.insert_cost('cost_work_analog', data, message.from_user.id)
     await state.finish()

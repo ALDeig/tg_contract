@@ -13,7 +13,7 @@ class Selections(StatesGroup):
 async def step_1(message: Message, state: FSMContext):
     keyboard = ReplyKeyboardMarkup([
         [KeyboardButton(text='Камеры'), KeyboardButton(text='Регистраторы')],
-        [KeyboardButton(text='Коммутаторы'), KeyboardButton(text='HDD'), KeyboardButton(text='ТШ')],
+        [KeyboardButton(text='Коммутаторы'), KeyboardButton(text='HDD'), KeyboardButton(text='Шкаф')],
         [KeyboardButton(text='Кабель'), KeyboardButton(text='Гофра'), KeyboardButton(text='ИБП')],
         [KeyboardButton(text='↩Отмена')]
     ], resize_keyboard=True)

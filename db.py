@@ -409,7 +409,7 @@ def get_number_contract(id_tg):
 def insert_cost(table: str, data: dict, id_tg: int):
     data.update({'id_tg': id_tg})
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost', 'id_tg'])
-    values = [tuple(data.values())]
+    values = tuple(data.values())
     placeholders = ", ".join(["%s"] * len(data.keys()))
     with conn:
         with conn.cursor() as curs:

@@ -3,6 +3,7 @@ import os
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InputFile, Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.utils.exceptions import BadRequest
 
 import db
 from keyboards import keyboards
@@ -20,12 +21,12 @@ class BoxSelection(StatesGroup):
 
 
 keyboard_start = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Шкаф 19``')],
-    [KeyboardButton(text='Щит')]
+    [KeyboardButton(text='Телекоммуникационный шкаф 19’’')],
+    [KeyboardButton(text='Настенный щит')]
 ], resize_keyboard=True)
 
 
-@dp.message_handler(text='ТШ', state=Selections.q_1)
+@dp.message_handler(text='Шкаф', state=Selections.q_1)
 async def step_1(message: Message, state: FSMContext):
     # keyboard = create_keyboard_reg_and_switch('', 'DataBox')
     # if not keyboard:
@@ -38,7 +39,7 @@ async def step_1(message: Message, state: FSMContext):
 
 @dp.message_handler(state=BoxSelection.q_1)
 async def step_1(message: Message, state: FSMContext):
-    type_box = 0 if message.text == 'Щит' else 1
+    type_box = 0 if message.text == 'Настенный щит' else 1
     keyboard = create_keyboard_reg_and_switch('brand', 'DataBox', {'type_box': type_box})
     if not keyboard:
         await message.answer('Нет вариантов')
@@ -53,6 +54,27 @@ async def step_2(message: Message, state: FSMContext):
     data = await state.get_data()
     if message.text not in data['options']:
         await message.answer('Выбери вариант')
+        return
+    if data.get('type_box') == 0:
+        columns = 'id, model, price, image, specifications, description'
+        data.pop('options')
+        data['brand'] = message.text
+        boxes = db.get_data_equipments('DataBox', columns, data)
+        await message.answer('Выбери вариант')
+        for box in boxes:
+            keyboard = create_inline_keyboard(box[1])
+            try:
+                name = box[1].strip().replace('/', '').replace('\\', '')
+                # type_file = box[3].split('.')[-1]
+                photo = InputFile(os.path.join('commercial_proposal', 'images', 'box', data['brand'],
+                                               name + '.jpg'))
+                await message.answer_photo(
+                    photo=photo,
+                    caption=f'{box[1]}\nЦена: {box[2]}₽',
+                    reply_markup=keyboard)
+            except Exception as e:
+                await message.answer(text=f'{box[1]}\nЦена: {box[2]}₽', reply_markup=keyboard)
+        await BoxSelection.q_3.set()
         return
     await state.update_data(brand=message.text)
     keyboard = create_keyboard_reg_and_switch('number_units', 'DataBox', {'brand': message.text,
@@ -99,7 +121,10 @@ async def step_6(call: CallbackQuery, callback_data: dict, state: FSMContext):
               f'{recorder[2]}\n' \
               f'Цена: {recorder[3]}₽'
     keyboard = create_inline_keyboard_2(callback_data.get('model'))
-    await call.message.edit_caption(caption=caption, reply_markup=keyboard)
+    try:
+        await call.message.edit_caption(caption=caption, reply_markup=keyboard)
+    except BadRequest:
+        await call.message.edit_text(text=caption, reply_markup=keyboard)
 
 
 @dp.callback_query_handler(choice_reg_callback.filter(make='choice'), state=BoxSelection.q_3)
