@@ -133,7 +133,10 @@ async def step_5(call: CallbackQuery, callback_data: dict, state: FSMContext):
     data = await state.get_data()
     data.update({'id_tg': call.from_user.id, 'model': callback_data.get('model')})
     data.pop('options')
-    data.pop('brand')
+    try:
+        data.pop('brand')
+    except KeyError:
+        pass
     columns = ', '.join(data.keys())
     # return
     db.insert_choice_equipment('ChoiceBox', columns, data, data)

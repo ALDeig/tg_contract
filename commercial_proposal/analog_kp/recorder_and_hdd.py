@@ -32,9 +32,9 @@ class Recorders:
     def find_recorder_in_selected(self):
         result = list()
         channels = db.get_types('number_channels', 'ChoiceRecorder',
-                                {'id_tg': ['=', self.id_tg], 'type_recorder': [self.ip, 'Сетевые (IP)']})
+                                {'id_tg': ('=', self.id_tg), 'type_recorder': (self.ip, 'Сетевые (IP)')})
         channels_all = db.get_types('number_channels', 'DataRecorder',
-                                    {'number_channels': ['>=', self.cams], 'type_recorder': [self.ip, 'Сетевые (IP)']})
+                                    {'number_channels': ('>=', self.cams), 'type_recorder': (self.ip, 'Сетевые (IP)')})
         if not channels:
             return False
         number_channels = None
@@ -47,8 +47,8 @@ class Recorders:
         if number_channels > channels_all[0]:
             return False
         model = db.get_types('model', 'ChoiceRecorder',
-                             {'id_tg': ['=', self.id_tg], 'type_recorder': [self.ip, 'Сетевые (IP)'],
-                              'number_channels': ['=', number_channels]})
+                             {'id_tg': ('=', self.id_tg), 'type_recorder': (self.ip, 'Сетевые (IP)'),
+                              'number_channels': ('=', number_channels)})
         columns = 'number_hdd, model, box, max_size_hdd'
         recorder = db.get_data(columns, 'DataRecorder', {'model': ('=', model[0])})[0]
         hdd = self.find_hdd(recorder, self.cams)
@@ -82,10 +82,10 @@ class Recorders:
         columns = 'number_hdd, model, box, max_size_hdd'
         while True:
             channels = db.get_types('number_channels', 'DataRecorder',
-                                    {'brand': ['=', self.brand],
-                                     'number_channels': ['>=', cams],
-                                     'type_recorder': [self.ip, 'Сетевые (IP)'],
-                                     'number_poe': ['=', 0]},
+                                    {'brand': ('=', self.brand),
+                                     'number_channels': ('>=', cams),
+                                     'type_recorder': (self.ip, 'Сетевые (IP)'),
+                                     'number_poe': ('=', 0)},
                                     )
             logger.debug(channels)
             if not channels:
@@ -116,10 +116,10 @@ class Recorders:
                     number_channels = channel
                     break
             recorder = db.get_data(columns, 'DataRecorder',
-                                   {'brand': ['=', self.brand],
-                                    'number_channels': ['=', number_channels],
-                                    'type_recorder': [self.ip, 'Сетевые (IP)'],
-                                    'number_poe': ['=', 0]})
+                                   {'brand': ('=', self.brand),
+                                    'number_channels': ('=', number_channels),
+                                    'type_recorder': (self.ip, 'Сетевые (IP)'),
+                                    'number_poe': ('=', 0)})
             hdd = self.find_hdd(recorder[0], cams)
             if not hdd[0]:
                 return False, hdd[-1] * recorder[0].number_hdd * 1024 / 24 / cams
