@@ -22,7 +22,8 @@ class BoxSelection(StatesGroup):
 
 keyboard_start = ReplyKeyboardMarkup([
     [KeyboardButton(text='Телекоммуникационный шкаф 19’’')],
-    [KeyboardButton(text='Настенный щит')]
+    [KeyboardButton(text='Настенный щит')],
+    [KeyboardButton(text='↩Отмена')]
 ], resize_keyboard=True)
 
 
