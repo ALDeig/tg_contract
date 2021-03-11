@@ -145,6 +145,9 @@ def calculate_result(data, id_tg):
             result.append(row)
     row = ['Материалы']
     result.append(row)
+    if reg[0][0].box == 0:
+        row = locker.create_row_dsk()
+        result.append(row)
     row = ['Монтажный комплект',
            'шт',
            data['total_cams'],

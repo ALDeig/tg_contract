@@ -96,7 +96,7 @@ class Locker:
             units = self.calculate_box_type_1()
             box = self.create_dict_boxes(units)
         row = self.create_rows(box)
-        if self.type_box == 0:
-            row.append(self.create_row_dsk())
-        logger.debug(row)
+        # if self.type_box == 0:
+        #     row.append(self.create_row_dsk())
+        # logger.debug(row)
         return row

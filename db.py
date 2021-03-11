@@ -498,6 +498,20 @@ def get_types(column: str, table: str, filters: dict = None):
     types = [item[0] for item in cams]
     types.sort()
     return types
+
+
+def set_default_select(id_tg: int):
+    with conn:
+        with conn.cursor() as curs:
+            curs.execute('DELETE FROM choice_cams WHERE id_tg = %s', (id_tg,))
+            curs.execute('DELETE FROM ChoiceBox WHERE id_tg = %s', (id_tg,))
+            curs.execute('DELETE FROM ChoiceRecorder WHERE id_tg = %s', (id_tg,))
+            curs.execute('DELETE FROM ChoiceSwitch WHERE id_tg = %s', (id_tg,))
+            curs.execute('DELETE FROM ChoiceHDD WHERE id_tg = %s', (id_tg,))
+            curs.execute('DELETE FROM ChoiceCable WHERE id_tg = %s', (id_tg,))
+            curs.execute('DELETE FROM ChoiceGofra WHERE id_tg = %s', (id_tg,))
+            curs.execute('DELETE FROM ChoiceIBP WHERE id_tg = %s', (id_tg,))
+        conn.commit()
 # Конец функций аналогового КП
 
 def get_equipments_types(column: str, table: str, filters: dict = None) -> set:
