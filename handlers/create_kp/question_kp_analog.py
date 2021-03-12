@@ -200,7 +200,10 @@ async def send_kp_to_provider(message: Message, state: FSMContext):
         text = f'Пользователь: {message.from_user.full_name}, ID: {message.from_user.id}\n' \
                f'Имя в базе: {city[0].name}\n' \
                f'Телефон: {city[0].phone}\n' \
-               f'Город: {city[0].city}'
+               f'Город: {city[0].city}\n\n' \
+               f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
+               f'Подтвердите наличие и укажите стоимость запрашиваемого оборудования в файле.\n' \
+               f'С уважением,\nКоманда Rommo'
         file_name = create_doc.save_table_to_provider(data['to_provider'], message.from_user.id)
         send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
         os.remove(file_name)
