@@ -5,14 +5,14 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 
-# from utils.gmail.google import create_service
+from utils.gmail.google import create_service
 
 CLIENT_SECRET_FILE = os.path.join('utils', 'gmail', 'client_secret.json')
 API_NAME = 'gmail'
 API_VERSION = 'v1'
 SCOPES = ['https://mail.google.com/']
 
-# service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 # emailMsg = 'You won $100,000'
 # address_me = 'alkin.denis@gmail.com'
 # msg_subject = 'Message Test'

@@ -215,32 +215,35 @@ async def step_6(message: Message, state: FSMContext):
     old_tpl = db.get_kp_tpl(message.from_user.id)
     if not old_tpl:
         await message.answer(text='Загрузите свой шаблон КП:  https://clck.ru/S8SjN.', disable_web_page_preview=True)
-    await message.answer(text='КП готов, что дальше?', reply_markup=keyboards.menu)
-    # await message.answer(text='КП готов. Отправьте поставщику, чтобы получить предложение.\nОтправить?',
-    #                      reply_markup=keyboards.yes_or_no)
-    # await state.update_data({'file': file_name, 'to_provider': table_data[-1]})
-    # await DataPoll.send_kp.set()
+    # await message.answer(text='КП готов, что дальше?', reply_markup=keyboards.menu)
+    await message.answer(text='КП готов. Отправьте поставщику, чтобы получить предложение.\nОтправить?',
+                         reply_markup=keyboards.yes_or_no)
+    await state.update_data({'file': file_name, 'to_provider': table_data[-1]})
+    await DataPoll.send_kp.set()
     analytics.insert_data('kp')
     db.write_number_kp(message.from_user.id, number_kp=int(number_kp) + 1)
-    await state.finish()
+    # await state.finish()
     # return
     # send_message('You won 1 mln $', file_name, 'alkin.denis@gmail.com', 'Test email')
     await asyncio.sleep(5)
     os.remove(file_name)
 
 
-# @dp.message_handler(state=DataPoll.send_kp)
-# async def send_kp_to_provider(message: Message, state: FSMContext):
-#     data = await state.get_data()
-#     if message.text == 'Да':
-#         city = db.get_data('name, phone, city', 'users', {'id_tg': ('=', message.from_user.id)})
-#         text = f'Пользователь: {message.from_user.full_name}, ID: {message.from_user.id}\n' \
-#                f'Имя в базе: {city[0].name}\n' \
-#                f'Телефон: {city[0].phone}\n' \
-#                f'Город: {city[0].city}'
-#         file_name = create_doc.save_table_to_provider(data['to_provider'], message.from_user.id)
-#         send_message(text, file_name, '112@rommo.ru', 'KP for provider')
-#         os.remove(file_name)
-#     await state.finish()
-#     await message.answer('Готово!', reply_markup=keyboards.menu)
-#     await asyncio.sleep(5)
+@dp.message_handler(state=DataPoll.send_kp)
+async def send_kp_to_provider(message: Message, state: FSMContext):
+    data = await state.get_data()
+    if message.text == 'Да':
+        city = db.get_data('name, phone, city', 'users', {'id_tg': ('=', message.from_user.id)})
+        text = f'Пользователь: {message.from_user.full_name}, ID: {message.from_user.id}\n' \
+               f'Имя в базе: {city[0].name}\n' \
+               f'Телефон: {city[0].phone}\n' \
+               f'Город: {city[0].city}\n\n' \
+               f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
+               f'Подтвердите наличие и укажите стоимость запрашиваемого оборудования в файле.\n' \
+               f'С уважением,\nКоманда Rommo'
+        file_name = create_doc.save_table_to_provider(data['to_provider'], message.from_user.id)
+        send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
+        os.remove(file_name)
+    await state.finish()
+    await message.answer('Готово!', reply_markup=keyboards.menu)
+    await asyncio.sleep(5)
