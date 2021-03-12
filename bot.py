@@ -27,5 +27,5 @@ if __name__ == '__main__':
     # save_prices()
     # parser.insert_information()
     # scheduler.start()
-    utils.setup_logger('INFO', ["sqlalchemy.engine"])  # "aiogram.bot.api"
+    utils.setup_logger('INFO', ["sqlalchemy.engine", "aiogram.bot.api"])  # "aiogram.bot.api"
     executor.start_polling(dp, skip_updates=True, on_startup=set_default_commands)

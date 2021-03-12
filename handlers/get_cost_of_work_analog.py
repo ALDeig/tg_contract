@@ -1,11 +1,12 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from loguru import logger
 
 import db
 from misc import dp
-from keyboards import keyboards, cost_work_keyboard
-from handlers.questions_of_kp import DataPoll, DataPrices
+from keyboards import keyboards
+from handlers.questions_of_kp import DataPoll
 from states.analog_kp import PricesAnalogKp
 from states.start_cost_work import CostWork
 
@@ -17,22 +18,11 @@ from states.start_cost_work import CostWork
 #     cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
 #     start_up_cost = State()  # стоимость пуско-наладочных работ
 
-@dp.message_handler(text='⚒ Изменить стоимость работ', state='*')
-async def select_system(message: types.Message, state: FSMContext):
-    await message.answer('Выберите систему', reply_markup=cost_work_keyboard.type_system)
-    await CostWork.type_system.set()
 
-
-@dp.message_handler(state=CostWork.type_system)
-async def select_type_video(message: types.Message, state: FSMContext):
-    await message.answer('Выберите тип', reply_markup=cost_work_keyboard.type_video)
-    await CostWork.next()
-
-
-@dp.message_handler(text='IP', state=CostWork.type_video)
+@dp.message_handler(text='Аналоговая', state=CostWork.type_video)
 async def start_change_cost(message: types.Message):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
-    info = db.get_info(columns, 'cost_work', message.from_user.id, 'id_tg')
+    info = db.get_info(columns, 'cost_work_analog', message.from_user.id, 'id_tg')
     if info:
         text = f'Текущие данные:\nМонтаж 1 камеры, руб: {info[0]}\nМонтаж 1 метра, руб: {info[1]}\n' \
                f'Количество метров на 1 камеру: {info[2]}\nСтоимтость монтажа, руб: {info[3]}\n' \
@@ -40,54 +30,54 @@ async def start_change_cost(message: types.Message):
         await message.answer(text)
     else:
         await message.answer('Введите данные')
-    await message.answer(text='Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
+    await message.answer(text='Укажите стоимость монтажа 1 камеры, без прокладки кабеля',
                          reply_markup=keyboards.key_cancel)
-    await DataPrices.first()
+    await PricesAnalogKp.first()
 
 
-@dp.message_handler(state=DataPrices.installation_cost_of_1_IP_camera)
+@dp.message_handler(state=PricesAnalogKp.installation_cost_of_1_IP_camera)
 async def step_1(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer(text='Вы не верно указали количество')
         return
     await state.update_data(installation_1_cam=message.text)
     await message.answer(text='Укажите стоимость монтажа 1 метра кабеля в гофрированной трубе')
-    await DataPrices.next()
+    await PricesAnalogKp.next()
 
 
-@dp.message_handler(state=DataPrices.installation_cost_of_1_meter)
+@dp.message_handler(state=PricesAnalogKp.installation_cost_of_1_meter)
 async def step_2(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer(text='Вы не верно указали количество')
         return
     await state.update_data(installation_cable=message.text)
-    await message.answer('Укажите сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру')
-    await DataPrices.next()
+    await message.answer('Укажите сколько метров кабеля в среднем надо учитывать в КП на 1 камеру')
+    await PricesAnalogKp.next()
 
 
-@dp.message_handler(state=DataPrices.meters_of_cable)
+@dp.message_handler(state=PricesAnalogKp.meters_of_cable)
 async def step_3(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer('Вы не верно указали количество')
         return
     await state.update_data(meters_cable=message.text)
-    await message.answer('Укажите стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP '
+    await message.answer('Укажите стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 '
                          'камеры')
-    await DataPrices.next()
+    await PricesAnalogKp.next()
 
 
-@dp.message_handler(state=DataPrices.cost_of_mount_kit)
+@dp.message_handler(state=PricesAnalogKp.cost_of_mount_kit)
 async def step_4(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer('Вы не верно указали количество')
         return
     await state.update_data(cost_mount_kit=message.text)
     await message.answer('Укажите стоимость пуско-наладочных работ(настройка параметров камеры и записи на '
-                         'регистраторе, юстировка) 1 IP камеры')
-    await DataPrices.next()
+                         'регистраторе, юстировка) 1 камеры')
+    await PricesAnalogKp.next()
 
 
-@dp.message_handler(state=DataPrices.start_up_cost)
+@dp.message_handler(state=PricesAnalogKp.start_up_cost)
 async def step_5(message: types.Message, state: FSMContext):
     if not message.text.isdigit():
         await message.answer('Вы не верно указали стоимость')
@@ -99,6 +89,8 @@ async def step_5(message: types.Message, state: FSMContext):
     # await message.answer('Выберите тип системы', reply_markup=keyboards.select_system)
     # await DataPoll.system.set()
     data = await state.get_data()
-    db.delete_cost_work('cost_work', message.from_user.id)
-    db.insert_cost('cost_work', data, message.from_user.id)
+    db.delete_cost_work('cost_work_analog', message.from_user.id)
+    logger.debug('Delete done')
+    logger.debug(data)
+    db.insert_cost('cost_work_analog', data, message.from_user.id)
     await state.finish()

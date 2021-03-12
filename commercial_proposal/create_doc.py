@@ -35,6 +35,22 @@ def save_kp(table_data, total_price, id_tg):
     return file_name, number_kp
 
 
+def save_table_to_provider(data, id_tg):
+    tpl_name = os.path.join('documents', 'to_provider.docx')
+    tpl = DocxTemplate(tpl_name)
+    context = {
+        'tbl_contents': []
+    }
+    for item in data:
+        if len(item) == 1:
+            context['tbl_contents'].append({'label': RichText(text=item[0], size=30, bold=True, color='000000')})
+        else:
+            context['tbl_contents'].append({'label': item[0], 'c1': item[1], 'c2': item[2]})
+    file_name = f'{id_tg}.docx'
+    tpl.render(context)
+    tpl.save(file_name)
+    return file_name
+
 # def save_kp1(table_data, total_price, id_tg):
 #     document = Document(os.path.join('commercial_proposal', 'Doc1.docx'))
 #     # document = Document('Doc1.docx')

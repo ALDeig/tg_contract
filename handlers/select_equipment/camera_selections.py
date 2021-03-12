@@ -42,8 +42,6 @@ async def step_1(message: Message, state: FSMContext):
         await message.answer('Выберите бренд', reply_markup=keyboard[0])
         await CameraSelections.q_1.set()
     elif message.text == 'Аналоговые':
-        await message.answer('В разработке', reply_markup=keyboards.key_cancel_to_video)
-        return
         keyboard = keyboards.create_keyboard_kp('type_cam', 'data_cameras', ip_cam=False)
         if not keyboard:
             await message.answer('Нет вариантов')
@@ -260,7 +258,7 @@ async def step_6(call: CallbackQuery, callback_data: dict, state: FSMContext):
 async def step_7(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=30)
     data = await state.get_data()
-    db.insert_choice_camera(data['view_cam'], data['choice_purpose'], callback_data.get('model'), call.from_user.id)
+    db.insert_choice_camera(data['type_cam'], data['view_cam'], data['choice_purpose'], callback_data.get('model'), call.from_user.id)
     await call.message.edit_reply_markup()
     await call.message.answer(f'Вы выбрали {callback_data.get("model")}', reply_markup=keyboards.menu_video)
     await state.finish()
