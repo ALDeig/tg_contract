@@ -456,6 +456,22 @@ def get_model_analog_camera_of_user(filters):
     return model
 
 
+def update_data(table: str, id_tg: int, data: dict):
+    """
+    Функция обновляет данные в базе. Получает имя таблицы, id телеграмма и данные для замены в виде словаря, где ключ,
+    это столбец, а значение - значение.
+    """
+    cols = [f'{col} = %s' for col in data.keys()]
+    cols = ', '.join(cols)
+    request = f'UPDATE {table} SET {cols} WHERE id_tg = %s'
+    values = [value for value in data.values()]
+    values.append(id_tg)
+    with conn:
+        with conn.cursor() as curs:
+            curs.execute(request, values)
+        conn.commit()
+
+
 def get_data_cam(filters: dict):
     """Возвращает данные по камере по фильтру."""
     columns = 'model, description, specifications, price, ppi, image, box, brand'
@@ -683,7 +699,7 @@ def get_cursor():
 
 # def _init_db():
 #     """Инициализирует БД"""
-#     with open("createdb.sql", "r") as f:
+#     with open(, "r") as f:
 #         sql = f.read()
 #     cursor.executescript(sql)
 #     conn.commit()

@@ -1,13 +1,14 @@
-aiogram==2.11.2
+aiogram==2.12
 cchardet==2.1.7
-docxtpl==0.11.2
-requests==2.25.1
+docxtpl==0.11.3
+# requests==2.25.1
 num2words==0.5.10
-lxml~=4.6.2
-APScheduler==3.6.3
+# lxml~=4.6.2
+APScheduler==3.7.0
 python-dotenv~=0.15.0
-selenium~=3.141.0
-beautifulsoup4~=4.9.3
-pygsheets~=2.0.3.1
+# selenium~=3.141.0
+# beautifulsoup4~=4.9.3
+pygsheets~=2.0.5
 psycopg2~=2.8.6
 loguru~=0.5.3
+googledrivedownloader==0.4

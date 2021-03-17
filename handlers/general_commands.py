@@ -57,6 +57,12 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await message.answer('Выберите действие', reply_markup=keyboards.menu_video)
 
 
+@dp.message_handler(text='В главное меню', state='*')
+async def go_menu(message: types.Message, state: FSMContext):
+    await state.finish()
+    await message.answer('Главное меню', reply_markup=keyboards.menu)
+
+
 @dp.message_handler(commands='get_analytics', user_id=config.ADMIN_ID)
 async def cmd_get_analytics(message: types.Message):
     data = analytics.get_analytics()

@@ -441,9 +441,9 @@ def get_cursor():
     return cursor
 
 
-def _init_db():
+def _init_db(db_script):
     """Инициализирует БД"""
-    with open("createdb.sql", "r") as f:
+    with open(db_script, "r") as f:
         sql = f.read()
     cursor.executescript(sql)
     conn.commit()
@@ -459,9 +459,9 @@ def check_db_exists():
     _init_db()
 
 
-def apply_script():
+def apply_script(script):
     """Вспомогательная функция для добавления изменений в базу данных. Вызывается из терминала"""
-    with open('changedb.sql', 'r', encoding='UTF-8') as file:
+    with open(script, 'r', encoding='UTF-8') as file:
         cursor.executescript(file.read())
     conn.commit()
     conn.close()
