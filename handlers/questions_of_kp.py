@@ -213,9 +213,12 @@ async def step_6(message: Message, state: FSMContext):
     await message.answer('Подождите, я начал формировать КП')
     await asyncio.sleep(10)
     file = InputFile(file_name)
-    caption = 'Отправьте поставщику, чтобы получить предложение.\nОтправить?'
-    await message.answer(text='КП готов.', reply_markup=keyboards.go_menu)
-    await message.answer_document(document=file, caption=caption, reply_markup=inline_yes_or_no)
+    await message.answer(text='КП готов', reply_markup=keyboards.go_menu)
+    await message.answer_document(document=file)
+    await message.answer(text='Отправьте поставщикам оборудование и материалы из КП, что бы получить ценовое '
+                              'предложение. Обращаем внимание, что поставщики получат только количество оборудования и '
+                              'материалов. Стоимость работ и цена оборудования в КП не разглашаются.',
+                         reply_markup=inline_yes_or_no)
     old_tpl = db.get_kp_tpl(message.from_user.id)
     if not old_tpl:
         await message.answer(text='Загрузите свой шаблон КП:  https://clck.ru/S8SjN.', disable_web_page_preview=True)
@@ -250,6 +253,7 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
            f'Город: {user.city}\n' \
            f'Номер заказа: {number_order}\n\n' \
            f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
+           f'Чтобы отправить ответ введите: "/answer id номер заказа", следующем сообщением, отправьте информацию' \
            f'Подтвердите наличие и укажите стоимость запрашиваемого оборудования в файле.\n' \
            f'С уважением,\nКоманда Rommo'
     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)

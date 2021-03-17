@@ -177,9 +177,12 @@ async def step_5(message: Message, state: FSMContext):
     await message.answer('Подождите, я начал формировать КП')
     await asyncio.sleep(10)
     file = InputFile(file_name)
-    caption = 'Отправьте поставщику, чтобы получить предложение.\nОтправить?'
-    await message.answer(text='КП готов.', reply_markup=keyboards.go_menu)
-    await message.answer_document(document=file, caption=caption, reply_markup=inline_yes_or_no)
+    await message.answer(text='КП готов', reply_markup=keyboards.go_menu)
+    await message.answer_document(document=file)
+    await message.answer(text='Отправьте поставщикам оборудование и материалы из КП, что бы получить ценовое '
+                              'предложение. Обращаем внимание, что поставщики получат только количество оборудования и '
+                              'материалов. Стоимость работ и цена оборудования в КП не разглашаются.',
+                         reply_markup=inline_yes_or_no)
     old_tpl = db.get_kp_tpl(message.from_user.id)
     if not old_tpl:
         await message.answer(text='Загрузите свой шаблон КП:  https://clck.ru/S8SjN.', disable_web_page_preview=True)

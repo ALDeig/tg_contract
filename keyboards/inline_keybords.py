@@ -5,8 +5,7 @@ choice_cameras_callback = CallbackData('choise', 'model', 'make')
 actions = CallbackData('actions', 'make')
 
 inline_yes_or_no = InlineKeyboardMarkup().add(
-    InlineKeyboardButton(text='Да', callback_data=actions.new(make='Yes')),
-    InlineKeyboardButton(text='Нет', callback_data=actions.new(make='No'))
+    InlineKeyboardButton(text='Отправить', callback_data=actions.new(make='Yes')),
 )
 
 
