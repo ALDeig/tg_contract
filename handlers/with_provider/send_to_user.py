@@ -1,14 +1,9 @@
-import asyncio
-import os
-
 from aiogram.dispatcher import FSMContext
-from aiogram.types import Message, InputFile, ReplyKeyboardRemove, CallbackQuery
+from aiogram.types import Message, CallbackQuery
 
 import config
-from keyboards import keyboards
 from keyboards.support.support_keyboards import create_keyboard, confirm_order
 from misc import dp
-from states.send_to_provider import SendAnswer
 
 
 @dp.message_handler(user_id=config.ADMIN_ID[0], commands=['answer'])
