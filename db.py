@@ -151,7 +151,7 @@ def get_type_executor(id_tg: int):
 
 def get_users():
     with conn:
-        with conn.cursor as curs:
+        with conn.cursor() as curs:
             curs.execute('SELECT id_tg FROM users')
             users = curs.fetchall()
 
