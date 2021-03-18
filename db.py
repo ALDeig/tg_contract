@@ -717,7 +717,7 @@ def get_cursor():
 
 def _apply_script():
     """Вспомогательная функция для добавления изменений в базу данных. Вызывается из терминала"""
-    with open('createdb_psdb.sql', 'r', encoding='UTF-8') as file:
+    with open('db/createdb_psdb.sql', 'r', encoding='UTF-8') as file:
         cursor.execute(file.read())
     conn.commit()
     conn.close()
