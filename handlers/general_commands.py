@@ -191,7 +191,7 @@ async def send_message_all_users(message: types.Message):
     await MessageFromUsers.message.set()
 
 
-@dp.message_handler(user_id=config.ADMIN_ID, state=MessageFromUsers.message)
+@dp.message_handler(user_id=config.ADMIN_ID, state=MessageFromUsers.message, content_types=types.ContentTypes.ANY)
 async def send_message_all_users_2(message: types.Message, state: FSMContext):
     users = db.get_users()
     for user in users:
