@@ -10,6 +10,7 @@ import db
 from keyboards.create_kp.analog_kp_keyboard import create_keyboard_kp
 from keyboards import keyboards
 from keyboards.inline_keybords import actions, inline_yes_or_no
+from keyboards.support.support_keyboards import keyboard_for_provider
 from commercial_proposal.analog_kp import calculate_analog_kp
 from commercial_proposal import create_doc
 from handlers.questions_of_kp import DataPoll
@@ -179,10 +180,13 @@ async def step_5(message: Message, state: FSMContext):
     file = InputFile(file_name)
     await message.answer(text='КП готов', reply_markup=keyboards.go_menu)
     await message.answer_document(document=file)
-    await message.answer(text='Отправьте поставщикам оборудование и материалы из КП, что бы получить ценовое '
-                              'предложение. Обращаем внимание, что поставщики получат только количество оборудования и '
-                              'материалов. Стоимость работ и цена оборудования в КП не разглашаются.',
-                         reply_markup=inline_yes_or_no)
+    text = """
+📦 Можно отправить поставщикам из вашего города оборудование и материалы из КП, что бы получить ценовое \
+предложение на закупку. Нажмите кнопку «Отправить»👇\n
+🛡 Обращаем внимание, что поставщики получат только количество оборудования и материалов. Стоимость работ и цена \
+оборудования из КП не разглашаются.
+"""
+    await message.answer(text=text, reply_markup=inline_yes_or_no)
     old_tpl = db.get_kp_tpl(message.from_user.id)
     if not old_tpl:
         await message.answer(text='Загрузите свой шаблон КП:  https://clck.ru/S8SjN.', disable_web_page_preview=True)
@@ -210,23 +214,26 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
     data = await state.get_data()
     user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
     number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
+    keyboard = keyboard_for_provider(call.from_user.id, number_order)
     text = f'Пользователь: {call.from_user.full_name}, ID: {call.from_user.id}\n' \
            f'Имя в базе: {user.name}\n' \
-           f'Телефон: {user.phone}\n' \
            f'Город: {user.city}\n' \
            f'Номер заказа: {number_order}\n\n' \
            f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
            f'Подтвердите наличие и укажите стоимость запрашиваемого оборудования в файле.\n' \
-           f'Чтобы отправить ответ введите: "/answer id номер заказа", следующем сообщением, отправьте информацию' \
+           f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и следующем сообщением, отправьте ' \
+           f'информацию' \
            f'С уважением,\nКоманда Rommo'
     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
     file = InputFile(file_name)
-    await call.message.answer(f'Ваш заказ №{number_order} отправлен поставщикам.\nОбратите внимание, что некоторые '
-                              f'материалы продаются кратно упаковке. Данный функционал находится на этапе тестирования,'
-                              f' время ожидания ответа поставщика может превышать 30 мин.',
-                              reply_markup=keyboards.menu)
+    answer = f"""
+📦 Ваш заказ №{number_order} отправлен поставщикам.\n
+❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
+🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
+"""
+    await call.message.answer(text=answer, reply_markup=keyboards.menu)
     # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
-    await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file)
+    await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file, reply_markup=keyboard)
     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
     await state.finish()
     await asyncio.sleep(5)

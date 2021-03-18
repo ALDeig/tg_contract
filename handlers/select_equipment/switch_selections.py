@@ -3,6 +3,7 @@ import os
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InputFile, Message, CallbackQuery
+from aiogram.utils.exceptions import BadRequest
 
 import db
 from keyboards import keyboards
@@ -71,20 +72,23 @@ async def step_3(message: Message, state: FSMContext):
         #     await message.answer(text=f'{switch[1]}\nЦена: {switch[4]}₽', reply_markup=keyboard)
         except Exception as e:
             # print('Ошибка отправки сообщения: ', e)
-            await message.answer(text=f'{switch[1]}\nЦена: {switch[4]}₽', reply_markup=keyboard)
+            await message.answer(text=f'{switch[1]}\nЦена: {switch[2]}₽', reply_markup=keyboard)
 
 
 @dp.callback_query_handler(choice_reg_callback.filter(make='show'), state=SwitchSelection.q_2)
 async def step_6(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=5)
-    recorder = db.get_equipment_data_by_model('DataSwitch', 'model, description, specifications, price',
+    switch = db.get_equipment_data_by_model('DataSwitch', 'model, description, specifications, price',
                                               callback_data.get('model'))
-    caption = f'{recorder[0]}\n' \
-              f'{recorder[1]}\n' \
-              f'{recorder[2]}\n' \
-              f'Цена: {recorder[3]}₽'
+    caption = f'{switch[0]}\n' \
+              f'{switch[1]}\n' \
+              f'{switch[2]}\n' \
+              f'Цена: {switch[3]}₽'
     keyboard = create_inline_keyboard_2(callback_data.get('model'))
-    await call.message.edit_caption(caption=caption, reply_markup=keyboard)
+    try:
+        await call.message.edit_caption(caption=caption, reply_markup=keyboard)
+    except BadRequest:
+        await call.message.edit_text(text=caption, reply_markup=keyboard)
 
 
 @dp.callback_query_handler(choice_reg_callback.filter(make='choice'), state=SwitchSelection.q_2)

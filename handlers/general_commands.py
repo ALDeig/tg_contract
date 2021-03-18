@@ -196,7 +196,8 @@ async def send_message_all_users_2(message: types.Message, state: FSMContext):
     users = db.get_users()
     for user in users:
         try:
-            await bot.send_message(chat_id=user[0], text=message.text)
+            await message.copy_to(chat_id=user[0])
+            # await bot.send_message(chat_id=user[0], text=message.text)
         except BotBlocked:
             pass
     await state.finish()
@@ -258,7 +259,7 @@ def save_data():
     return True
 
 
-@dp.message_handler(Command('save_cameras'), user_id=config.ADMIN_ID)
+@dp.message_handler(Command('save_data'), user_id=config.ADMIN_ID)
 async def save_info(message: types.Message):
     await message.answer('Я начал сохранять информацию')
     # data = sheets.get_info(1, 'camera')
