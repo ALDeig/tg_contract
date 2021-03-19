@@ -75,7 +75,11 @@ async def cmd_get_analytics(message: types.Message):
                          f"<b>Шаблоны КП:</b> {data['template']}\n"
                          f"<b>КП:</b> {data['kp']}\n"
                          f"<b>ИНН:</b> {data['request_inn']}\n"
-                         f"<b>БИК:</b> {data['request_bik']}", parse_mode='HTML')
+                         f"<b>БИК:</b> {data['request_bik']}\n"
+                         f"<b>Отправлено заказов:</b> {data['send_order']}\n"
+                         f"<b>Отправлено ответов на заказ:</b> {data['send_answer']}\n"
+                         f"<b>Подтверждено заказов:</b> {data['confirm_order']}\n",
+                         parse_mode='HTML')
 
 
 @dp.message_handler(commands='get_reviews', user_id=config.ADMIN_ID)

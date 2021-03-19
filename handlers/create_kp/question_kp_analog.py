@@ -235,6 +235,7 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
     # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
     await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file, reply_markup=keyboard)
     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
+    analytics.insert_data('send_order')
     await state.finish()
     await asyncio.sleep(5)
     os.remove(file_name)

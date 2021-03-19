@@ -1,6 +1,7 @@
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, CallbackQuery, ContentTypes
 
+import analytics
 import config
 import db
 from keyboards.support.support_keyboards import create_keyboard, confirm_order, answer_of_provider
@@ -32,6 +33,7 @@ async def send_answer(message: Message, state: FSMContext):
     phone = db.get_data('phone', 'users', {'id_tg': ('=', message.from_user.id)})[0].phone
     number_order = data.get('number_order')
     await message.copy_to(chat_id=user_id, reply_markup=create_keyboard(phone, number_order))
+    analytics.insert_data('send_answer')
     # await dp.bot.send_message(chat_id=user_id, text=message.text, reply_markup=create_keyboard(number_order))
     await state.finish()
 
@@ -49,3 +51,4 @@ async def confirm_order(call: CallbackQuery, state: FSMContext, callback_data: d
     await dp.bot.send_message(chat_id=config.ADMIN_ID[0],
                               text=f'Заказ {number_order} от пользователя {call.from_user.id}: '
                                    f'{call.from_user.full_name} подтвержден')
+    analytics.insert_data('confirm_order')
