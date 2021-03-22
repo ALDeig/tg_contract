@@ -37,7 +37,7 @@ async def start_registration(message: types.Message):
                f'Имя: {info[0]}\n'\
                f'Город: {info[1]}\n'\
                f'Телефон: {info[2]}\n' \
-               f'Провайдер: {"Да" if info[3] == True else "Нет"}'
+               f'Поставщик: {"Да" if info[3] == True else "Нет"}'
         await message.answer(text)
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
@@ -268,15 +268,15 @@ async def reg_step_10(message: types.Message, state: FSMContext):
         data = await state.get_data()
         if data['api_inn'][1] == 'ЮЛ':
             db.update_type_executor(type_executor='ЮЛ', id_tg=message.from_user.id)
-            columns = ['name_org', 'initials', 'position_in_org', 'ogrn', 'kpp', 'address', 'name_bank',
-                       'number_account', 'inn', 'form', 'bik', 'check_acc', 'warranty', 'number_contract', 'user_id_tg']
+            columns = ('name_org', 'initials', 'position_in_org', 'ogrn', 'kpp', 'address', 'name_bank',
+                       'number_account', 'inn', 'form', 'bik', 'check_acc', 'warranty', 'number_contract', 'user_id_tg')
             data = db.create_data_to_db(data=data)
             data.update({'user_id_tg': message.from_user.id})
             db.insert('executor_ooo', columns, data=data)
         else:
             db.update_type_executor(type_executor='ИП', id_tg=message.from_user.id)
-            columns = ['name_ip', 'ogrn', 'type_ip', 'code_region', 'address', 'name_bank', 'cor_account', 'inn',
-                       'form', 'bik', 'check_acc', 'warranty', 'number_contract', 'user_id_tg']
+            columns = ('name_ip', 'ogrn', 'type_ip', 'code_region', 'address', 'name_bank', 'cor_account', 'inn',
+                       'form', 'bik', 'check_acc', 'warranty', 'number_contract', 'user_id_tg')
             data = db.create_data_to_db(data=data)
             data.update({'user_id_tg': message.from_user.id})
             db.insert('executor_ip', columns, data)
