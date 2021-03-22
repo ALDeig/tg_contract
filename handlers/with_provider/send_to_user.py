@@ -32,7 +32,7 @@ async def send_answer(message: Message, state: FSMContext):
     user_id = data.get('user_id')
     phone = db.get_data('phone', 'users', {'id_tg': ('=', message.from_user.id)})[0].phone
     number_order = data.get('number_order')
-    await message.copy_to(chat_id=user_id, reply_markup=create_keyboard(phone, number_order))
+    await message.copy_to(chat_id=user_id, reply_markup=create_keyboard(phone, number_order, message.from_user.id))
     analytics.insert_data('send_answer')
     # await dp.bot.send_message(chat_id=user_id, text=message.text, reply_markup=create_keyboard(number_order))
     await state.finish()
@@ -43,12 +43,13 @@ async def confirm_order(call: CallbackQuery, state: FSMContext, callback_data: d
     await call.answer()
     number_order = callback_data.get('number_order')
     phone = callback_data.get('phone')
+    id_provider = callback_data.get('id_provider')
     answer = f"""
 📦 Заказ №{number_order} зарезервирован для вас\n
 📞 Свяжитесь с поставщиком для уточнения деталей по заказу. Тел: {phone}
 """
     await call.message.answer(answer)
-    await dp.bot.send_message(chat_id=config.ADMIN_ID[0],
+    await dp.bot.send_message(chat_id=id_provider,
                               text=f'Заказ {number_order} от пользователя {call.from_user.id}: '
                                    f'{call.from_user.full_name} подтвержден')
     analytics.insert_data('confirm_order')

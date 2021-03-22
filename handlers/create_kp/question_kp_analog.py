@@ -226,24 +226,35 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
            f'информацию' \
            f'С уважением,\nКоманда Rommo'
     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
-    file = InputFile(file_name)
-    answer = f"""
-📦 Ваш заказ №{number_order} отправлен поставщикам.\n
-❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
-🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
-"""
-    await call.message.answer(text=answer, reply_markup=keyboards.menu)
     # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
     providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
     if not providers:
-        await call.message.answer('В вашем городе нет поставщиков')
-        return
+        providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True)})
+        if not providers:
+            await call.message.answer('Поставщиков пока нет')
+            return
+    cnt = True
     for provider in providers:
         try:
-            await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file, reply_markup=keyboard)
+            if cnt:
+                file = InputFile(file_name)
+                send = await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file,
+                                                  reply_markup=keyboard)
+                file_id = send.document.file_id
+                cnt = False
+            else:
+                await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file_id,
+                                           reply_markup=keyboard)
         except BotBlocked:
             pass
+    answer = f"""
+    📦 Ваш заказ №{number_order} отправлен поставщикам.\n
+    ❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
+    🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
+    """
+    await call.message.answer(text=answer, reply_markup=keyboards.menu)
     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
+
     analytics.insert_data('send_order')
     await state.finish()
     await asyncio.sleep(5)
