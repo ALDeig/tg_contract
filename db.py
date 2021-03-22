@@ -209,7 +209,7 @@ def create_data_to_db(data: dict):
     return api_inn
 
 
-def insert(table: str, columns: list, data: dict):
+def insert(table: str, columns: tuple, data: dict):
     columns = ', '.join(columns)
     values = tuple(data.values())
     placeholders = ", ".join(["%s"] * len(data.keys()))
