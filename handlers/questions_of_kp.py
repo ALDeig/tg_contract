@@ -4,6 +4,7 @@ import asyncio
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import Message, InputFile, ReplyKeyboardRemove, CallbackQuery
+from aiogram.utils.exceptions import BotBlocked
 
 import analytics
 import config
@@ -270,7 +271,16 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
 """
     await call.message.answer(text=answer, reply_markup=keyboards.menu)
     # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
-    await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file, reply_markup=keyboard)
+    providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
+    if not providers:
+        await call.message.answer('В вашем городе нет поставщиков')
+        return
+    for provider in providers:
+        try:
+            await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file, reply_markup=keyboard)
+        except BotBlocked:
+            pass
+    # await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file, reply_markup=keyboard)
     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
     analytics.insert_data('send_order')
     await state.finish()
