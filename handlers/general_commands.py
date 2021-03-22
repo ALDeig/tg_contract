@@ -57,6 +57,12 @@ async def cmd_start(message: types.Message, state: FSMContext):
         await message.answer('Выберите действие', reply_markup=keyboards.menu_video)
 
 
+@dp.message_handler(text='В главное меню', state='*')
+async def go_menu(message: types.Message, state: FSMContext):
+    await state.finish()
+    await message.answer('Главное меню', reply_markup=keyboards.menu)
+
+
 @dp.message_handler(commands='get_analytics', user_id=config.ADMIN_ID)
 async def cmd_get_analytics(message: types.Message):
     data = analytics.get_analytics()
@@ -69,7 +75,11 @@ async def cmd_get_analytics(message: types.Message):
                          f"<b>Шаблоны КП:</b> {data['template']}\n"
                          f"<b>КП:</b> {data['kp']}\n"
                          f"<b>ИНН:</b> {data['request_inn']}\n"
-                         f"<b>БИК:</b> {data['request_bik']}", parse_mode='HTML')
+                         f"<b>БИК:</b> {data['request_bik']}\n"
+                         f"<b>Отправлено заказов:</b> {data['send_order']}\n"
+                         f"<b>Отправлено ответов на заказ:</b> {data['send_answer']}\n"
+                         f"<b>Подтверждено заказов:</b> {data['confirm_order']}\n",
+                         parse_mode='HTML')
 
 
 @dp.message_handler(commands='get_reviews', user_id=config.ADMIN_ID)
@@ -185,12 +195,13 @@ async def send_message_all_users(message: types.Message):
     await MessageFromUsers.message.set()
 
 
-@dp.message_handler(user_id=config.ADMIN_ID, state=MessageFromUsers.message)
+@dp.message_handler(user_id=config.ADMIN_ID, state=MessageFromUsers.message, content_types=types.ContentTypes.ANY)
 async def send_message_all_users_2(message: types.Message, state: FSMContext):
     users = db.get_users()
     for user in users:
         try:
-            await bot.send_message(chat_id=user[0], text=message.text)
+            await message.copy_to(chat_id=user[0])
+            # await bot.send_message(chat_id=user[0], text=message.text)
         except BotBlocked:
             pass
     await state.finish()
@@ -252,7 +263,7 @@ def save_data():
     return True
 
 
-@dp.message_handler(Command('save_cameras'), user_id=config.ADMIN_ID)
+@dp.message_handler(Command('save_data'), user_id=config.ADMIN_ID)
 async def save_info(message: types.Message):
     await message.answer('Я начал сохранять информацию')
     # data = sheets.get_info(1, 'camera')

@@ -362,7 +362,6 @@ def calculate_result(data, id_tg):
     reg = Recorders(cams=int(data['total_cams']), archive=int(data['days_for_archive']), brand=brand, id_tg=id_tg,
                     system_ip=True)
     reg = reg.main()
-    print(reg)
     if not reg[0]:
         return False, reg[1]
     fasteners = calculate_fasteners(type_cam_in_room=data['type_cam_in_room'],
@@ -455,7 +454,7 @@ def calculate_result(data, id_tg):
     price_of_categories['total'] += (int(data['total_cams']) * Decimal(work[3])).quantize(c)
     price_of_categories['materials'] += (int(data['total_cams']) * Decimal(work[3])).quantize(c)
     result.append(row)
-    to_provider.append(row[:3])
+    # to_provider.append(row[:3])
     box = row_other.Box(
         data['cams_on_indoor'],
         data['cams_on_street'],

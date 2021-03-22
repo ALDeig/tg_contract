@@ -10,7 +10,6 @@ RUN pip install -U pip && pip install -r requirements.txt && apt update && apt i
 RUN apt install -y --no-install-recommends locales; rm -rf /var/lib/apt/lists/*; sed -i '/^#.* ru_RU.UTF-8 /s/^#//' /etc/locale.gen; locale-gen
 RUN locale -a
 COPY *.py ./
-COPY createdb.sql ./
 COPY *.docx ./
 COPY ./handlers/ ./handlers/
 

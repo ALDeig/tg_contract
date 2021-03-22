@@ -13,6 +13,7 @@ class DataRegistrationUser(StatesGroup):
     name = State()
     city = State()
     phone = State()
+    # is_provider = State()
     answer = State()
 
 
@@ -29,12 +30,14 @@ class DataRegistrationExecutor(StatesGroup):
 @dp.message_handler(text='Регистрация', state='*')
 @dp.message_handler(text='👨‍🔧 Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
+    # info = db.get_info('name, city, phone, is_provider', 'users', message.from_user.id, 'id_tg')
     info = db.get_info('name, city, phone', 'users', message.from_user.id, 'id_tg')
     if info:
         text = f'Текущие данные:\n'\
                f'Имя: {info[0]}\n'\
                f'Город: {info[1]}\n'\
-               f'Телефон: {info[2]}'
+               f'Телефон: {info[2]}\n' \
+               # f'Провайдер: {"Да" if info[3] == True else "Нет"}'
         await message.answer(text)
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
@@ -61,6 +64,7 @@ async def reg_step_3(message: types.Message, state: FSMContext):
     await state.update_data(phone=phone.replace('+', ''))
     user_data = await state.get_data()
     await DataRegistrationUser.next()
+    # await message.answer(text='Зарегистировать тебя как поставщика?', reply_markup=keyboards.yes_or_no)
     await message.answer(f"Проверь данные:\n"
                          f"Имя: {user_data['name']}\n"
                          f"Город: {user_data['city']}\n"
@@ -69,18 +73,35 @@ async def reg_step_3(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=DataRegistrationUser.phone, content_types=types.ContentTypes.TEXT)
-async def reg_step_3(message: types.Message, state: FSMContext):
+async def reg_step_3_1(message: types.Message, state: FSMContext):
     if not message.text[1:].isdigit() or len(message.text) != 11:
         await message.answer('Некорректный номер')
         return
     await state.update_data(phone=message.text)
     user_data = await state.get_data()
     await DataRegistrationUser.next()
+    # await message.answer(text='Зарегистировать тебя как поставщика?', reply_markup=keyboards.yes_or_no)
     await message.answer(f"Проверь данные:\n"
                          f"Имя: {user_data['name']}\n"
                          f"Город: {user_data['city']}\n"
                          f"Телефон: {user_data['phone']}\n"
                          f"Все верно?", reply_markup=keyboards.yes_or_no)
+
+
+# @dp.message_handler(state=DataRegistrationUser.is_provider)
+# async def reg_step_4(message: types.Message, state: FSMContext):
+#     if message.text not in ('Да', 'Нет'):
+#         await message.answer('Выберите вариант')
+#         return
+#     user_data = await state.get_data()
+#     await DataRegistrationUser.next()
+#     await message.answer(f"Проверь данные:\n"
+#                          f"Имя: {user_data['name']}\n"
+#                          f"Город: {user_data['city']}\n"
+#                          f"Телефон: {user_data['phone']}\n"
+#                          f"Поставщик: {message.text}\n"
+#                          f"Все верно?", reply_markup=keyboards.yes_or_no)
+#     await state.update_data(id_provider=True if message.text == 'Да' else False)
 
 
 @dp.message_handler(state=DataRegistrationUser.answer)
@@ -89,14 +110,18 @@ async def reg_step_4(message: types.Message, state: FSMContext):
         if db.check_user_in(message.from_user.id, 'id_tg', 'users'):
             type_executor = db.get_type_executor(id_tg=message.from_user.id)
             number_kp = db.get_number_kp(id_tg=message.from_user.id)
+            number_order = db.get_data('number_order', 'users', {'id_tg': ('=', message.from_user.id)})[0].number_order
         else:
             type_executor = None
             number_kp = 1
+            number_order = 0
         db.delete_user(message.from_user.id)
         user_data = await state.get_data()
         user_data.update({'id_tg': message.from_user.id, 'number_kp': number_kp})
-        columns = ['name', 'city', 'phone', 'id_tg', 'number_kp']
+        # columns = ('name', 'city', 'phone', 'is_provider', 'id_tg', 'number_kp')
+        columns = ('name', 'city', 'phone', 'id_tg', 'number_kp')
         db.insert('users', columns, user_data)
+        db.update_data('users', message.from_user.id, {'number_order': number_order})
         if type_executor:
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)
 

@@ -21,9 +21,9 @@ class Switch:
     def get_options_ports(self):
         brand = self.check_brand()
         if brand:
-            options_ports = db.get_options('DataSwitch', 'number_ports', {'brand': self.brand}, '=')
+            options_ports = db.get_options('DataSwitch', 'ports_poe', {'brand': self.brand}, '=')
         else:
-            options_ports = db.get_options('DataSwitch', 'number_ports')
+            options_ports = db.get_options('DataSwitch', 'ports_poe')
         return options_ports
 
     def calculate_switch(self):

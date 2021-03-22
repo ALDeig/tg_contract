@@ -1,5 +1,5 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup  # MediaGroup
-# from aiogram.utils.callback_data import CallbackData
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.callback_data import CallbackData
 
 import db
 
@@ -124,10 +124,12 @@ def create_keyboard_kp(column, table, filters=None, ip_cam=True):
 
     return keyboard, buttons
 
+
 test_key = ReplyKeyboardMarkup([
     [KeyboardButton(text='Внутренние'), KeyboardButton(text='Уличные')],
     [KeyboardButton(text='↩Отмена')]
 ], resize_keyboard=True)
 
-# photo_cams = 'AgACAgIAAxkBAAIEEl-Jow2lPwyzJv_gnmqhqCF_LUxAAAKOsjEbM1xQSIStmNIt9MQqVPHdly4AAwEAAwIAA20AA1SsAQABGwQ'  # в прокте
-photo_cams = 'AgACAgIAAxkBAAIZl1-DXN-SFf2DVqliESRdj9RpSvzKAAIOsDEbPYsgSOIAAfHYPTKhaxb1wJcuAAMBAAMCAANtAAOkeAEAARsE'  # у меня
+go_menu = ReplyKeyboardMarkup([
+    [KeyboardButton(text='В главное меню')]
+], resize_keyboard=True)

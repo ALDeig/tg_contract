@@ -2,6 +2,11 @@ from aiogram.utils.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 choice_cameras_callback = CallbackData('choise', 'model', 'make')
+actions = CallbackData('actions', 'make')
+
+inline_yes_or_no = InlineKeyboardMarkup().add(
+    InlineKeyboardButton(text='Отправить', callback_data=actions.new(make='Yes')),
+)
 
 
 def create_keyboard(model):

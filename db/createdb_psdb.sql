@@ -6,7 +6,9 @@ CREATE TABLE IF NOT EXISTS users(
     id_tg INT,
     type_executor VARCHAR(100),
     number_kp INT,
-    kp_tpl VARCHAR(255)
+    kp_tpl VARCHAR(255),
+    number_order INT
+--     is_provider BOOL
 );
 
 CREATE TABLE IF NOT EXISTS choice_cams(

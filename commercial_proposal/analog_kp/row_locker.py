@@ -46,10 +46,9 @@ class Locker:
         if not select_box:
             box = db.get_data(columns, 'DataBox', {'number_units': ('=', units), 'type_box': ('=', 1)})
         else:
-            box = db.get_data(columns, 'DataBox', {'model': ('=', select_box)})
+            box = db.get_data(columns, 'DataBox', {'model': ('=', select_box[0].model)})
             if not box:
                 box = db.get_data(columns, 'DataBox', {'number_units': ('=', units), 'type_box': ('=', 1)})
-        print(box[0])
         return box[0]
 
     def create_dict_boxes(self, boxes):

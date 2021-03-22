@@ -89,7 +89,8 @@ def check_switch(model, total_cam):
 def calculate_result(data, id_tg):
     c = Decimal('.01')
     price_of_categories = {'total': 0, 'equipment': 0, 'materials': 0, 'work': 0}
-    result = []
+    result = list()
+    to_provider = list()
     prices = parser_prices.open_prices()
     work = db.get_data_cost(id_tg, 'cost_work_analog') or db.get_data_cost(id_tg, 'cost_work')
     brand = data['data_cam_out'][-1] if 'data_cam_out' in data else data['data_cam_in'][-1]
@@ -109,12 +110,14 @@ def calculate_result(data, id_tg):
         row_cam = create_row_camera(id_tg, data['type_cam_in_room'][2:], int(data['cams_on_indoor']), 'Внутренняя',
                                     data['data_cam_in'])
         result.append(row_cam[0])
+        to_provider.append(row_cam[0][:3])
         price_of_categories['total'] += row_cam[1]
         price_of_categories['equipment'] += row_cam[1]
     if data['cams_on_street'] != '0':
         row_cam = create_row_camera(id_tg, data['type_cam_on_street'][2:], int(data['cams_on_street']), 'Уличная',
                                     data['data_cam_out'])
         result.append(row_cam[0])
+        to_provider.append(row_cam[0][:3])
         price_of_categories['total'] += row_cam[1]
         price_of_categories['equipment'] += row_cam[1]
     rows_recorder_and_hdd = RowRecorderAndHDD(recorders=reg, id_tg=id_tg)
@@ -123,16 +126,19 @@ def calculate_result(data, id_tg):
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
         price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(rows_recorder_and_hdd)
+    to_provider.extend(i[:3] for i in rows_recorder_and_hdd)
     ibp = row_other.Ibp(total_cam=int(data['total_cams']), id_tg=id_tg).create_row()
     price_of_categories['total'] += Decimal(ibp[0][-1]).quantize(c)
     price_of_categories['equipment'] += Decimal(ibp[0][-1]).quantize(c)
     result.extend(ibp)
+    to_provider.extend(i[:3] for i in ibp)
     locker = Locker(len(reg), None, reg[0][0].box, id_tg)
     row_locker = locker.main()
     for row in row_locker:
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
         price_of_categories['equipment'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(row_locker)
+    to_provider.extend(i[:3] for i in row_locker)
     for key, value in fasteners.items():
         if value != 0:
             row = [f"Модель {prices[key]['model']} {prices[key]['name']}",
@@ -143,8 +149,10 @@ def calculate_result(data, id_tg):
             price_of_categories['total'] += (Decimal(prices[key]['price']) * int(value)).quantize(c)
             price_of_categories['materials'] += (Decimal(prices[key]['price']) * int(value)).quantize(c)
             result.append(row)
+            to_provider.append(row[:3])
     row = ['Материалы']
     result.append(row)
+    to_provider.append(row)
     if reg[0][0].box == 0:
         row = locker.create_row_dsk()
         result.append(row)
@@ -172,11 +180,13 @@ def calculate_result(data, id_tg):
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
         price_of_categories['materials'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(cable)
+    to_provider.extend(i[:3] for i in row_box)
     pipe = row_other.Pipe(pipe_in, pipe_out, id_tg).create_row()
     for row in pipe:
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
         price_of_categories['materials'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(pipe)
+    to_provider.extend(i[:3] for i in pipe)
     result.append(['Работа и настройка оборудования'])
     row = ['Монтаж камеры',
            'шт',
@@ -203,4 +213,4 @@ def calculate_result(data, id_tg):
     price_of_categories['work'] += (int(data['total_cams']) * Decimal(work[4])).quantize(c)
     result.append(row)
 
-    return result, price_of_categories
+    return result, price_of_categories, to_provider

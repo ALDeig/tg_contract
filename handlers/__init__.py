@@ -1,3 +1,4 @@
+from . import with_provider
 from . import general_commands
 from . import create_kp
 from . import select_equipment
