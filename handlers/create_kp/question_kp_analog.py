@@ -16,7 +16,7 @@ from commercial_proposal.analog_kp import calculate_analog_kp
 from commercial_proposal import create_doc
 from handlers.questions_of_kp import DataPoll
 from misc import dp
-from states.analog_kp import PricesAnalogKp, DataPollAnalog
+from states.questions_kp import PricesAnalogKp, DataPollAnalog
 
 
 # from utils.gmail.sendMessage import send_message
@@ -195,7 +195,8 @@ async def step_5(message: Message, state: FSMContext):
     # await message.answer(text='КП готов. Отправьте поставщику, чтобы получить предложение.\nОтправить?',
     #                      reply_markup=keyboards.yes_or_no)
     await state.update_data({'file': file_name, 'to_provider': table_data[-1]})
-    await DataPollAnalog.send_kp.set()
+    # await DataPollAnalog.send_kp.set()
+    await state.set_state('send_kp')
     analytics.insert_data('kp')
     db.write_number_kp(message.from_user.id, number_kp=int(number_kp) + 1)
     # await state.finish()
@@ -204,60 +205,60 @@ async def step_5(message: Message, state: FSMContext):
     os.remove(file_name)
 
 
-@dp.callback_query_handler(actions.filter(), state=DataPollAnalog.send_kp)
-async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: FSMContext):
-    await call.answer(cache_time=30)
-    answer = callback_data.get('make')
-    if answer == 'No':
-        await state.finish()
-        await call.message.answer('Готово', reply_markup=keyboards.menu)
-        return
-    data = await state.get_data()
-    user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
-    number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
-    keyboard = keyboard_for_provider(call.from_user.id, number_order)
-    text = f'Пользователь: {call.from_user.full_name}\n' \
-           f'Город: {user.city}\n' \
-           f'Номер заказа: {number_order}\n\n' \
-           f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
-           f'Подтвердите наличие и укажите стоимость запрашиваемого оборудования в файле.\n' \
-           f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и в следующих сообщениях, отправьте ' \
-           f'информацию.\nПосле нажмите кнопку "Завершить отправку"' \
-           f'С уважением,\nКоманда Rommo'
-    file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
-    # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
-    providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
-    if not providers:
-        providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True)})
-        if not providers:
-            await call.message.answer('Поставщиков пока нет')
-            return
-    cnt = True
-    for provider in providers:
-        try:
-            if cnt:
-                file = InputFile(file_name)
-                send = await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file,
-                                                  reply_markup=keyboard)
-                file_id = send.document.file_id
-                cnt = False
-            else:
-                await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file_id,
-                                           reply_markup=keyboard)
-        except BotBlocked:
-            pass
-    answer = f"""
-    📦 Ваш заказ №{number_order} отправлен поставщикам.\n
-    ❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
-    🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
-    """
-    await call.message.answer(text=answer, reply_markup=keyboards.menu)
-    db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
-
-    analytics.insert_data('send_order')
-    await state.finish()
-    await asyncio.sleep(5)
-    os.remove(file_name)
+# @dp.callback_query_handler(actions.filter(), state=DataPollAnalog.send_kp)
+# async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: FSMContext):
+#     await call.answer(cache_time=30)
+#     answer = callback_data.get('make')
+#     if answer == 'No':
+#         await state.finish()
+#         await call.message.answer('Готово', reply_markup=keyboards.menu)
+#         return
+#     data = await state.get_data()
+#     user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
+#     number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
+#     keyboard = keyboard_for_provider(call.from_user.id, number_order)
+#     text = f'Пользователь: {call.from_user.full_name}\n' \
+#            f'Город: {user.city}\n' \
+#            f'Номер заказа: {number_order}\n\n' \
+#            f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
+#            f'Подтвердите наличие и укажите стоимость запрашиваемого оборудования в файле.\n' \
+#            f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и в следующих сообщениях, отправьте ' \
+#            f'информацию.\nПосле нажмите кнопку "Завершить отправку"' \
+#            f'С уважением,\nКоманда Rommo'
+#     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
+#     # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
+#     providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
+#     if not providers:
+#         providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True)})
+#         if not providers:
+#             await call.message.answer('Поставщиков пока нет')
+#             return
+#     cnt = True
+#     for provider in providers:
+#         try:
+#             if cnt:
+#                 file = InputFile(file_name)
+#                 send = await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file,
+#                                                   reply_markup=keyboard)
+#                 file_id = send.document.file_id
+#                 cnt = False
+#             else:
+#                 await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file_id,
+#                                            reply_markup=keyboard)
+#         except BotBlocked:
+#             pass
+#     answer = f"""
+#     📦 Ваш заказ №{number_order} отправлен поставщикам.\n
+#     ❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
+#     🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
+#     """
+#     await call.message.answer(text=answer, reply_markup=keyboards.menu)
+#     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
+#
+#     analytics.insert_data('send_order')
+#     await state.finish()
+#     await asyncio.sleep(5)
+#     os.remove(file_name)
 
 
 # @dp.message_handler(state=DataPollAnalog.send_kp)

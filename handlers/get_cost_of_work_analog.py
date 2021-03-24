@@ -7,7 +7,7 @@ import db
 from misc import dp
 from keyboards import keyboards
 from handlers.questions_of_kp import DataPoll
-from states.analog_kp import PricesAnalogKp
+from states.questions_kp import PricesAnalogKp
 from states.start_cost_work import CostWork
 
 

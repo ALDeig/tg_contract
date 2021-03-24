@@ -9,35 +9,36 @@ from aiogram.utils.exceptions import BotBlocked
 import analytics
 import config
 import db
+from commercial_proposal import calculate_kp, create_doc
 from keyboards import keyboards
 from keyboards.inline_keybords import actions, inline_yes_or_no
 from keyboards.support.support_keyboards import keyboard_for_provider
-from commercial_proposal import calculate_kp, create_doc
 # from handlers.get_cost_of_work import DataPrices
 from misc import dp
+from states.questions_kp import DataPoll, DataPrices
 
 
 # from utils.gmail.sendMessage import send_message
 
 
-class DataPoll(StatesGroup):
-    system = State()
-    total_numb_of_cam = State()  # total_cams
-    indoor_cameras = State()  # cams_on_indoor
-    cams_on_street = State()  # cams_on_street
-    type_cams_in_room = State()  # type_cam_on_street
-    type_cams_on_street = State()  # type_cam_in_room
-    days_for_archive = State()  # days_for_archive
-    send_kp = State()
-    answer_of_sale = State()
-
-
-class DataPrices(StatesGroup):
-    installation_cost_of_1_IP_camera = State()  # стоимость монтажа 1 IP камеры, без прокладки кабеля
-    installation_cost_of_1_meter = State()  # стоимость монтажа 1 метра кабеля в гофрированной трубе
-    meters_of_cable = State()  # сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру
-    cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
-    start_up_cost = State()  # стоимость пуско-наладочных работ
+# class DataPoll(StatesGroup):
+#     system = State()
+#     total_numb_of_cam = State()  # total_cams
+#     indoor_cameras = State()  # cams_on_indoor
+#     cams_on_street = State()  # cams_on_street
+#     type_cams_in_room = State()  # type_cam_on_street
+#     type_cams_on_street = State()  # type_cam_in_room
+#     days_for_archive = State()  # days_for_archive
+#     send_kp = State()
+#     answer_of_sale = State()
+#
+#
+# class DataPrices(StatesGroup):
+#     installation_cost_of_1_IP_camera = State()  # стоимость монтажа 1 IP камеры, без прокладки кабеля
+#     installation_cost_of_1_meter = State()  # стоимость монтажа 1 метра кабеля в гофрированной трубе
+#     meters_of_cable = State()  # сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру
+#     cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
+#     start_up_cost = State()  # стоимость пуско-наладочных работ
 
 
 def generate_choice_cam(id_tg, view_cam, purpose, type_cam):
@@ -88,10 +89,10 @@ async def step_0(message: Message, state: FSMContext):
     await message.answer('Укажите стоимость монтажа 1 IP камеры, без прокладки кабеля',
                          reply_markup=keyboards.key_cancel)
     await DataPrices.first()
-    return
+    # return
     # await state.update_data(type_cam='IP')
-    await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel_to_video)
-    await DataPoll.next()
+    # await message.answer('Какое общее количество камер надо установить?', reply_markup=keyboards.key_cancel_to_video)
+    # await DataPoll.next()
 
 
 @dp.message_handler(state=DataPoll.total_numb_of_cam)
@@ -235,7 +236,8 @@ async def step_6(message: Message, state: FSMContext):
     # await message.answer(text='КП готов. Отправьте поставщику, чтобы получить предложение.\nОтправить?',
     #                      reply_markup=keyboards.yes_or_no)
     await state.update_data({'file': file_name, 'to_provider': table_data[-1]})
-    await DataPoll.send_kp.set()
+    # await DataPoll.send_kp.set()
+    await state.set_state('send_kp')
     analytics.insert_data('kp')
     db.write_number_kp(message.from_user.id, number_kp=int(number_kp) + 1)
     # await state.finish()
@@ -245,60 +247,60 @@ async def step_6(message: Message, state: FSMContext):
     os.remove(file_name)
 
 
-@dp.callback_query_handler(actions.filter(), state=DataPoll.send_kp)
-async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: FSMContext):
-    await call.answer(cache_time=30)
-    answer = callback_data.get('make')
-    if answer == 'No':
-        await state.finish()
-        await call.message.answer('Готово', reply_markup=keyboards.menu)
-        return
-    data = await state.get_data()
-    user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
-    number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
-    keyboard = keyboard_for_provider(call.from_user.id, number_order)
-    text = f'Пользователь: {call.from_user.full_name}\n' \
-           f'Город: {user.city}\n' \
-           f'Номер заказа: {number_order}\n\n' \
-           f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
-           f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и в следующих сообщениях, отправьте ' \
-           f'информацию.\nПосле нажмите кнопку "Завершить отправку"' \
-           f'С уважением,\nКоманда Rommo'
-    file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
-    # file = InputFile(file_name)
-    # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
-    providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
-    if not providers:
-        providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True)})
-        if not providers:
-            await call.message.answer('Поставщиков пока нет')
-            return
-    cnt = True
-    for provider in providers:
-        try:
-            if cnt:
-                file = InputFile(file_name)
-                send = await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file,
-                                                  reply_markup=keyboard)
-                file_id = send.document.file_id
-                cnt = False
-            else:
-                await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file_id,
-                                           reply_markup=keyboard)
-        except BotBlocked:
-            pass
-    # await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file, reply_markup=keyboard)
-    answer = f"""
-📦 Ваш заказ №{number_order} отправлен поставщикам.\n
-❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
-🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
-"""
-    await call.message.answer(text=answer, reply_markup=keyboards.menu)
-    db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
-    analytics.insert_data('send_order')
-    await state.finish()
-    await asyncio.sleep(5)
-    os.remove(file_name)
+# @dp.callback_query_handler(actions.filter(), state=DataPoll.send_kp)
+# async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: FSMContext):
+#     await call.answer(cache_time=30)
+#     answer = callback_data.get('make')
+#     if answer == 'No':
+#         await state.finish()
+#         await call.message.answer('Готово', reply_markup=keyboards.menu)
+#         return
+#     data = await state.get_data()
+#     user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
+#     number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
+#     keyboard = keyboard_for_provider(call.from_user.id, number_order)
+#     text = f'Пользователь: {call.from_user.full_name}\n' \
+#            f'Город: {user.city}\n' \
+#            f'Номер заказа: {number_order}\n\n' \
+#            f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
+#            f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и в следующих сообщениях, отправьте ' \
+#            f'информацию.\nПосле нажмите кнопку "Завершить отправку"' \
+#            f'С уважением,\nКоманда Rommo'
+#     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
+#     # file = InputFile(file_name)
+#     # send_message(text, file_name, 'alkin.denis@gmail.com', 'Новый заказ от RommoBot')
+#     providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
+#     if not providers:
+#         providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True)})
+#         if not providers:
+#             await call.message.answer('Поставщиков пока нет')
+#             return
+#     cnt = True
+#     for provider in providers:
+#         try:
+#             if cnt:
+#                 file = InputFile(file_name)
+#                 send = await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file,
+#                                                   reply_markup=keyboard)
+#                 file_id = send.document.file_id
+#                 cnt = False
+#             else:
+#                 await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file_id,
+#                                            reply_markup=keyboard)
+#         except BotBlocked:
+#             pass
+#     # await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file, reply_markup=keyboard)
+#     answer = f"""
+# 📦 Ваш заказ №{number_order} отправлен поставщикам.\n
+# ❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
+# 🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
+# """
+#     await call.message.answer(text=answer, reply_markup=keyboards.menu)
+#     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
+#     analytics.insert_data('send_order')
+#     await state.finish()
+#     await asyncio.sleep(5)
+#     os.remove(file_name)
 
 # @dp.callback_query_handler(state=DataPoll.send_kp)
 # async def send_kp_to_provider(call: CallbackQuery, state: FSMContext, callback_data: dict):
