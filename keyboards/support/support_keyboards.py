@@ -1,8 +1,14 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.utils.callback_data import CallbackData
 
 confirm_order = CallbackData("confirm", "number_order", "phone", "id_provider")
 answer_of_provider = CallbackData('answer', 'id_tg', 'number_order')
+
+
+cancel_connection = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Закончить отправку')],
+    [KeyboardButton(text='↩ Отмена')]
+], resize_keyboard=True)
 
 
 def create_keyboard(phone, number_order, id_provider):

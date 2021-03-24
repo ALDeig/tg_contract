@@ -4,7 +4,8 @@ from aiogram.types import Message, CallbackQuery, ContentTypes
 import analytics
 import config
 import db
-from keyboards.support.support_keyboards import create_keyboard, confirm_order, answer_of_provider
+from keyboards import keyboards
+from keyboards.support.support_keyboards import create_keyboard, confirm_order, answer_of_provider, cancel_connection
 from misc import dp
 
 
@@ -22,20 +23,29 @@ async def get_data_order(call: CallbackQuery, state: FSMContext, callback_data: 
     id_tg = callback_data.get('id_tg')
     number_order = callback_data.get('number_order')
     await state.update_data({'user_id': id_tg, 'number_order': number_order})
-    await call.message.answer('Введите ответ')
+    await call.message.answer('Введите ответ', reply_markup=cancel_connection)
     await state.set_state('answer_to_user')
 
 
 @dp.message_handler(state='answer_to_user', content_types=ContentTypes.ANY)
 async def send_answer(message: Message, state: FSMContext):
     data = await state.get_data()
+    number_order = data.get('number_order')
     user_id = data.get('user_id')
     phone = db.get_data('phone', 'users', {'id_tg': ('=', message.from_user.id)})[0].phone
-    number_order = data.get('number_order')
-    await message.copy_to(chat_id=user_id, reply_markup=create_keyboard(phone, number_order, message.from_user.id))
-    analytics.insert_data('send_answer')
-    # await dp.bot.send_message(chat_id=user_id, text=message.text, reply_markup=create_keyboard(number_order))
-    await state.finish()
+    if message.text == 'Закончить отправку':
+        await dp.bot.edit_message_reply_markup(
+            chat_id=user_id,
+            message_id=data.get('message_id'),
+            reply_markup=create_keyboard(phone, number_order, message.from_user.id)
+        )
+        await message.answer('Выберите действие', reply_markup=keyboards.menu)
+        await state.finish()
+        analytics.insert_data('send_answer')
+        return
+    message_info = await message.copy_to(chat_id=user_id)
+                                         # reply_markup=create_keyboard(phone, number_order, message.from_user.id))
+    await state.update_data(message_id=message_info.message_id)
 
 
 @dp.callback_query_handler(confirm_order.filter())

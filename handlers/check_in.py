@@ -64,7 +64,9 @@ async def reg_step_3(message: types.Message, state: FSMContext):
     await state.update_data(phone=phone.replace('+', ''))
     # user_data = await state.get_data()
     await DataRegistrationUser.next()
-    await message.answer(text='Зарегистировать тебя как поставщика?', reply_markup=keyboards.yes_or_no)
+    await message.answer(text='Являетесь поставщиком оборудования?\n\n'
+                              'Если вы ответите Да, то сможете получать заказы от пользователей бота в вашем городе.',
+                         reply_markup=keyboards.yes_or_no)
     # await message.answer(f"Проверь данные:\n"
     #                      f"Имя: {user_data['name']}\n"
     #                      f"Город: {user_data['city']}\n"

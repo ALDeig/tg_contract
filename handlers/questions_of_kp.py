@@ -257,14 +257,12 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
     user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
     number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
     keyboard = keyboard_for_provider(call.from_user.id, number_order)
-    text = f'Пользователь: {call.from_user.full_name}, ID: {call.from_user.id}\n' \
-           f'Имя в базе: {user.name}\n' \
+    text = f'Пользователь: {call.from_user.full_name}\n' \
            f'Город: {user.city}\n' \
            f'Номер заказа: {number_order}\n\n' \
            f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
-           f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и следующем сообщением, отправьте ' \
-           f'информацию' \
-           f'Подтвердите наличие и укажите стоимость запрашиваемого оборудования в файле.\n' \
+           f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и в следующих сообщениях, отправьте ' \
+           f'информацию.\nПосле нажмите кнопку "Завершить отправку"' \
            f'С уважением,\nКоманда Rommo'
     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
     # file = InputFile(file_name)
