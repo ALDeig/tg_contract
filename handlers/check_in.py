@@ -1,9 +1,9 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from loguru import logger
 
 import analytics
+import config
 from misc import dp
 import db
 from keyboards import keyboards
@@ -140,11 +140,10 @@ async def reg_step_4(message: types.Message, state: FSMContext):
         db.update_data('users', message.from_user.id, {'number_order': number_order})
         if type_executor:
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)
-
         if user_data.get('is_provider'):
-            file = types.InputFile('documents/template_table.xlsx')
-            file_id = await message.answer_document(document=file, caption='Вы можете загрузить обороудование и отправить')
-            logger.info(file_id)
+            # file = types.InputFile('documents/template_table.xlsx')
+            await message.answer_document(document=config.FILE_ID,
+                                          caption='Вы можете загрузить обороудование и отправить')
         await state.finish()
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
     else:
