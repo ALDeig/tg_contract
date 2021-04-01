@@ -97,10 +97,10 @@ async def step_2(message: Message, state: FSMContext):
 async def step_3(message: Message, state: FSMContext):
     await state.update_data(type_cam_in_room=message.text)
     camera = generate_choice_cam({
-        'id_tg': ['=', message.from_user.id],
-        'view_cam': ['=', message.text[2:]],
-        'purpose': ['=', 'Внутренние'],
-        'type_cam': ['!=', 'IP']
+        'id_tg': ('=', message.from_user.id),
+        'view_cam': ('=', message.text[2:]),
+        'purpose': ('=', 'Внутренние'),
+        'type_cam': ('!=', 'IP')
     })
     name = camera.model.strip().replace('/', '').replace('\\', '')
     try:

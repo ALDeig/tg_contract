@@ -2,6 +2,8 @@ import os
 
 from docx.opc.exceptions import PackageNotFoundError
 from docxtpl import DocxTemplate, RichText
+
+import db
 from db import get_number_kp, get_kp_tpl
 
 
@@ -15,13 +17,22 @@ def gen_name_file(id_tg):
 def save_kp(table_data, total_price, id_tg):
     tpl_name = get_kp_tpl(id_tg)
     if tpl_name is None:
-        tpl_name = os.path.join('documents', 'default.docx')
+        tpl_name = os.path.join('documents', 'template_kp.docx')
 
+    user_data = db.get_data('name, phone, city', 'users', {'id_tg': ('=', id_tg)})[0]
+    organization_data = db.get_data('name_ip, inn', 'executor_ip', {'user_id_tg': ('=', id_tg)})
+    if not organization_data:
+        organization_data = db.get_data('name_org, inn', 'executor_ooo', {'user_id_tg': ('=', id_tg)})
     tpl = DocxTemplate(tpl_name)
     context = {
+        'name': user_data.name,
+        'phone': user_data.phone,
+        'city': user_data.city,
         'price': total_price,
         'tbl_contents': []
     }
+    if organization_data:
+        context.update({'inn': organization_data[0].inn, 'organization': organization_data[0][0]})
 
     for item in table_data:
         if len(item) == 1:

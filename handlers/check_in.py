@@ -11,6 +11,7 @@ import work_with_api
 
 class DataRegistrationUser(StatesGroup):
     name = State()
+    country = State()
     city = State()
     phone = State()
     is_provider = State()
@@ -30,14 +31,15 @@ class DataRegistrationExecutor(StatesGroup):
 @dp.message_handler(text='Регистрация', state='*')
 @dp.message_handler(text='👨‍🔧 Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
-    info = db.get_info('name, city, phone, is_provider', 'users', message.from_user.id, 'id_tg')
+    info = db.get_info('name, country, city, phone, is_provider', 'users', message.from_user.id, 'id_tg')
     # info = db.get_info('name, city, phone', 'users', message.from_user.id, 'id_tg')
     if info:
         text = f'Текущие данные:\n'\
-               f'Имя: {info[0]}\n'\
-               f'Город: {info[1]}\n'\
-               f'Телефон: {info[2]}\n' \
-               f'Поставщик: {"Да" if info[3] == True else "Нет"}'
+               f'Имя: {info[0]}\n' \
+               f'Страна: {info[1]}\n' \
+               f'Город: {info[2]}\n'\
+               f'Телефон: {info[3]}\n' \
+               f'Поставщик: {"Да" if info[4] == True else "Нет"}'
         await message.answer(text)
     await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
@@ -46,6 +48,13 @@ async def start_registration(message: types.Message):
 @dp.message_handler(state=DataRegistrationUser.name)
 async def reg_step_1(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text.capitalize())
+    await DataRegistrationUser.next()
+    await message.answer('Из какой ты страны?')
+
+
+@dp.message_handler(state=DataRegistrationUser.country)
+async def reg_step_1_1(message: types.Message, state: FSMContext):
+    await state.update_data(country=message.text.capitalize())
     await DataRegistrationUser.next()
     await message.answer('Из какого ты города?')
 
@@ -99,11 +108,15 @@ async def reg_step_4(message: types.Message, state: FSMContext):
     await DataRegistrationUser.next()
     await message.answer(f"Проверь данные:\n"
                          f"Имя: {user_data['name']}\n"
+                         f"Страна: {user_data['country']}\n"
                          f"Город: {user_data['city']}\n"
                          f"Телефон: {user_data['phone']}\n"
                          f"Поставщик: {message.text}\n"
                          f"Все верно?", reply_markup=keyboards.yes_or_no)
-    await state.update_data(id_provider=True if message.text == 'Да' else False)
+    await state.update_data(is_provider=True if message.text == 'Да' else False)
+
+
+file_id = 'BQACAgIAAxkDAAJ8DmBkxoLca-NgVSbstbAT1o8RUJSOAAKUCgACQngoS91oUfeG9YxzHgQ'
 
 
 @dp.message_handler(state=DataRegistrationUser.answer)
@@ -120,13 +133,16 @@ async def reg_step_4(message: types.Message, state: FSMContext):
         db.delete_user(message.from_user.id)
         user_data = await state.get_data()
         user_data.update({'id_tg': message.from_user.id, 'number_kp': number_kp})
-        columns = ('name', 'city', 'phone', 'is_provider', 'id_tg', 'number_kp')
+        columns = ('name', 'country', 'city', 'phone', 'is_provider', 'id_tg', 'number_kp')
         # columns = ('name', 'city', 'phone', 'id_tg', 'number_kp')
         db.insert('users', columns, user_data)
         db.update_data('users', message.from_user.id, {'number_order': number_order})
         if type_executor:
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)
 
+        if user_data.get('is_provider'):
+            # file = types.InputFile('documents/template_table.xlsx')
+            await message.answer_document(document=file_id, caption='Вы можете загрузить обороудование и отправить')
         await state.finish()
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
     else:

@@ -32,41 +32,18 @@ def create_text(number_order, user, full_name):
     return text
 
 
-
 @dp.callback_query_handler(actions.filter(), state='send_kp')
 async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
-    answer = callback_data.get('make')
-    if answer == 'No':
-        await state.finish()
-        await call.message.answer('Готово', reply_markup=keyboards.menu)
-        return
     data = await state.get_data()
     user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
     number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
     keyboard = keyboard_for_provider(call.from_user.id, number_order)
     text = create_text(number_order, user, call.from_user.full_name)
     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
-    providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
-    if not providers:
-        providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True)})
-        if not providers:
-            await call.message.answer('Поставщиков пока нет')
-            return
-    flg = True
-    for provider in providers:
-        try:
-            if flg:
-                file = InputFile(file_name)
-                send = await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file,
-                                                  reply_markup=keyboard)
-                file_id = send.document.file_id
-                flg = False
-            else:
-                await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file_id,
-                                           reply_markup=keyboard)
-        except BotBlocked:
-            pass
+    file = InputFile(file_name)
+    send = await dp.bot.send_document(chat_id=config.ADMIN_ID[0], caption=text, document=file,
+                                      reply_markup=keyboard)
     answer = f"""
 📦 Ваш заказ №{number_order} отправлен поставщикам.\n
 ❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
@@ -78,6 +55,53 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
     await state.finish()
     await asyncio.sleep(5)
     os.remove(file_name)
+
+
+# @dp.callback_query_handler(actions.filter(), state='send_kp')
+# async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: FSMContext):
+#     await call.answer(cache_time=60)
+#     answer = callback_data.get('make')
+#     if answer == 'No':
+#         await state.finish()
+#         await call.message.answer('Готово', reply_markup=keyboards.menu)
+#         return
+#     data = await state.get_data()
+#     user = db.get_data('name, phone, city, number_order', 'users', {'id_tg': ('=', call.from_user.id)})[0]
+#     number_order = f'{user.phone[-4:]}-{user.number_order + 1}'
+#     keyboard = keyboard_for_provider(call.from_user.id, number_order)
+#     text = create_text(number_order, user, call.from_user.full_name)
+#     file_name = create_doc.save_table_to_provider(data['to_provider'], number_order, call.from_user.id)
+#     providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True), 'city': ('=', user.city)})
+#     if not providers:
+#         providers = db.get_data('id_tg', 'users', {'is_provider': ('=', True)})
+#         if not providers:
+#             await call.message.answer('Поставщиков пока нет')
+#             return
+#     flg = True
+#     for provider in providers:
+#         try:
+#             if flg:
+#                 file = InputFile(file_name)
+#                 send = await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file,
+#                                                   reply_markup=keyboard)
+#                 file_id = send.document.file_id
+#                 flg = False
+#             else:
+#                 await dp.bot.send_document(chat_id=provider.id_tg, caption=text, document=file_id,
+#                                            reply_markup=keyboard)
+#         except BotBlocked:
+#             pass
+#     answer = f"""
+# 📦 Ваш заказ №{number_order} отправлен поставщикам.\n
+# ❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
+# 🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
+# """
+#     await call.message.answer(text=answer, reply_markup=keyboards.menu)
+#     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
+#     analytics.insert_data('send_order')
+#     await state.finish()
+#     await asyncio.sleep(5)
+#     os.remove(file_name)
 
 
 @dp.message_handler(user_id=config.ADMIN_ID[0], commands=['answer'])

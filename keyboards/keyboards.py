@@ -7,9 +7,14 @@ menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='📑 Договор на монтаж видеонаблюдения')],
     [KeyboardButton(text='💰 Коммерческие предложения')],
     [KeyboardButton(text='🎛 Изменить данные')],
+    [KeyboardButton(text='🚚 Поставщикам')],
     [KeyboardButton(text='😀 Отзывы')],
     [KeyboardButton(text='🗃 Документы')]
 ], resize_keyboard=True)
+
+price = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Загрузить прайс')]
+],resize_keyboard=True)
 
 choice_menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='👨‍🔧 Изменить свои данные')],

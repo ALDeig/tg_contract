@@ -2,55 +2,27 @@ import os
 
 import asyncio
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import Message, InputFile, ReplyKeyboardRemove, CallbackQuery
-from aiogram.utils.exceptions import BotBlocked
+from aiogram.types import Message, InputFile, ReplyKeyboardRemove
 
 import analytics
-import config
 import db
 from commercial_proposal import calculate_kp, create_doc
 from keyboards import keyboards
-from keyboards.inline_keybords import actions, inline_yes_or_no
-from keyboards.support.support_keyboards import keyboard_for_provider
-# from handlers.get_cost_of_work import DataPrices
+from keyboards.inline_keybords import inline_yes_or_no
 from misc import dp
 from states.questions_kp import DataPoll, DataPrices
-
-
-# from utils.gmail.sendMessage import send_message
-
-
-# class DataPoll(StatesGroup):
-#     system = State()
-#     total_numb_of_cam = State()  # total_cams
-#     indoor_cameras = State()  # cams_on_indoor
-#     cams_on_street = State()  # cams_on_street
-#     type_cams_in_room = State()  # type_cam_on_street
-#     type_cams_on_street = State()  # type_cam_in_room
-#     days_for_archive = State()  # days_for_archive
-#     send_kp = State()
-#     answer_of_sale = State()
-#
-#
-# class DataPrices(StatesGroup):
-#     installation_cost_of_1_IP_camera = State()  # стоимость монтажа 1 IP камеры, без прокладки кабеля
-#     installation_cost_of_1_meter = State()  # стоимость монтажа 1 метра кабеля в гофрированной трубе
-#     meters_of_cable = State()  # сколько метров кабеля в среднем надо учитывать в КП на 1 IP камеру
-#     cost_of_mount_kit = State()  # стоимость монтажного комплекта (стяжки, коннектора, изолента, клипсы) для 1 IP камеры
-#     start_up_cost = State()  # стоимость пуско-наладочных работ
 
 
 def generate_choice_cam(id_tg, view_cam, purpose, type_cam):
     """Создает сообщение с фото после выборы типа камеры. Какая камера будет использоваться в КП"""
     camera = db.get_model_camera_of_user(view_cam, purpose, id_tg)
     if not camera:
-        details_camera = db.get_price_of_camera(type_cam=type_cam, view_cam=view_cam, purpose=purpose, ppi='2')
+        details_camera = db.get_price_of_camera(type_cam=type_cam, view_cam=view_cam, purpose=purpose)
     else:
         details_camera = db.get_price_of_camera(
             camera[0])  # 'model', 'description', 'specifications', 'price', 'ppi', 'box', 'image', 'brand'
         if not details_camera:
-            details_camera = db.get_price_of_camera(type_cam=type_cam, view_cam=view_cam, purpose=purpose, ppi='2')
+            details_camera = db.get_price_of_camera(type_cam=type_cam, view_cam=view_cam, purpose=purpose)
 
     return details_camera
 
