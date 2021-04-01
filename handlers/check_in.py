@@ -40,9 +40,9 @@ async def start_registration(message: types.Message):
                f'Страна: {info[1]}\n' \
                f'Город: {info[2]}\n'\
                f'Телефон: {info[3]}\n' \
-               f'Поставщик: {"Да" if info[4] == True else "Нет"}'
+               f'Поставщик: {"Да" if info[4] else "Нет"}'
         await message.answer(text)
-    await message.answer('Как тебя зовут?', reply_markup=keyboards.key_cancel)
+    await message.answer('Как вас зовут?\n(Ваше имя будет в контактах КП)', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
 
 
@@ -50,21 +50,22 @@ async def start_registration(message: types.Message):
 async def reg_step_1(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text.capitalize())
     await DataRegistrationUser.next()
-    await message.answer('Из какой ты страны?', reply_markup=keyboards.country)
+    await message.answer('Выберите страну', reply_markup=keyboards.country)
 
 
 @dp.message_handler(state=DataRegistrationUser.country)
 async def reg_step_1_1(message: types.Message, state: FSMContext):
     await state.update_data(country=message.text.capitalize())
     await DataRegistrationUser.next()
-    await message.answer('Из какого ты города?', reply_markup=keyboards.key_cancel)
+    await message.answer('Из какого ты города?\n(Город нужен для поиска поставщиков в вашем городе и для договора)',
+                         reply_markup=keyboards.key_cancel)
 
 
 @dp.message_handler(state=DataRegistrationUser.city)
 async def reg_step_2(message: types.Message, state: FSMContext):
     await state.update_data(city=message.text.capitalize())
     await DataRegistrationUser.next()
-    await message.answer('Введи номер телефона (без пробелов, скобок и тире, начни с 7)',
+    await message.answer('Введи номер телефона (без пробелов, скобок и тире, начни с 7)\n(Номер буде в контактах КП)',
                          reply_markup=keyboards.phone_key)
 
 
@@ -102,7 +103,7 @@ async def reg_step_3_1(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=DataRegistrationUser.is_provider)
 async def reg_step_4(message: types.Message, state: FSMContext):
-    if message.text not in ('Да', 'Нет'):
+    if message.text not in ('✅Да', '❌Нет'):
         await message.answer('Выберите вариант')
         return
     user_data = await state.get_data()
@@ -114,7 +115,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
                          f"Телефон: {user_data['phone']}\n"
                          f"Поставщик: {message.text}\n"
                          f"Все верно?", reply_markup=keyboards.yes_or_no)
-    await state.update_data(is_provider=True if message.text == 'Да' else False)
+    await state.update_data(is_provider=True if message.text == '✅Да' else False)
 
 
 # file_id = 'BQACAgIAAxkDAAJ8DmBkxoLca-NgVSbstbAT1o8RUJSOAAKUCgACQngoS91oUfeG9YxzHgQ'
@@ -122,7 +123,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=DataRegistrationUser.answer)
 async def reg_step_4(message: types.Message, state: FSMContext):
-    if message.text == 'Да':
+    if message.text == '✅Да':
         if db.check_user_in(message.from_user.id, 'id_tg', 'users'):
             type_executor = db.get_type_executor(id_tg=message.from_user.id)
             number_kp = db.get_number_kp(id_tg=message.from_user.id)
@@ -142,8 +143,12 @@ async def reg_step_4(message: types.Message, state: FSMContext):
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)
         if user_data.get('is_provider'):
             # file = types.InputFile('documents/template_table.xlsx')
-            await message.answer_document(document=config.FILE_ID,
-                                          caption='Вы можете загрузить обороудование и отправить')
+            text = """📦 Вы можете предлагать своё оборудование пользователям бота.\n 
+✅ Для этого заполните файл оборудованием, которое есть у вас на складе. С доставкой 0-1 день по городу.
+❌ Заказное оборудование не указывайте.
+✅ После заполнения файла, загрузите прайс боту в меню 🚚Поставщикам"""
+            await message.answer(text)
+            await message.answer_document(document=config.FILE_ID)
         await state.finish()
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
     else:
@@ -282,7 +287,7 @@ async def reg_step_9(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=DataRegistrationExecutor.answer)
 async def reg_step_10(message: types.Message, state: FSMContext):
-    if message.text == 'Да':
+    if message.text == '✅Да':
         db.delete(message.from_user.id)
         data = await state.get_data()
         if data['api_inn'][1] == 'ЮЛ':

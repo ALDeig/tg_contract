@@ -33,13 +33,13 @@ select_system = ReplyKeyboardMarkup([
 ], resize_keyboard=True)
 
 yes_or_no = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Да')],
-    [KeyboardButton(text='Нет')],
+    [KeyboardButton(text='✅Да')],
+    [KeyboardButton(text='❌Нет')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
 yes = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Да')],
+    [KeyboardButton(text='✅Да')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 

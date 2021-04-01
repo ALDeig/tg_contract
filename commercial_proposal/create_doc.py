@@ -1,4 +1,5 @@
 import os
+from datetime import date
 
 from docx.opc.exceptions import PackageNotFoundError
 from docxtpl import DocxTemplate, RichText
@@ -20,19 +21,22 @@ def save_kp(table_data, total_price, id_tg):
         tpl_name = os.path.join('documents', 'template_kp.docx')
 
     user_data = db.get_data('name, phone, city', 'users', {'id_tg': ('=', id_tg)})[0]
-    organization_data = db.get_data('name_ip, inn', 'executor_ip', {'user_id_tg': ('=', id_tg)})
-    if not organization_data:
-        organization_data = db.get_data('name_org, inn', 'executor_ooo', {'user_id_tg': ('=', id_tg)})
+    organization_data = ('ip', db.get_data('name_ip, inn', 'executor_ip', {'user_id_tg': ('=', id_tg)}))
+    if not organization_data[1]:
+        organization_data = ('ooo', db.get_data('name_org, inn', 'executor_ooo', {'user_id_tg': ('=', id_tg)}))
     tpl = DocxTemplate(tpl_name)
+    today = date.today().strftime('%d-%m-%Y')
     context = {
+        'date': today,
         'name': user_data.name,
         'phone': user_data.phone,
         'city': user_data.city,
         'price': total_price,
         'tbl_contents': []
     }
-    if organization_data:
-        context.update({'inn': organization_data[0].inn, 'organization': organization_data[0][0]})
+    if organization_data[1]:
+        prefix = 'ИП' if organization_data[0] == 'ip' else 'ООО'
+        context.update({'inn': organization_data[1][0].inn, 'organization': f'{prefix} {organization_data[1][0][0]}'})
 
     for item in table_data:
         if len(item) == 1:
