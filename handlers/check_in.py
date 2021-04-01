@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from loguru import logger
 
 import analytics
 from misc import dp
@@ -49,14 +50,14 @@ async def start_registration(message: types.Message):
 async def reg_step_1(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text.capitalize())
     await DataRegistrationUser.next()
-    await message.answer('Из какой ты страны?')
+    await message.answer('Из какой ты страны?', reply_markup=keyboards.country)
 
 
 @dp.message_handler(state=DataRegistrationUser.country)
 async def reg_step_1_1(message: types.Message, state: FSMContext):
     await state.update_data(country=message.text.capitalize())
     await DataRegistrationUser.next()
-    await message.answer('Из какого ты города?')
+    await message.answer('Из какого ты города?', reply_markup=keyboards.key_cancel)
 
 
 @dp.message_handler(state=DataRegistrationUser.city)
@@ -116,7 +117,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
     await state.update_data(is_provider=True if message.text == 'Да' else False)
 
 
-file_id = 'BQACAgIAAxkDAAJ8DmBkxoLca-NgVSbstbAT1o8RUJSOAAKUCgACQngoS91oUfeG9YxzHgQ'
+# file_id = 'BQACAgIAAxkDAAJ8DmBkxoLca-NgVSbstbAT1o8RUJSOAAKUCgACQngoS91oUfeG9YxzHgQ'
 
 
 @dp.message_handler(state=DataRegistrationUser.answer)
@@ -141,8 +142,9 @@ async def reg_step_4(message: types.Message, state: FSMContext):
             db.update_type_executor(type_executor=type_executor, id_tg=message.from_user.id)
 
         if user_data.get('is_provider'):
-            # file = types.InputFile('documents/template_table.xlsx')
-            await message.answer_document(document=file_id, caption='Вы можете загрузить обороудование и отправить')
+            file = types.InputFile('documents/template_table.xlsx')
+            file_id = await message.answer_document(document=file, caption='Вы можете загрузить обороудование и отправить')
+            logger.info(file_id)
         await state.finish()
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
     else:
