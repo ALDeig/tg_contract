@@ -4,10 +4,10 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 import analytics
 import config
-from misc import dp
 import db
-from keyboards import keyboards
 import work_with_api
+from misc import dp
+from keyboards import keyboards
 
 
 class DataRegistrationUser(StatesGroup):

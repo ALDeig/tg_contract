@@ -36,7 +36,7 @@ def save_kp(table_data, total_price, id_tg):
     }
     if organization_data[1]:
         prefix = 'ИП' if organization_data[0] == 'ip' else 'ООО'
-        context.update({'inn': organization_data[1][0].inn, 'organization': f'{prefix} {organization_data[1][0][0]}'})
+        context.update({'inn': f'ИНН: {organization_data[1][0].inn}', 'organization': f'{prefix} {organization_data[1][0][0]}'})
 
     for item in table_data:
         if len(item) == 1:
