@@ -180,7 +180,7 @@ def calculate_result(data, id_tg):
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))
         price_of_categories['materials'] += Decimal(row[-1]).quantize(Decimal('.01'))
     result.extend(cable)
-    to_provider.extend(i[:3] for i in row_box)
+    to_provider.extend(i[:3] for i in cable)
     pipe = row_other.Pipe(pipe_in, pipe_out, id_tg).create_row()
     for row in pipe:
         price_of_categories['total'] += Decimal(row[-1]).quantize(Decimal('.01'))

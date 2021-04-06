@@ -32,15 +32,16 @@ class DataRegistrationExecutor(StatesGroup):
 @dp.message_handler(text='Регистрация', state='*')
 @dp.message_handler(text='👨‍🔧 Изменить свои данные', state='*')
 async def start_registration(message: types.Message):
-    info = db.get_info('name, country, city, phone, is_provider', 'users', message.from_user.id, 'id_tg')
+    info = db.get_data('name, country, city, phone, is_provider', 'users', {'id_tg': ('=', message.from_user.id)})
     # info = db.get_info('name, city, phone', 'users', message.from_user.id, 'id_tg')
     if info:
+        info = info[0]
         text = f'Текущие данные:\n'\
-               f'Имя: {info[0]}\n' \
-               f'Страна: {info[1]}\n' \
-               f'Город: {info[2]}\n'\
-               f'Телефон: {info[3]}\n' \
-               f'Поставщик: {"Да" if info[4] else "Нет"}'
+               f'Имя: {info.name}\n' \
+               f'Страна: {info.country}\n' \
+               f'Город: {info.city}\n'\
+               f'Телефон: {info.phone}\n' \
+               f'Поставщик: {"Да" if info.is_provider else "Нет"}'
         await message.answer(text)
     await message.answer('Как вас зовут?\n(Ваше имя будет в контактах КП)', reply_markup=keyboards.key_cancel)
     await DataRegistrationUser.name.set()
@@ -149,6 +150,11 @@ async def reg_step_4(message: types.Message, state: FSMContext):
 ✅ После заполнения файла, загрузите прайс боту в меню 🚚Поставщикам"""
             await message.answer(text)
             await message.answer_document(document=config.FILE_ID)
+            await dp.bot.send_message(
+                chat_id=config.ADMIN_ID[0],
+                text=f'Новый поставщик:\nИмя: {user_data.get("name")}\nТелефон:{user_data.get("phone")}\n'
+                     f'Город: {user_data.get("city")}\nСтрана:{user_data.get("country")}'
+            )
         await state.finish()
         await message.answer('Выберите действие', reply_markup=keyboards.menu)
     else:

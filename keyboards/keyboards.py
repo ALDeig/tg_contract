@@ -142,3 +142,13 @@ test_key = ReplyKeyboardMarkup([
 go_menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='В главное меню')]
 ], resize_keyboard=True)
+
+archive = ReplyKeyboardMarkup([
+    [
+        KeyboardButton(text='7'),
+        KeyboardButton(text='14'),
+        KeyboardButton(text='20'),
+        KeyboardButton(text='30')
+    ],
+    [KeyboardButton(text='↩Отмена')]
+], resize_keyboard=True)

@@ -118,7 +118,7 @@ async def step_3(message: Message, state: FSMContext):
         if data['cams_on_indoor'] == data['total_cams']:
             data['type_cam_on_street'] = None
             await message.answer('Сколько дней хранить архив с камер видеонаблюдения?',
-                                 reply_markup=keyboards.key_cancel_to_video)
+                                 reply_markup=keyboards.archive)
             await DataPollAnalog.days_for_archive.set()
             return
     await message.answer(text='Какой тип камер будет установлен на улице?',
@@ -149,7 +149,7 @@ async def step_4(message: Message, state: FSMContext):
     await state.update_data(type_cam_on_street=message.text)
     await state.update_data(data_cam_out=camera)
     await message.answer('Сколько дней хранить архив с камер видеонаблюдения?',
-                         reply_markup=keyboards.key_cancel_to_video)
+                         reply_markup=keyboards.archive)
     await DataPollAnalog.next()
 
 
@@ -157,7 +157,7 @@ async def step_4(message: Message, state: FSMContext):
 async def step_5(message: Message, state: FSMContext):
     if not message.text.isdigit() or message.text == '0':
         await message.answer('Вы не верно указали архив. Укажите число дней?',
-                             reply_markup=keyboards.key_cancel_to_video)
+                             reply_markup=keyboards.archive)
         return
     await state.update_data(days_for_archive=message.text)
     data = await state.get_data()

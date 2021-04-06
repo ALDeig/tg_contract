@@ -66,20 +66,23 @@ async def go_menu(message: types.Message, state: FSMContext):
 @dp.message_handler(commands='get_analytics', user_id=config.ADMIN_ID)
 async def cmd_get_analytics(message: types.Message):
     data = analytics.get_analytics()
+    number_of_suppliers = db.get_data('is_provider', 'users', {'is_provider': ('=', True)})
     count_users = db.get_count_users()
     count_executors = db.get_count_executors()
-
-    await message.answer(f"<b>Пользователей:</b> {count_users}\n"
-                         f"<b>Исполнителей:</b> {count_executors}\n"
-                         f"<b>Договоров:</b> {data['contract']}\n"
-                         f"<b>Шаблоны КП:</b> {data['template']}\n"
-                         f"<b>КП:</b> {data['kp']}\n"
-                         f"<b>ИНН:</b> {data['request_inn']}\n"
-                         f"<b>БИК:</b> {data['request_bik']}\n"
-                         f"<b>Отправлено заказов:</b> {data['send_order']}\n"
-                         f"<b>Отправлено ответов на заказ:</b> {data['send_answer']}\n"
-                         f"<b>Подтверждено заказов:</b> {data['confirm_order']}\n",
-                         parse_mode='HTML')
+    await message.answer(
+        f"<b>Пользователей:</b> {count_users}\n"
+        f"<b>Исполнителей:</b> {count_executors}\n"
+        f"<b>Договоров:</b> {data['contract']}\n"
+        f"<b>Шаблоны КП:</b> {data['template']}\n"
+        f"<b>КП:</b> {data['kp']}\n"
+        f"<b>ИНН:</b> {data['request_inn']}\n"
+        f"<b>БИК:</b> {data['request_bik']}\n"
+        f"<b>Отправлено заказов:</b> {data['send_order']}\n"
+        f"<b>Отправлено ответов на заказ:</b> {data['send_answer']}\n"
+        f"<b>Подтверждено заказов:</b> {data['confirm_order']}\n"
+        f"<b>Количество поставщиков:</b> {len(number_of_suppliers)}",
+        parse_mode='HTML'
+    )
 
 
 @dp.message_handler(commands='get_reviews', user_id=config.ADMIN_ID)
@@ -171,7 +174,7 @@ async def change_data(message: types.Message):
 @dp.message_handler(text='📤 Загрузить шаблон КП', state='*')
 async def add_tpl_kp(message: types.Message):
     await message.answer(text='Инструкция, как использовать свой шаблон - https://clck.ru/S8SjN\n'
-                         '\nОтправьте мне файл шаблона с вашими контактами👇',
+                              '\nОтправьте мне файл шаблона с вашими контактами👇',
                          disable_web_page_preview=True,
                          reply_markup=keyboards.key_cancel)
     await Document.tpl.set()
@@ -248,8 +251,9 @@ def save_data():
         logger.info('IBP done')
         del ibp
         cable = sheets.get_info(6, 'cable')
-        columns = ('country', 'currency', 'provider', 'type_cable', 'type_system', 'brand', 'model', 'price', 'trade_price', 'use',
-                   'specifications', 'description', 'image')
+        columns = (
+        'country', 'currency', 'provider', 'type_cable', 'type_system', 'brand', 'model', 'price', 'trade_price', 'use',
+        'specifications', 'description', 'image')
         db.insert_data_of_equipments(cable, columns, 'DataCable')
         logger.info('Cable done')
         bracing = sheets.get_info(7, 'bracing', 10)
