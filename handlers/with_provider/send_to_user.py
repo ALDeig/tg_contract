@@ -24,6 +24,7 @@ from misc import dp
 def create_text(number_order, user, full_name):
     text = f'Пользователь: {full_name}\n' \
            f'Город: {user.city}\n' \
+           f'Телефон: {user.phone}\n' \
            f'Номер заказа: {number_order}\n\n' \
            f'Здравствуйте.Внимание! Отправьте ответ в течении 30 мин.' \
            f'Чтобы отправить ответ введите: нажмите кнопку "Ответить на заказ" и в следующих сообщениях, отправьте ' \
