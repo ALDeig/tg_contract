@@ -625,7 +625,7 @@ def get_data_of_cameras(type_cam, view_cam, purpose, ppi, brand):
     return cameras
 
 
-def get_price_of_camera(model=None, type_cam=None, view_cam=None, purpose=None, ppi=None):
+def get_price_of_camera(model=None, type_cam=None, view_cam=None, purpose=None):
     """Получает из базы данные по камере необходимые для КП"""
     columns = ('model', 'description', 'specifications', 'price', 'ppi', 'image', 'box', 'brand')
     columns = ', '.join(columns)
@@ -633,8 +633,8 @@ def get_price_of_camera(model=None, type_cam=None, view_cam=None, purpose=None, 
         cursor.execute(f'SELECT {columns} FROM data_cameras WHERE model = %s', (model,))
     else:
         cursor.execute(
-            f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s AND purpose = %s AND ppi = %s',
-            (type_cam, view_cam, purpose, ppi))
+            f'SELECT {columns} FROM data_cameras WHERE type_cam = %s AND view_cam = %s AND purpose = %s',
+            (type_cam, view_cam, purpose))
     result = cursor.fetchone()
     if not result:
         return False

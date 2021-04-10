@@ -6,9 +6,18 @@ import db
 menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='📑 Договор на монтаж видеонаблюдения')],
     [KeyboardButton(text='💰 Коммерческие предложения')],
-    [KeyboardButton(text='🎛 Изменить данные')],
-    [KeyboardButton(text='😀 Отзывы')],
-    [KeyboardButton(text='🗃 Документы')]
+    [KeyboardButton(text='🎛 Изменить данные'), KeyboardButton(text='🚚 Поставщикам')],
+    [KeyboardButton(text='😀 Отзывы'), KeyboardButton(text='🗃 Документы')],
+], resize_keyboard=True)
+
+country = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Россия'), KeyboardButton(text='Белоруссия')],
+    [KeyboardButton(text='Украина'), KeyboardButton(text='Казахстан')]
+], resize_keyboard=True)
+
+price = ReplyKeyboardMarkup([
+    [KeyboardButton(text='Загрузить прайс')],
+    [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
 choice_menu = ReplyKeyboardMarkup([
@@ -24,13 +33,13 @@ select_system = ReplyKeyboardMarkup([
 ], resize_keyboard=True)
 
 yes_or_no = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Да')],
-    [KeyboardButton(text='Нет')],
+    [KeyboardButton(text='✅Да')],
+    [KeyboardButton(text='❌Нет')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
 yes = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Да')],
+    [KeyboardButton(text='✅Да')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
@@ -132,4 +141,14 @@ test_key = ReplyKeyboardMarkup([
 
 go_menu = ReplyKeyboardMarkup([
     [KeyboardButton(text='В главное меню')]
+], resize_keyboard=True)
+
+archive = ReplyKeyboardMarkup([
+    [
+        KeyboardButton(text='7'),
+        KeyboardButton(text='14'),
+        KeyboardButton(text='20'),
+        KeyboardButton(text='30')
+    ],
+    [KeyboardButton(text='↩Отмена')]
 ], resize_keyboard=True)

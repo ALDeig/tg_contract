@@ -87,13 +87,11 @@ class Recorders:
                                      'type_recorder': (self.ip, 'Сетевые (IP)'),
                                      'number_poe': ('=', 0)},
                                     )
-            logger.debug(channels)
             if not channels:
                 channels = db.get_types('number_channels', 'DataRecorder',
                                         {'brand': ['=', self.brand],
                                          'type_recorder': [self.ip, 'Сетевые (IP)'], 'number_poe': ['=', 0]})
                 channels.sort()
-                logger.debug(f'Без фильтра количесва камер - {channels}')
                 recorder = db.get_data(columns, 'DataRecorder',
                                        {
                                            'brand': ['=', self.brand],
@@ -101,7 +99,6 @@ class Recorders:
                                            'type_recorder': [self.ip, 'Сетевые (IP)'],
                                            'number_poe': ['=', 0]
                                        })
-                logger.debug(recorder)
                 hdd = self.find_hdd(recorder[0], channels[-1])
                 if not hdd[0]:
                     return False, hdd[-1] * recorder[0].number_hdd * 1024 / 24 / channels[-1]
@@ -136,7 +133,6 @@ class Recorders:
                                     {'number_channels': ['>=', cams],
                                      'type_recorder': [self.ip, 'Сетевые (IP)'],
                                      'number_poe': ['=', 0]})
-            logger.debug(channels)
             if not channels:
                 channels = db.get_types('number_channels', 'DataRecorder',
                                         {'type_recorder': [self.ip, 'Сетевые (IP)'], 'number_poe': ['=', 0]})
@@ -200,7 +196,6 @@ class RowRecorderAndHDD:
     def create_dict_recorder(self):
         dict_rec = {}
         # print(self.recorders)
-        logger.debug(self.recorders)
         for recorder in self.recorders:
             # print(recorder[0][1])
             if recorder[0][1] in dict_rec:

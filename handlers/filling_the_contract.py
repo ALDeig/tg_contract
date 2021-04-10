@@ -166,7 +166,7 @@ async def filling_step_7(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=FillingContract.answer)
 async def filling_step_8(message: types.Message, state: FSMContext):
-    if message.text == 'Нет':
+    if message.text == '❌Нет':
         await FillingContract.inn.set()
         await message.answer('Введи инн клиента', reply_markup=keyboards.key_cancel)
     else:
