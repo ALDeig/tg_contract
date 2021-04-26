@@ -124,7 +124,7 @@ async def reg_step_4(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=DataRegistrationUser.answer)
 async def reg_step_4(message: types.Message, state: FSMContext):
-    if message.text == 'Да':
+    if message.text == '✅Да':
         if db.check_user_in(message.from_user.id, 'id_tg', 'users'):
             type_executor = db.get_type_executor(id_tg=message.from_user.id)
             number_kp = db.get_number_kp(id_tg=message.from_user.id)
