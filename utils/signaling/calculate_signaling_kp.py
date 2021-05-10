@@ -177,8 +177,8 @@ class SignalingKp:
         return self.result, self.total_cost_work, self.total_cost_equipments
 
 
-device = db.get_data('name, photo', 'siren')
-folder = 'siren'
+folders = ('siren', 'automation', 'bbp', 'control', 'fire', 'hub', 'integration', 'invasion', 'leak')
+# device = db.get_data('name, photo', folder)
 work_path = Path.cwd() / '123' / '13'
 print(work_path)
 
@@ -224,7 +224,9 @@ def save_images(data, directory):
 
 
 def main():
-    save_images(device, folder)
+    for folder in folders:
+        device = db.get_data('name, photo', folder)
+        save_images(device, folder)
 
 
 if __name__ == '__main__':
