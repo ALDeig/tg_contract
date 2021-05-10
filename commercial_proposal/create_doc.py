@@ -1,7 +1,7 @@
 import os
 from datetime import date
 
-from docx.opc.exceptions import PackageNotFoundError
+# from docx.opc.exceptions import PackageNotFoundError
 from docxtpl import DocxTemplate, RichText
 
 import db
@@ -49,7 +49,10 @@ def save_kp(table_data, total_price, id_tg):
 
     for item in table_data:
         if len(item) == 1:
-            context['tbl_contents'].append({'label': RichText(text=item[0], size=30, bold=True, color='000000')})
+            text = RichText(text=item[0], size=30, bold=True, color="000000")
+            print(text)
+            # context['tbl_contents'].append({'label': RichText(text=item[0], size=30, bold=True, color="000000")})
+            context['tbl_contents'].append({'label': text})
         else:
             context['tbl_contents'].append(
                 {

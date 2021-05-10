@@ -56,12 +56,12 @@ def save_images(data, directory, image_index):
             else:
                 img = urllib.request.urlopen(camera[image_index]).read()
         except urllib.error.HTTPError as er:
-            print('Ошибка при скачивании фото: ', er)
-            print(camera[image_index])
+            logger.error('Ошибка при скачивании фото: ', er)
+            logger.error(camera[image_index])
             continue
         except Exception as e:
-            print('Неизвестная Ошибка при скачивании фото: ', e)
-            print(camera[image_index])
+            logger.error('Неизвестная Ошибка при скачивании фото: ', e)
+            logger.error(camera[image_index])
             continue
         if not os.path.exists(os.path.join(path, camera[3].strip())):
             os.mkdir(os.path.join(path, camera[3].strip()))

@@ -11,7 +11,7 @@ import analytics
 import config
 import db
 from commercial_proposal.gsheets import sheets
-from misc import dp, bot
+from misc import dp
 from keyboards import keyboards
 from work_with_api import get_limit_api_inn, get_limit_api_bik
 
@@ -66,7 +66,7 @@ async def go_menu(message: types.Message, state: FSMContext):
 @dp.message_handler(commands='get_analytics', user_id=config.ADMIN_ID)
 async def cmd_get_analytics(message: types.Message):
     data = analytics.get_analytics()
-    number_of_suppliers = db.get_data('is_provider', 'users', {'is_provider': ('=', True)})
+    number_of_suppliers = db.get_data('is_provider', 'users', {'is_provider': ('=', True)}) or []
     count_users = db.get_count_users()
     count_executors = db.get_count_executors()
     await message.answer(

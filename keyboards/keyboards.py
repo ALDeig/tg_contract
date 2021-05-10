@@ -67,6 +67,7 @@ choice_type_cam_outdoor = ReplyKeyboardMarkup([
 
 menu_kp = ReplyKeyboardMarkup([
     [KeyboardButton(text='🎥 Видеонаблюдение')],
+    [KeyboardButton(text='Охранная сигнализация')],
     [KeyboardButton(text='📤 Загрузить шаблон КП')],
     [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
