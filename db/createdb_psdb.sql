@@ -294,6 +294,7 @@ CREATE TABLE IF NOT EXISTS cost_signaling(
 
 CREATE TABLE IF NOT EXISTS Hub(
     name text,
+    short_name text,
     devices INT,
     rooms INT,
     cams INT,
@@ -310,6 +311,7 @@ CREATE TABLE IF NOT EXISTS SelectHub(
 
 CREATE TABLE IF NOT EXISTS Invasion(
     name text,
+    short_name text,
     type_sensor text,
     type text,
     price varchar(255),
@@ -325,6 +327,7 @@ CREATE TABLE IF NOT EXISTS SelectInvasion(
 
 CREATE TABLE IF NOT EXISTS Fire(
     name text,
+    short_name text,
     type text,
     price varchar(255),
     photo text
@@ -337,6 +340,7 @@ CREATE TABLE IF NOT EXISTS SelectFire(
 
 CREATE TABLE IF NOT EXISTS Leak(
     name text,
+    short_name text,
     type text,
     price varchar(255),
     photo text
@@ -349,6 +353,7 @@ CREATE TABLE IF NOT EXISTS SelectLeak(
 
 CREATE TABLE IF NOT EXISTS Control(
     name text,
+    short_name text,
     type text,
     price varchar(255),
     photo text
@@ -361,6 +366,7 @@ CREATE TABLE IF NOT EXISTS SelectControl(
 
 CREATE TABLE IF NOT EXISTS Siren(
     name text,
+    short_name text,
     type text,
     price varchar(255),
     installation varchar(255),
@@ -374,6 +380,7 @@ CREATE TABLE IF NOT EXISTS SelectSiren(
 
 CREATE TABLE IF NOT EXISTS Automation(
     name text,
+    short_name text,
     type text,
     price varchar(255),
     photo text
@@ -381,6 +388,7 @@ CREATE TABLE IF NOT EXISTS Automation(
 
 CREATE TABLE IF NOT EXISTS Integration(
     name text,
+    short_name text,
     type text,
     price varchar(255),
     photo text
@@ -388,6 +396,7 @@ CREATE TABLE IF NOT EXISTS Integration(
 
 CREATE TABLE IF NOT EXISTS bbp(
     name text,
+    short_name text,
     type text,
     price varchar(255),
     photo text

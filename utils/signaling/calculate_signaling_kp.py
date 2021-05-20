@@ -14,6 +14,7 @@ import db
 class CostWork(NamedTuple):
     name: str
     price: str
+    short_name: str = ''
 
 
 class SignalingKp:
@@ -27,16 +28,32 @@ class SignalingKp:
         self.work = dict()
         self.total_cost_work = 0
         self.total_cost_equipments = 0
-        self.columns = 'name, price'
-        hub = self.add_hub()
+        self.columns = 'name, short_name, price'
         self.result['row_1'] = ['Оборудование']
-        self.result['hub'] = self.create_row(hub[0], hub[1], 'equipment')
+        # self.result['hub'] = self.create_row(hub[0], hub[1], 'equipment')
 
-    def add_hub(self):
-        hub = self.get_data_of_device(table='hub', name='Hub')
-        rooms = int(self.data['rooms'])
-        number_hub = rooms // 50 if rooms % 50 == 0 else rooms // 50 + 1
-        return hub, number_hub
+    def add_hub(self, number_devices):
+        hubs = []
+        while True:
+            if number_devices <= 100:
+                hub = self.get_data_of_device(table='hub', name='Hub')
+                hubs.append(hub)
+                break
+            elif number_devices <= 150:
+                hub = self.get_data_of_device(table='hub', name='Hub Plus')
+                hubs.append(hub)
+                break
+            else:
+                hub = self.get_data_of_device(table='hub', name='Hub Plus')
+                hubs.append(hub)
+                number_devices -= 150
+        # print(hubs)
+        return hubs
+
+        # hub = self.get_data_of_device(table='hub', name='Hub')
+        # rooms = int(self.data['rooms'])
+        # number_hub = rooms // 50 if rooms % 50 == 0 else rooms // 50 + 1
+        # return hub, number_hub
 
     def get_cost_work(self):
         columns = 'motion_sensor, open_sensor, smoke_detector, leakage_sensor, siren, control_keyboard, ' \
@@ -63,7 +80,7 @@ class SignalingKp:
         else:
             self.total_cost_equipments += price
         result = [
-            f'{data.name}',
+            f'{data.short_name}-{data.name}',
             'шт',
             number,
             Decimal(str(data.price)).quantize(Decimal('.01')),
@@ -172,6 +189,19 @@ class SignalingKp:
             self.street_guard()
         if self.add_devices:
             self.add_devices_in_result()
+        devices = 0
+        for key, value in self.result.items():
+            if len(value) != 1:
+                devices += int(value[2])
+        list_hubs = self.add_hub(devices)
+        hubs = dict()
+        for hub in list_hubs:
+            if hub.name not in hubs:
+                hubs[hub.name] = [hub, 1]
+            else:
+                hubs[hub.name] = [hub, hubs[hub.name][1] + 1]
+        for key, value in hubs.items():
+            self.result[key] = self.create_row(value[0], value[1], 'equipment')
         self.result['row_2'] = ['Работа']
         self.result.update(self.work)
         return self.result, self.total_cost_work, self.total_cost_equipments
@@ -180,7 +210,7 @@ class SignalingKp:
 folders = ('siren', 'automation', 'bbp', 'control', 'fire', 'hub', 'integration', 'invasion', 'leak')
 # device = db.get_data('name, photo', folder)
 work_path = Path.cwd() / '123' / '13'
-print(work_path)
+# print(work_path)
 
 
 def delete_dirs(directory):
@@ -223,13 +253,15 @@ def save_images(data, directory):
             file.write(img.content)
 
 
-def main():
-    for folder in folders:
-        device = db.get_data('name, photo', folder)
-        save_images(device, folder)
-
-
-if __name__ == '__main__':
-    main()
-
-
+# def main():
+#     for folder in folders:
+#         device = db.get_data('name, photo', folder)
+#         save_images(device, folder)
+#
+# data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 1, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '100', 'floor': 'Первый', 'table': 'leak', 'add_devices': {'leak': ('LeaksProtect', 3)}, 'model': 'LeaksProtect'}
+#
+# if __name__ == '__main__':
+#     a = SignalingKp(data=data, id_tg=381428187)
+#     b, c, d = a.main()
+#     print(*((key, value) for key, value in b.items()), sep='\n')
+#     # main()

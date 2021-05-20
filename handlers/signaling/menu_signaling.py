@@ -6,7 +6,7 @@ from keyboards import keyboards
 from misc import dp
 
 
-@dp.message_handler(text='Охранная сигнализация')
+@dp.message_handler(text='🚨 Охранная сигнализация')
 async def signaling_menu(msg: Message, state: FSMContext):
     await state.set_state('signaling_menu')
     await msg.answer(text="Выберите действие", reply_markup=keyboards.menu_video)
