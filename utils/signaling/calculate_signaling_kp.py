@@ -154,7 +154,7 @@ class SignalingKp:
             'siren': (self.cost_work.siren, 'Установка сирены'),
             'control': (self.cost_work.control_keyboard, 'Установка панели контроля')}
         for key, value in self.add_devices.items():
-            columns = 'name, type_sensor, price' if key == 'invasion' else self.columns
+            columns = 'name, short_name, type_sensor, price' if key == 'invasion' else self.columns
             data = db.get_data(columns, key, {'name': ('=', value[0])})[0]
             self.result[f'add_{key}'] = self.create_row(data, value[1], 'equipment')
             if key == 'invasion':
