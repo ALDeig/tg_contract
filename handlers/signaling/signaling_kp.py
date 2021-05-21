@@ -1,5 +1,6 @@
 import asyncio
 import os
+from loguru import logger
 from pathlib import Path
 
 from aiogram.dispatcher import FSMContext
@@ -153,13 +154,15 @@ async def get_area_apartment(msg: Message, state: FSMContext):
     await state.set_state('strengthen_protection')
 
 
-async def send_kp(data: dict, msg: Message):
+async def send_kp(data: dict, msg: Message, state: FSMContext):
     data, cost_work, cost_equipment = SignalingKp(data, msg.from_user.id).main()
     list_rows = list(data.values())
     file_name, number_kp = create_doc.save_kp(list_rows, cost_work + cost_equipment, msg.from_user.id)
     file = InputFile(file_name)
     await msg.answer(text='КП готов', reply_markup=keyboards.menu)
     await msg.answer_document(document=file)
+    await state.finish()
+    logger.info(f'File name is - {file_name}')
     await asyncio.sleep(5)
     os.remove(file_name)
 
@@ -171,7 +174,7 @@ async def get_strengthen_protection(msg: Message, state: FSMContext):
         await state.set_state('add_devices')
         return
     data = await state.get_data()
-    await send_kp(data, msg)
+    await send_kp(data, msg, state)
 
 
 @dp.message_handler(text='Сформировать КП', state='add_devices')
