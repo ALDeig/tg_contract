@@ -19,7 +19,7 @@ from states.start_cost_work import CostWork
 #     start_up_cost = State()  # стоимость пуско-наладочных работ
 
 
-@dp.message_handler(text='Аналоговая', state=CostWork.type_video)
+@dp.message_handler(text='Аналоговая', state='type_video')
 async def start_change_cost(message: types.Message):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
     info = db.get_info(columns, 'cost_work_analog', message.from_user.id, 'id_tg')

@@ -281,6 +281,7 @@ CREATE TABLE IF NOT EXISTS executor_ip(
 CREATE TABLE IF NOT EXISTS cost_signaling(
     id SERIAL,
     id_tg VARCHAR(255),
+    hub text,
     motion_sensor TEXT,
     open_sensor TEXT,
     smoke_detector TEXT,

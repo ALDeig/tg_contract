@@ -33,31 +33,39 @@ class SignalingKp:
         # self.result['hub'] = self.create_row(hub[0], hub[1], 'equipment')
 
     def add_hub(self, number_devices):
-        hubs = []
+        list_hubs = []
         while True:
             if number_devices <= 100:
                 hub = self.get_data_of_device(table='hub', name='Hub')
-                hubs.append(hub)
+                list_hubs.append(hub)
                 break
             elif number_devices <= 150:
                 hub = self.get_data_of_device(table='hub', name='Hub Plus')
-                hubs.append(hub)
+                list_hubs.append(hub)
                 break
             else:
                 hub = self.get_data_of_device(table='hub', name='Hub Plus')
-                hubs.append(hub)
+                list_hubs.append(hub)
                 number_devices -= 150
-        # print(hubs)
-        return hubs
-
-        # hub = self.get_data_of_device(table='hub', name='Hub')
-        # rooms = int(self.data['rooms'])
-        # number_hub = rooms // 50 if rooms % 50 == 0 else rooms // 50 + 1
-        # return hub, number_hub
+        hubs = dict()
+        for hub in list_hubs:
+            if hub.name not in hubs:
+                hubs[hub.name] = [hub, 1]
+            else:
+                hubs[hub.name] = [hub, hubs[hub.name][1] + 1]
+        cnt = 0
+        for key, value in hubs.items():
+            self.result[key] = self.create_row(value[0], value[1], 'equipment')
+            cnt += value[1]
+        self.work['hub'] = self.create_row(
+            CostWork(name='Установка и настройка хаба', price=self.cost_work.hub),
+            cnt,
+            'work'
+        )
 
     def get_cost_work(self):
         columns = 'motion_sensor, open_sensor, smoke_detector, leakage_sensor, siren, control_keyboard, ' \
-                  'smart_plug, power_relay, low_current_relay'
+                  'smart_plug, power_relay, low_current_relay, hub'
         cost = db.get_data(columns, 'cost_signaling', {'id_tg': ('=', self.id_tg)})
         if cost:
             return cost[0]
@@ -80,7 +88,7 @@ class SignalingKp:
         else:
             self.total_cost_equipments += price
         result = [
-            f'{data.short_name}-{data.name}',
+            f'{data.short_name}{"-" if data.short_name else ""}{data.name}',
             'шт',
             number,
             Decimal(str(data.price)).quantize(Decimal('.01')),
@@ -194,14 +202,6 @@ class SignalingKp:
             if len(value) != 1:
                 devices += int(value[2])
         list_hubs = self.add_hub(devices)
-        hubs = dict()
-        for hub in list_hubs:
-            if hub.name not in hubs:
-                hubs[hub.name] = [hub, 1]
-            else:
-                hubs[hub.name] = [hub, hubs[hub.name][1] + 1]
-        for key, value in hubs.items():
-            self.result[key] = self.create_row(value[0], value[1], 'equipment')
         self.result['row_2'] = ['Работа']
         self.result.update(self.work)
         return self.result, self.total_cost_work, self.total_cost_equipments
@@ -258,10 +258,10 @@ def save_images(data, directory):
 #         device = db.get_data('name, photo', folder)
 #         save_images(device, folder)
 #
-# data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 1, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '100', 'floor': 'Первый', 'table': 'leak', 'add_devices': {'leak': ('LeaksProtect', 3)}, 'model': 'LeaksProtect'}
+data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 1, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '300', 'floor': 'Первый', 'table': 'leak', 'add_devices': {'leak': ('LeaksProtect', 3)}, 'model': 'LeaksProtect'}
 #
-# if __name__ == '__main__':
-#     a = SignalingKp(data=data, id_tg=381428187)
-#     b, c, d = a.main()
-#     print(*((key, value) for key, value in b.items()), sep='\n')
-#     # main()
+if __name__ == '__main__':
+    a = SignalingKp(data=data, id_tg=381428187)
+    b, c, d = a.main()
+    # print(*((key, value) for key, value in b.items()), sep='\n')
+    # main()

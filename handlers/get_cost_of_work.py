@@ -20,16 +20,18 @@ from states.start_cost_work import CostWork
 @dp.message_handler(text='⚒ Изменить стоимость работ', state='*')
 async def select_system(message: types.Message, state: FSMContext):
     await message.answer('Выберите систему', reply_markup=cost_work_keyboard.type_system)
-    await CostWork.type_system.set()
+    await state.set_state('type_system')
+    # await CostWork.type_system.set()
 
 
-@dp.message_handler(state=CostWork.type_system)
+@dp.message_handler(text='Видеонаблюдение', state='type_system')
 async def select_type_video(message: types.Message, state: FSMContext):
     await message.answer('Выберите тип', reply_markup=cost_work_keyboard.type_video)
-    await CostWork.next()
+    await state.set_state('type_video')
+    # await CostWork.next()
 
 
-@dp.message_handler(text='IP', state=CostWork.type_video)
+@dp.message_handler(text='IP', state='type_video')
 async def start_change_cost(message: types.Message):
     columns = ', '.join(['cost_1_cam', 'cost_1_m', 'cnt_m', 'cost_mounting', 'start_up_cost'])
     info = db.get_info(columns, 'cost_work', message.from_user.id, 'id_tg')

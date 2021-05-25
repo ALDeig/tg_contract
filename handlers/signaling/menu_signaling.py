@@ -16,6 +16,9 @@ async def signaling_menu(msg: Message, state: FSMContext):
 async def create_kp(msg: Message, state: FSMContext):
     cost = db.get_data('id_tg', 'cost_signaling', {'id_tg': ('=', str(msg.from_user.id))})
     if not cost:
+        await msg.answer(
+            text='Укажите стоимость монтажа элементов охранной сигнализации (пока только оборудование Ajax)',
+            reply_markup=keyboards.key_cancel)
         await msg.answer('Укажите стоимость монтажа и настройки Датчика движения')
         await state.set_state('cost_signaling')
         return

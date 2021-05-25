@@ -7,11 +7,10 @@ from keyboards import keyboards
 from misc import dp
 
 
-@dp.message_handler(text='Ajax')
+@dp.message_handler(text='Охранная сигнализация', state='type_system')
 async def step_1(msg: Message, state: FSMContext):
     await msg.answer(
-        text='Перед первым вопросом надо добавить текст: Укажите стоимость монтажа элементов охранной сигнализации '
-             '(пока только оборудование Ajax)',
+        text='Укажите стоимость монтажа элементов охранной сигнализации (пока только оборудование Ajax)',
         reply_markup=keyboards.key_cancel)
     await msg.answer('Укажите стоимость монтажа и настройки Датчика движения')
     await state.set_state('cost_signaling')
@@ -100,10 +99,21 @@ async def step_9(msg: Message, state: FSMContext):
 
 
 @dp.message_handler(state='cost_signaling_step_10')
+async def step_9(msg: Message, state: FSMContext):
+    if msg.text.isdigit():
+        await state.update_data(low_current_relay=msg.text)
+        await msg.answer(
+            text='Укажите стоимость монтажа  и настройки Хаба')
+        await state.set_state('cost_signaling_step_11')
+    else:
+        await msg.answer('Введите стоимость')
+
+
+@dp.message_handler(state='cost_signaling_step_11')
 async def step_10(msg: Message, state: FSMContext):
     if msg.text.isdigit():
         await state.update_data({
-            'low_current_relay': msg.text,
+            'hub': msg.text,
             'id_tg': msg.from_user.id
         })
         data = await state.get_data()

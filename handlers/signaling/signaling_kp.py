@@ -180,7 +180,7 @@ async def get_strengthen_protection(msg: Message, state: FSMContext):
 @dp.message_handler(text='Сформировать КП', state='add_devices')
 async def create_kp(msg: Message, state: FSMContext):
     data = await state.get_data()
-    await send_kp(data, msg)
+    await send_kp(data, msg, state)
 
 
 @dp.message_handler(state='add_devices')
@@ -211,10 +211,11 @@ async def add_devices(msg: Message, state: FSMContext):
             file = InputFile(Path() / 'commercial_proposal' / 'images' / 'signaling' / tables[msg.text] / 'Ajax' / name)
             await msg.answer_photo(photo=file, caption=text, reply_markup=keyboard)
         except Exception as er:
-            print(er)
+            logger.error(er)
             await msg.answer(
                 text=text,
-                reply_markup=keyboard)
+                reply_markup=keyboard
+            )
 
 
 @dp.callback_query_handler(rec_selections_kbs.choice_reg_callback.filter(), state='add_devices')
@@ -242,8 +243,6 @@ async def get_number(msg: Message, state: FSMContext):
     await state.update_data(add_devices=add_device)
     await msg.answer('Какую защиту добавить?', reply_markup=signaling_kb.additional_devices_kb)
     await state.set_state('add_devices')
-
-
 
 
 # async def get_strengthen_protection(msg: Message, state: FSMContext):
