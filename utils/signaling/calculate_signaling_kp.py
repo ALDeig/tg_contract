@@ -32,19 +32,20 @@ class SignalingKp:
         self.result['row_1'] = ['Оборудование']
         # self.result['hub'] = self.create_row(hub[0], hub[1], 'equipment')
 
-    def add_hub(self, number_devices):
+    def add_hub(self, number_devices, motion_cam):
         list_hubs = []
+        prefix = ' 2' if motion_cam else ''
         while True:
             if number_devices <= 100:
-                hub = self.get_data_of_device(table='hub', name='Hub')
+                hub = self.get_data_of_device(table='hub', name=f'Hub{prefix}')
                 list_hubs.append(hub)
                 break
             elif number_devices <= 150:
-                hub = self.get_data_of_device(table='hub', name='Hub Plus')
+                hub = self.get_data_of_device(table='hub', name=f'Hub{prefix} Plus')
                 list_hubs.append(hub)
                 break
             else:
-                hub = self.get_data_of_device(table='hub', name='Hub Plus')
+                hub = self.get_data_of_device(table='hub', name=f'Hub{prefix} Plus')
                 list_hubs.append(hub)
                 number_devices -= 150
         hubs = dict()
@@ -161,11 +162,14 @@ class SignalingKp:
             'leak': (self.cost_work.leakage_sensor, 'Установка датчика протечки'),
             'siren': (self.cost_work.siren, 'Установка сирены'),
             'control': (self.cost_work.control_keyboard, 'Установка панели контроля')}
+        motion_cam = False
         for key, value in self.add_devices.items():
             columns = 'name, short_name, type_sensor, price' if key == 'invasion' else self.columns
             data = db.get_data(columns, key, {'name': ('=', value[0])})[0]
             self.result[f'add_{key}'] = self.create_row(data, value[1], 'equipment')
             if key == 'invasion':
+                if value[0] == 'MotionCam':
+                    motion_cam = True
                 if data.type_sensor == 'm':
                     self.work['add_motion_protec_work'] = self.create_row(
                         CostWork(name='Монтаж датчиков движения', price=self.cost_work.motion_sensor),
@@ -185,6 +189,7 @@ class SignalingKp:
                         value[1],
                         'work'
                     )
+        return motion_cam
 
     def main(self):
         if self.choice_protection['intrusion_protection'] == 1:
@@ -195,13 +200,14 @@ class SignalingKp:
             self.leakage_protection()
         if self.choice_protection['street_guard']:
             self.street_guard()
+        motion_cam = None
         if self.add_devices:
-            self.add_devices_in_result()
+            motion_cam = self.add_devices_in_result()
         devices = 0
         for key, value in self.result.items():
             if len(value) != 1:
                 devices += int(value[2])
-        list_hubs = self.add_hub(devices)
+        self.add_hub(devices, motion_cam)
         self.result['row_2'] = ['Работа']
         self.result.update(self.work)
         return self.result, self.total_cost_work, self.total_cost_equipments
@@ -258,10 +264,12 @@ def save_images(data, directory):
 #         device = db.get_data('name, photo', folder)
 #         save_images(device, folder)
 #
-data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 1, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '300', 'floor': 'Первый', 'table': 'leak', 'add_devices': {'leak': ('LeaksProtect', 3)}, 'model': 'LeaksProtect'}
+# data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 1, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '300', 'floor': 'Первый', 'table': 'leak', 'add_devices': {'leak': ('LeaksProtect', 10)}, 'model': 'LeaksProtect'}
+data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 0, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '300', 'floor': 'Первый', 'table': 'fire', 'add_devices': {'invasion': ('MotionProtect', 3), 'fire': ('FireProtect Plus', 2)}, 'model': 'FireProtect Plus'}
+
 #
 if __name__ == '__main__':
     a = SignalingKp(data=data, id_tg=381428187)
     b, c, d = a.main()
-    # print(*((key, value) for key, value in b.items()), sep='\n')
+    print(*((key, value) for key, value in b.items()), sep='\n')
     # main()

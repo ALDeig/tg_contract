@@ -33,15 +33,15 @@ async def send_devices(msg: Message, state: FSMContext):
         await msg.answer('Выберите вариант', reply_markup=keyboard)
         await state.set_state('invasion_type')
         return
-    columns = 'name, price' if msg.text == 'Хаб' else 'name, type, price'
+    columns = 'name, short_name, price' if msg.text == 'Хаб' else 'name, short_name, type, price'
     await state.update_data(table=msg.text)
     devices = db.get_data(columns, tables.get(msg.text))
     for device in devices:
         keyboard = rec_selections_kbs.create_inline_keyboard_2(device.name)
         if msg.text == 'Хаб':
-            text = f'{device.name}\nЦена: {device.price}'
+            text = f'{device.name} {device.short_name}\nЦена: {device.price}'
         else:
-            text = f'{device.name}\nТип: {device.type}\nЦена: {device.price}'
+            text = f'{device.name} {device.short_name}\nТип: {device.type}\nЦена: {device.price}'
         try:
             name = device.name.strip().replace('/', '').replace('\\', '').replace(' ', '') + '.jpg'
             file = InputFile(Path() / 'commercial_proposal' / 'images' / 'signaling' / tables[msg.text] / 'Ajax' / name)
@@ -58,11 +58,11 @@ async def send_devices(msg: Message, state: FSMContext):
 async def invasion_type(msg: Message, state: FSMContext):
     if msg.text not in ('Внутрений', 'Уличный', '↩️Отмена'):
         return
-    devices = db.get_data('name, price', 'Invasion', {'installation': ('=', msg.text)})
+    devices = db.get_data('name, short_name, price', 'Invasion', {'installation': ('=', msg.text)})
     for device in devices:
         keyboard = rec_selections_kbs.create_inline_keyboard_2(device.name)
         await msg.answer(
-            text=f'{device.name}\nЦена: {device.price}',
+            text=f'{device.name} {device.short_name}\nЦена: {device.price}',
             reply_markup=keyboard)
     await state.set_state('choice_device')
 

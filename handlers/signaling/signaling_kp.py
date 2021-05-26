@@ -157,13 +157,14 @@ async def get_area_apartment(msg: Message, state: FSMContext):
 async def send_kp(data: dict, msg: Message, state: FSMContext):
     data, cost_work, cost_equipment = SignalingKp(data, msg.from_user.id).main()
     list_rows = list(data.values())
-    file_name, number_kp = create_doc.save_kp(list_rows, cost_work + cost_equipment, msg.from_user.id)
+    file_name, number_kp = create_doc.save_kp(list_rows, cost_work + cost_equipment, msg.from_user.id, signaling=True)
     file = InputFile(file_name)
     await msg.answer(text='КП готов', reply_markup=keyboards.menu)
     await msg.answer_document(document=file)
     await state.finish()
     logger.info(f'File name is - {file_name}')
     await asyncio.sleep(5)
+    db.write_number_kp(id_tg=msg.from_user.id, number_kp=int(number_kp) + 1)
     os.remove(file_name)
 
 
