@@ -265,11 +265,11 @@ def save_images(data, directory):
 #         save_images(device, folder)
 #
 # data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 1, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '300', 'floor': 'Первый', 'table': 'leak', 'add_devices': {'leak': ('LeaksProtect', 10)}, 'model': 'LeaksProtect'}
-data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 0, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '300', 'floor': 'Первый', 'table': 'fire', 'add_devices': {'invasion': ('MotionProtect', 3), 'fire': ('FireProtect Plus', 2)}, 'model': 'FireProtect Plus'}
+# data = {'choice_protection': {'intrusion_protection': 1, 'fire_safety': 0, 'leakage_protection': 0, 'street_guard': 0}, 'rooms': '300', 'floor': 'Первый', 'table': 'fire', 'add_devices': {'invasion': ('MotionProtect', 3), 'fire': ('FireProtect Plus', 2)}, 'model': 'FireProtect Plus'}
 
 #
-if __name__ == '__main__':
-    a = SignalingKp(data=data, id_tg=381428187)
-    b, c, d = a.main()
-    print(*((key, value) for key, value in b.items()), sep='\n')
+# if __name__ == '__main__':
+#     a = SignalingKp(data=data, id_tg=381428187)
+#     b, c, d = a.main()
+    # print(*((key, value) for key, value in b.items()), sep='\n')
     # main()
