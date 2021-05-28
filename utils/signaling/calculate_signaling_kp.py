@@ -22,7 +22,7 @@ class SignalingKp:
         self.data = data
         self.id_tg = str(id_tg)
         self.choice_protection = data.pop('choice_protection')
-        self.add_devices = data.pop('add_devices') if 'add_devices' in data else None
+        self.add_devices = data.pop('add_devices', None)
         self.cost_work = self.get_cost_work()
         self.result = dict()
         self.work = dict()

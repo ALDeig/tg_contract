@@ -26,6 +26,7 @@ additional_devices_kb = ReplyKeyboardMarkup([
     [KeyboardButton(text='Защита от вторжения'), KeyboardButton(text='Пожарная безопасность')],
     [KeyboardButton(text='Защита от протечек'), KeyboardButton(text='Сирены')],
     [KeyboardButton(text='Управление'), KeyboardButton(text='Автоматизация')],
+    [KeyboardButton(text='Ретрансляторы')],
     [KeyboardButton(text='Сформировать КП')]
 ], resize_keyboard=True)
 

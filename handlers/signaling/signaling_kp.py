@@ -19,7 +19,7 @@ from misc import dp
 async def check_select_protection(choice_protection, msg, state):
     data = await state.get_data()
     if choice_protection['leakage_protection']:
-        await msg.answer('Укажите количество ванных комнат', reply_markup=keyboards.key_cancel)
+        await msg.answer('Укажите количество ванных комнат включая кухню', reply_markup=keyboards.key_cancel)
         await state.set_state('number_bedrooms')
     elif choice_protection['street_guard']:
         await msg.answer('Укажите площадь участка кв.м', reply_markup=keyboards.key_cancel)
@@ -129,7 +129,7 @@ async def get_number_bedrooms(msg: Message, state: FSMContext):
     if not msg.text.isdigit():
         await msg.answer('Укажите количество ванных комнат', reply_markup=keyboards.key_cancel)
         return
-    await state.update_data(bedrooms=int(msg.text) + 1)
+    await state.update_data(bedrooms=msg.text)
     data = await state.get_data()
     if data['choice_protection']['street_guard']:
         await msg.answer('Укажите площадь участка в кв.м', reply_markup=keyboards.key_cancel)
@@ -184,6 +184,11 @@ async def create_kp(msg: Message, state: FSMContext):
     await send_kp(data, msg, state)
 
 
+@dp.message_handler(text='↩ ️Отмена', state='add_devices')
+async def back_step(msg: Message, state: FSMContext):
+    await msg.answer('Какую защиту добавить?', reply_markup=signaling_kb.additional_devices_kb)
+
+
 @dp.message_handler(state='add_devices')
 async def add_devices(msg: Message, state: FSMContext):
     tables = {
@@ -193,22 +198,26 @@ async def add_devices(msg: Message, state: FSMContext):
         'Сирены': 'siren',
         'Управление': 'control',
         'Автоматизация': 'automation',
-        'Ретрансляторы': ''
+        'Ретрансляторы': 'hub'
     }
     if msg.text not in tables.keys():
         return
-    devices = db.get_data('name, price', tables.get(msg.text))
+    if msg.text == 'Ретрансляторы':
+        filters = {'name': ('=', 'ReX')}
+    else:
+        filters = None
+    devices = db.get_data('name, short_name, price', tables.get(msg.text), filters=filters)
     await state.update_data(table=tables.get(msg.text))
     await msg.answer(
         text='Выберите вариант',
-        reply_markup=keyboards.key_cancel
+        reply_markup=ReplyKeyboardMarkup(resize_keyboard=True).add('↩ ️Отмена')
     )
     for device in devices:
         keyboard = rec_selections_kbs.create_inline_keyboard_2(device.name)
-        text = f'{device.name}\nЦена: {device.price}'
+        text = f'{device.name} {device.short_name}\nЦена: {device.price}'
         try:
             name = device.name.strip().replace('/', '').replace('\\', '').replace(' ', '') + '.jpg'
-            await msg.answer('Укажите количество')
+            # await msg.answer('Укажите количество')
             file = InputFile(Path() / 'commercial_proposal' / 'images' / 'signaling' / tables[msg.text] / 'Ajax' / name)
             await msg.answer_photo(photo=file, caption=text, reply_markup=keyboard)
         except Exception as er:
