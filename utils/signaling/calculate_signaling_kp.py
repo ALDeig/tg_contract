@@ -40,14 +40,14 @@ class SignalingKp:
                 hub = self.get_data_of_device(table='hub', name=f'Hub{prefix}')
                 list_hubs.append(hub)
                 break
-            elif number_devices <= 150:
+            elif number_devices <= 150 if prefix == '' else 200:
                 hub = self.get_data_of_device(table='hub', name=f'Hub{prefix} Plus')
                 list_hubs.append(hub)
                 break
             else:
                 hub = self.get_data_of_device(table='hub', name=f'Hub{prefix} Plus')
                 list_hubs.append(hub)
-                number_devices -= 150
+                number_devices -= 150 if prefix == '' else 200
         hubs = dict()
         for hub in list_hubs:
             if hub.name not in hubs:
