@@ -18,6 +18,7 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 logger.info('Database opened succsefully...')
 
+
 # def step_1():
 #     with conn:
 #         with conn.cursor(cursor_factory=NamedTupleCursor) as curs: # cursor_factory=DictCursor
@@ -70,8 +71,9 @@ def get_recorder_channels_with_brand(brand, number_channels=None):
     with conn:
         with conn.cursor() as cur:
             if not number_channels:
-                cur.execute('SELECT DISTINCT number_channels FROM DataRecorder WHERE brand = %s ORDER BY number_channels',
-                            (brand,))
+                cur.execute(
+                    'SELECT DISTINCT number_channels FROM DataRecorder WHERE brand = %s ORDER BY number_channels',
+                    (brand,))
             else:
                 cur.execute('SELECT DISTINCT number_channels FROM DataRecorder '
                             'WHERE number_channels >= %s AND brand = %s'
@@ -213,12 +215,14 @@ def insert(table: str, columns: tuple, data: dict):
     columns = ', '.join(columns)
     values = tuple(data.values())
     placeholders = ", ".join(["%s"] * len(data.keys()))
-    cursor.execute(
-        f"INSERT INTO {table} "
-        f"({columns}) "
-        f"VALUES ({placeholders})",
-        values)
-    conn.commit()
+    with conn:
+        with conn.cursor() as curs:
+            curs.execute(
+                f"INSERT INTO {table} "
+                f"({columns}) "
+                f"VALUES ({placeholders})",
+                values)
+        conn.commit()
 
 
 def update_type_executor(type_executor: str, id_tg: int):
@@ -484,16 +488,20 @@ def get_data_cam(filters: dict):
     return data
 
 
-def get_data(columns: str, table: str, filters: dict):
-    """Принимает колонки строкой, таблицу и фильтры. Фильры в виде словаря в котором ключ - имя стобца, а значение -
-    кортеж или список. Первый элемент оператор фильтра, а второй значение.
+def get_data(columns: str, table: str, filters: dict = None):
+    """Принимает колонки строкой, таблицу и фильтры(опционально). Фильры в виде словаря в котором ключ - имя стобца, а
+    значение - кортеж или список. Первый элемент оператор фильтра, а второй значение.
     Функция возвращает полученные данные в виде списка именованных кортежей"""
-    cols = [f'{key} {value[0]} %s' for key, value in filters.items()]
-    value = ' AND '.join(cols)
-    request = f'SELECT {columns} FROM {table} WHERE {value}'
+    if filters:
+        cols = [f'{key} {value[0]} %s' for key, value in filters.items()]
+        value = ' AND '.join(cols)
+        filters_req = f' WHERE {value}'
+    else:
+        filters_req = ''
+    request = f'SELECT {columns} FROM {table}' + filters_req
     with conn:
         with conn.cursor(cursor_factory=NamedTupleCursor) as curs:
-            curs.execute(request, [value[1] for value in filters.values()])
+            curs.execute(request, [value[1] for value in filters.values()] if filters else None)
             data = curs.fetchall()
     return data
 
@@ -516,6 +524,13 @@ def get_types(column: str, table: str, filters: dict = None):
     return types
 
 
+def delete_value(table: str, id_tg: str):
+    with conn:
+        with conn.cursor() as curs:
+            curs.execute(f'DELETE FROM {table} WHERE id_tg = %s', (id_tg,))
+        conn.commit()
+
+
 def set_default_select(id_tg: int):
     with conn:
         with conn.cursor() as curs:
@@ -528,6 +543,8 @@ def set_default_select(id_tg: int):
             curs.execute('DELETE FROM ChoiceGofra WHERE id_tg = %s', (id_tg,))
             curs.execute('DELETE FROM ChoiceIBP WHERE id_tg = %s', (id_tg,))
         conn.commit()
+
+
 # Конец функций аналогового КП
 
 def get_equipments_types(column: str, table: str, filters: dict = None) -> set:
@@ -578,8 +595,9 @@ def insert_choice_camera(type_cam, view_cam, purpose, model, id_tg):
                    f'AND purpose = %s', (id_tg, 'IP', view_cam, purpose))
     old_choice = cursor.fetchone()
     if not old_choice:
-        cursor.execute(f'INSERT INTO choice_cams (id_tg, type_cam, view_cam, purpose, model) VALUES (%s, %s, %s, %s, %s)',
-                       (id_tg, type_cam, view_cam, purpose, model))
+        cursor.execute(
+            f'INSERT INTO choice_cams (id_tg, type_cam, view_cam, purpose, model) VALUES (%s, %s, %s, %s, %s)',
+            (id_tg, type_cam, view_cam, purpose, model))
     else:
         cursor.execute(f'UPDATE choice_cams SET model = %s, type_cam = %s WHERE id_tg = %s AND type_cam {operator} %s'
                        f'AND view_cam = %s AND purpose = %s', (model, type_cam, id_tg, 'IP', view_cam, purpose))

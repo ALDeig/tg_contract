@@ -1,7 +1,7 @@
 import os
 from datetime import date
 
-from docx.opc.exceptions import PackageNotFoundError
+# from docx.opc.exceptions import PackageNotFoundError
 from docxtpl import DocxTemplate, RichText
 
 import db
@@ -15,10 +15,11 @@ def gen_name_file(id_tg):
     return file_name, number_kp
 
 
-def save_kp(table_data, total_price, id_tg):
+def save_kp(table_data, total_price, id_tg, signaling=False):
     tpl_name = get_kp_tpl(id_tg)
     if tpl_name is None:
-        tpl_name = os.path.join('documents', 'template_kp.docx')
+        tpl_name = 'template_kp_sig.docx' if signaling else 'template_kp.docx'
+        tpl_name = os.path.join('documents', tpl_name)
 
     user_data = db.get_data(
         'name, phone, city',
@@ -49,7 +50,9 @@ def save_kp(table_data, total_price, id_tg):
 
     for item in table_data:
         if len(item) == 1:
-            context['tbl_contents'].append({'label': RichText(text=item[0], size=30, bold=True, color='000000')})
+            text = RichText(text=item[0], size=30, bold=True, color="000000")
+            # context['tbl_contents'].append({'label': RichText(text=item[0], size=30, bold=True, color="000000")})
+            context['tbl_contents'].append({'label': text})
         else:
             context['tbl_contents'].append(
                 {

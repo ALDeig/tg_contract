@@ -1,5 +1,6 @@
 from . import with_provider
 from . import general_commands
+from . import signaling
 from . import create_kp
 from . import select_equipment
 from . import check_in

@@ -134,7 +134,7 @@ async def step_4(message: Message, state: FSMContext):
     await CameraSelections.next()
 
 
-@dp.message_handler(text='Да', state=CameraSelections.q_4)
+@dp.message_handler(text='✅Да', state=CameraSelections.q_4)
 async def step_pagin(message: Message, state: FSMContext):
     data = await state.get_data()
     end = data['end'] + 5

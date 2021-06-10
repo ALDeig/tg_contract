@@ -188,6 +188,7 @@ def filling_contract(data: dict, id_tg: int) -> str:
                     'period': period,
                     'day': today.strftime('%d'),
                     'month': today.strftime('%B'),
+                    'year': today.strftime('%Y'),
                     'bik_client': data['bik'],
                     'inn_client': data['inn'],
                     'check_acc_client': data['current_account'],

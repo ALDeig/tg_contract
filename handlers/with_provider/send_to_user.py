@@ -50,7 +50,10 @@ async def send_kp_to_provider(call: CallbackQuery, callback_data: dict, state: F
 ❗️Обратите внимание, что некоторые материалы продаются кратно упаковке.\n
 🧩 Данный функционал находится на этапе тестирования, время ожидания ответа поставщиков может превышать 30 мин.
 """
-    await call.message.answer(text=answer, reply_markup=keyboards.menu)
+    answer_2 = """✅ Я начал обрабатывать ваш заказ.\n
+⏱ Обычно это занимает не более 30 минут."""
+    signaling = data.get('signaling', None)
+    await call.message.answer(text=answer_2 if signaling else answer, reply_markup=keyboards.menu)
     db.update_data('users', call.from_user.id, {'number_order': user.number_order + 1})
     analytics.insert_data('send_order')
     await state.finish()

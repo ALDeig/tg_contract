@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS users(
     number_kp INT,
     kp_tpl VARCHAR(255),
     number_order INT,
-    is_provider BOOL
+    is_provider BOOL,
+    country VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS choice_cams(
@@ -274,4 +275,146 @@ CREATE TABLE IF NOT EXISTS executor_ip(
     warranty TEXT,
     number_contract TEXT,
     user_id_tg INT
+);
+
+
+CREATE TABLE IF NOT EXISTS cost_signaling(
+    id SERIAL,
+    id_tg VARCHAR(255),
+    hub text,
+    motion_sensor TEXT,
+    open_sensor TEXT,
+    smoke_detector TEXT,
+    leakage_sensor TEXT,
+    siren TEXT,
+    control_keyboard TEXT,
+    smart_plug TEXT,
+    power_relay TEXT,
+    low_current_relay TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Hub(
+    name text,
+    short_name text,
+    devices INT,
+    rooms INT,
+    cams INT,
+    rex INT,
+    motionCam bool,
+    price varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS SelectHub(
+    id_tg bigint,
+    name text
+);
+
+CREATE TABLE IF NOT EXISTS Invasion(
+    name text,
+    short_name text,
+    type_sensor text,
+    type text,
+    price varchar(255),
+    installation text,
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS SelectInvasion(
+    id_tg bigint,
+    installation text,
+    name text
+);
+
+CREATE TABLE IF NOT EXISTS Fire(
+    name text,
+    short_name text,
+    type text,
+    price varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS SelectFire(
+    id_tg bigint,
+    name text
+);
+
+CREATE TABLE IF NOT EXISTS Leak(
+    name text,
+    short_name text,
+    type text,
+    price varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS SelectLeak(
+    id_tg bigint,
+    name text
+);
+
+CREATE TABLE IF NOT EXISTS Control(
+    name text,
+    short_name text,
+    type text,
+    price varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS SelectControl(
+    id_tg bigint,
+    name text
+);
+
+CREATE TABLE IF NOT EXISTS Siren(
+    name text,
+    short_name text,
+    type text,
+    price varchar(255),
+    installation varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS SelectSiren(
+    id_tg bigint,
+    name text
+);
+
+CREATE TABLE IF NOT EXISTS Automation(
+    name text,
+    short_name text,
+    type text,
+    price varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS Integration(
+    name text,
+    short_name text,
+    type text,
+    price varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS bbp(
+    name text,
+    short_name text,
+    type text,
+    price varchar(255),
+    photo text
+);
+
+CREATE TABLE IF NOT EXISTS SelectBBP(
+    id_tg bigint,
+    name text
+);
+
+CREATE TABLE IF NOT EXISTS Analytics(
+    contract int,
+    request_inn int,
+    request_bik int,
+    kp int,
+    template int,
+    send_order int,
+    send_answer int,
+    confirm_order int
 );

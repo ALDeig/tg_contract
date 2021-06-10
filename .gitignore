@@ -4,6 +4,7 @@ db/users.db
 db/analytics.json
 __pycache__
 .venv
+venv
 .idea
 images
 prices.json
