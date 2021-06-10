@@ -9,6 +9,7 @@ from aiogram.types import Message, InputFile, CallbackQuery, ReplyKeyboardMarkup
 import db
 from keyboards import keyboards
 from keyboards import signaling_kb
+from keyboards.inline_keybords import inline_yes_or_no
 from keyboards.selection_equipments import rec_selections_kbs
 from keyboards.signaling_kb import create_kb_safe, callback_safe, floors_kb
 from utils.signaling.calculate_signaling_kp import SignalingKp
@@ -32,7 +33,7 @@ async def check_select_protection(choice_protection, msg, state):
 
 
 def send_now_equipments(data, user_id):
-    rows, cost_work, cost_equipment = SignalingKp(data, user_id).main()
+    rows, cost_work, cost_equipment, to_provider = SignalingKp(data, user_id).main()
     result = dict()
     for key, value in rows.items():
         if key == 'row_2':
@@ -155,13 +156,21 @@ async def get_area_apartment(msg: Message, state: FSMContext):
 
 
 async def send_kp(data: dict, msg: Message, state: FSMContext):
-    data, cost_work, cost_equipment = SignalingKp(data, msg.from_user.id).main()
+    data, cost_work, cost_equipment, to_provider = SignalingKp(data, msg.from_user.id).main()
     list_rows = list(data.values())
     file_name, number_kp = create_doc.save_kp(list_rows, cost_work + cost_equipment, msg.from_user.id, signaling=True)
     file = InputFile(file_name)
-    await msg.answer(text='КП готов', reply_markup=keyboards.menu)
+    await asyncio.sleep(3)
+    await msg.answer(text='КП готов', reply_markup=keyboards.go_menu)
     await msg.answer_document(document=file)
-    await state.finish()
+    # await state.finish()
+    text = """✅ Коммерческое предложение готово!\n
+📦 Закажи оборудование из КП в 1 клик через бот!\n
+🎁 Получи скидку!\n
+👇Жми «Заказать оборудование»"""
+    await msg.answer(text=text, reply_markup=inline_yes_or_no)
+    await state.set_state('send_kp')
+    await state.update_data({'file': file_name, 'to_provider': to_provider, 'signaling': True})
     logger.info(f'File name is - {file_name}')
     await asyncio.sleep(5)
     db.write_number_kp(id_tg=msg.from_user.id, number_kp=int(number_kp) + 1)

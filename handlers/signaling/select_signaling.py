@@ -22,6 +22,14 @@ async def start_selections(msg: Message, state: FSMContext):
     await state.set_state('selection_devices')
 
 
+@dp.message_handler(text='Установить оборудование по умолчанию', state='selection_devices')
+async def set_default_devices(msg: Message, state: FSMContext):
+    tables = ['selecthub', 'selectinvasion', 'selectfire', 'selectleak', 'selectsiren', 'selectcontrol', 'selectbbp']
+    for table in tables:
+        db.delete_value(table, msg.from_user.id)
+    await msg.answer('Оборудование установлено по умолчанию')
+
+
 @dp.message_handler(state='selection_devices')
 async def send_devices(msg: Message, state: FSMContext):
     tables = {'Хаб': 'hub', 'Вторжение': 'invasion', 'Пожар': 'fire', 'Протечка': 'leak', 'Сирена': 'siren',

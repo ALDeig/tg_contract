@@ -524,6 +524,13 @@ def get_types(column: str, table: str, filters: dict = None):
     return types
 
 
+def delete_value(table: str, id_tg: str):
+    with conn:
+        with conn.cursor() as curs:
+            curs.execute(f'DELETE FROM {table} WHERE id_tg = %s', (id_tg,))
+        conn.commit()
+
+
 def set_default_select(id_tg: int):
     with conn:
         with conn.cursor() as curs:

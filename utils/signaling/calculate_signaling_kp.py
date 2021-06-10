@@ -30,6 +30,7 @@ class SignalingKp:
         self.total_cost_equipments = 0
         self.columns = 'name, short_name, price'
         self.result['row_1'] = ['Оборудование']
+        self.to_provider = list()
         # self.result['hub'] = self.create_row(hub[0], hub[1], 'equipment')
 
     def add_hub(self, number_devices, motion_cam):
@@ -56,7 +57,9 @@ class SignalingKp:
                 hubs[hub.name] = [hub, hubs[hub.name][1] + 1]
         cnt = 0
         for key, value in hubs.items():
-            self.result[key] = self.create_row(value[0], value[1], 'equipment')
+            row = self.create_row(value[0], value[1], 'equipment')
+            self.result[key] = row
+            self.to_provider.append(row[:3])
             cnt += value[1]
         self.work['hub'] = self.create_row(
             CostWork(name='Установка и настройка хаба', price=self.cost_work.hub),
@@ -102,32 +105,44 @@ class SignalingKp:
         motion_protect = self.get_data_of_device('invasion', 'MotionProtect')
         siren = self.get_data_of_device('siren', 'HomeSiren')
         space_control = self.get_data_of_device('control', 'SpaceControl')
-        self.result['open_door'] = self.create_row(open_door, 1, 'equipment')
+        row = self.create_row(open_door, 1, 'equipment')
+        self.result['open_door'] = row
+        self.to_provider.append(row[:3])
         self.work['open_work'] = self.create_row(
             CostWork(name='Монтаж датчиков открытия', price=self.cost_work.open_sensor),
             1 if self.data['floor'] == 'Другой' else int(self.data['rooms']) + 1,
             'work'
         )
-        self.result['motion_protect'] = self.create_row(motion_protect, int(self.data['rooms']), 'equipment')
+        row = self.create_row(motion_protect, int(self.data['rooms']), 'equipment')
+        self.result['motion_protect'] = row
+        self.to_provider.append(row[:3])
         self.work['motion_protect_work'] = self.create_row(
             CostWork(name='Монтаж датчиков движения', price=self.cost_work.motion_sensor),
             int(self.data['rooms']),
             'work'
         )
-        self.result['siren'] = self.create_row(siren, 1, 'equipment')
+        row = self.create_row(siren, 1, 'equipment')
+        self.result['siren'] = row
+        self.to_provider.append(row[:3])
         self.work['siren_work'] = self.create_row(
             CostWork(name='Установка сирены', price=self.cost_work.siren),
             1,
             'work'
         )
-        self.result['space_control'] = self.create_row(space_control, 1, 'equipment')
+        row = self.create_row(space_control, 1, 'equipment')
+        self.result['space_control'] = row
+        self.to_provider.append(row[:3])
         if self.data['floor'] != 'Другой':
             open_window = db.get_data(self.columns, 'invasion', {'name': ('=', 'CombiProtect')})[0]
-            self.result['open_window'] = self.create_row(open_window, int(self.data['rooms']), 'equipment')
+            row = self.create_row(open_window, int(self.data['rooms']), 'equipment')
+            self.result['open_window'] = row
+            self.to_provider.append(row[:3])
 
     def fire_safety(self):
         fire_protect = self.get_data_of_device('fire', 'FireProtect')
-        self.result['fire_protect'] = self.create_row(fire_protect, int(self.data['rooms']), 'equipment')
+        row = self.create_row(fire_protect, int(self.data['rooms']), 'equipment')
+        self.result['fire_protect'] = row
+        self.to_provider.append(row[:3])
         self.work['fire_protect_work'] = self.create_row(
             CostWork(name='Монтаж датчиков дыма', price=self.cost_work.smoke_detector),
             int(self.data['rooms']),
@@ -136,7 +151,9 @@ class SignalingKp:
 
     def leakage_protection(self):
         leak = self.get_data_of_device('leak', 'LeaksProtect')
-        self.result['leak'] = self.create_row(leak, int(self.data['bedrooms']), 'equipment')
+        row = self.create_row(leak, int(self.data['bedrooms']), 'equipment')
+        self.result['leak'] = row
+        self.to_provider.append(row[:3])
         self.work['leak_work'] = self.create_row(
             CostWork(name='Монтаж датчиков протечки', price=self.cost_work.leakage_sensor),
             int(self.data['bedrooms']),
@@ -145,7 +162,9 @@ class SignalingKp:
 
     def street_guard(self):
         motion_protect_outdoor = db.get_data(self.columns, 'invasion', {'name': ('=', 'MotionProtect Outdoor')})[0]
-        self.result['motion_protect_outdoor'] = self.create_row(motion_protect_outdoor, 1, 'equipment')
+        row = self.create_row(motion_protect_outdoor, 1, 'equipment')
+        self.result['motion_protect_outdoor'] = row
+        self.to_provider.append(row[:3])
         if 'motion_protect_work' in self.work:
             numbers = self.work['motion_protect_work'][2] + 1
         else:
@@ -166,7 +185,9 @@ class SignalingKp:
         for key, value in self.add_devices.items():
             columns = 'name, short_name, type_sensor, price' if key == 'invasion' else self.columns
             data = db.get_data(columns, key, {'name': ('=', value[0])})[0]
-            self.result[f'add_{key}'] = self.create_row(data, value[1], 'equipment')
+            row = self.create_row(data, value[1], 'equipment')
+            self.result[f'add_{key}'] = row
+            self.to_provider.append(row[:3])
             if key == 'invasion':
                 if value[0] == 'MotionCam':
                     motion_cam = True
@@ -210,7 +231,7 @@ class SignalingKp:
         self.add_hub(devices, motion_cam)
         self.result['row_2'] = ['Работа']
         self.result.update(self.work)
-        return self.result, self.total_cost_work, self.total_cost_equipments
+        return self.result, self.total_cost_work, self.total_cost_equipments, self.to_provider
 
 
 folders = ('siren', 'automation', 'bbp', 'control', 'fire', 'hub', 'integration', 'invasion', 'leak')

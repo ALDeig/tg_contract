@@ -64,10 +64,11 @@ floors_kb = ReplyKeyboardMarkup([
 ], resize_keyboard=True)
 
 devices_selection = ReplyKeyboardMarkup([
-    [KeyboardButton(text='Хаб'), KeyboardButton(text='Вторжение')],
-    [KeyboardButton(text='Пожар'), KeyboardButton(text='Протечка')],
-    [KeyboardButton(text='Управление'), KeyboardButton(text='Сирена')],
-    [KeyboardButton(text='ББП'), KeyboardButton(text='↩️Отмена')]
+    [KeyboardButton(text='Хаб'), KeyboardButton(text='Вторжение'), KeyboardButton(text='Пожар')],
+    [KeyboardButton(text='Протечка'), KeyboardButton(text='Управление'), KeyboardButton(text='Сирена')],
+    [KeyboardButton(text='ББП')],
+    [KeyboardButton('Установить оборудование по умолчанию')],
+    [KeyboardButton(text='↩️Отмена')]
 ], resize_keyboard=True)
 
 
