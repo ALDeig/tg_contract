@@ -75,6 +75,7 @@ async def cmd_get_analytics(message: types.Message):
         f"<b>Договоров:</b> {data['contract']}\n"
         f"<b>Шаблоны КП:</b> {data['template']}\n"
         f"<b>КП:</b> {data['kp']}\n"
+        f"<b>AJAX КП:</b> {data['signaling_kp']}\n"
         f"<b>ИНН:</b> {data['request_inn']}\n"
         f"<b>БИК:</b> {data['request_bik']}\n"
         f"<b>Отправлено заказов:</b> {data['send_order']}\n"
