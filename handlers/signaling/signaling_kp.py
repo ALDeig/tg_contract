@@ -6,6 +6,7 @@ from pathlib import Path
 from aiogram.dispatcher import FSMContext
 from aiogram.types import Message, InputFile, CallbackQuery, ReplyKeyboardMarkup
 
+import analytics
 import db
 from keyboards import keyboards
 from keyboards import signaling_kb
@@ -163,6 +164,7 @@ async def send_kp(data: dict, msg: Message, state: FSMContext):
     await asyncio.sleep(3)
     await msg.answer(text='КП готов', reply_markup=keyboards.go_menu)
     await msg.answer_document(document=file)
+    analytics.insert_data('signaling_kp')
     # await state.finish()
     text = """✅ Коммерческое предложение готово!\n
 📦 Закажи оборудование из КП в 1 клик через бот!\n
