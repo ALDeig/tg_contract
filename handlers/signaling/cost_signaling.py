@@ -9,6 +9,25 @@ from misc import dp
 
 @dp.message_handler(text='Охранная сигнализация', state='type_system')
 async def step_1(msg: Message, state: FSMContext):
+    columns = 'hub, motion_sensor, open_sensor, smoke_detector, leakage_sensor, siren, control_keyboard, smart_plug, \
+    power_relay, low_current_relay'
+    old_cost = db.get_data(columns, 'cost_signaling', {'id_tg': ('=', str(msg.from_user.id))})
+    if old_cost:
+        old_cost = old_cost[0]
+        await msg.answer(
+            text=f'<b>Текущие данные:</b>\n\n'
+                 f'Стоимость монтажа и настройки Датчика движения: {old_cost.motion_sensor}\n'
+                 f'Стоимость монтажа и настройки Датчика открытия: {old_cost.open_sensor}\n'
+                 f'Стоимость монтажа и настройки Датчика дыма: {old_cost.smoke_detector}\n'
+                 f'Стоимость монтажа и настройки Датчика протечки: {old_cost.leakage_sensor}\n'
+                 f'Стоимость монтажа и настройки Сирены: {old_cost.siren}\n'
+                 f'Стоимость монтажа и настройки Клавиатуры управления: {old_cost.control_keyboard}\n'
+                 f'Стоимость монтажа и настройки Умной розетки: {old_cost.smart_plug}\n'
+                 f'Стоимость монтажа и настройки Силового реле: {old_cost.power_relay}\n'
+                 f'Стоимость монтажа и настройки Слаботочного реле: {old_cost.low_current_relay}\n'
+                 f'Стоимость монтажа и настройки Хаба: {old_cost.hub}\n',
+            parse_mode='HTML'
+        )
     await msg.answer(
         text='Укажите стоимость монтажа элементов охранной сигнализации (пока только оборудование Ajax)',
         reply_markup=keyboards.key_cancel)
