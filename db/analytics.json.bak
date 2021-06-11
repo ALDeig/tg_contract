@@ -1,1 +1,11 @@
-{"contract": 0, "request_inn": 0, "request_bik": 0, "kp": 0, "template": 0, "send_order": 0, "send_answer": 0, "confirm_order": 0}
+{
+    "contract": 0,
+    "request_inn": 0,
+    "request_bik": 0,
+    "kp": 0,
+    "signaling_kp": 0,
+    "template": 0,
+    "send_order": 0,
+    "send_answer": 0,
+    "confirm_order": 0
+}
