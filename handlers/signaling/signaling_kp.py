@@ -169,7 +169,8 @@ async def send_kp(data: dict, msg: Message, state: FSMContext):
     text = """✅ Коммерческое предложение готово!\n
 📦 Закажи оборудование из КП в 1 клик через бот!\n
 🎁 Получи скидку!\n
-👇Жми «Заказать оборудование»"""
+👇Жми «Заказать оборудование»
+"""
     await msg.answer(text=text, reply_markup=inline_yes_or_no)
     await state.set_state('send_kp')
     await state.update_data({'file': file_name, 'to_provider': to_provider, 'signaling': True})
