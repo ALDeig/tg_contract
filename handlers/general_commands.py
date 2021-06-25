@@ -205,8 +205,8 @@ async def send_message_all_users_2(message: types.Message, state: FSMContext):
     for user in users:
         try:
             await message.copy_to(chat_id=user[0])
-        except BotBlocked:
-            pass
+        except Exception as err:
+            logger.error(f'Ошибка отправки: {err} - {user[0]}')
     await state.finish()
 
 
