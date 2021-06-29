@@ -37,6 +37,7 @@ async def send_devices(msg: Message, state: FSMContext):
     if msg.text not in tables:
         return
     if msg.text == 'Вторжение':
+        await state.update_data(table=msg.text)
         keyboard = ReplyKeyboardMarkup(row_width=1, resize_keyboard=True).add('Внутрений', 'Уличный', '↩️Отмена')
         await msg.answer('Выберите вариант', reply_markup=keyboard)
         await state.set_state('invasion_type')
@@ -81,6 +82,7 @@ async def choice_device(call: CallbackQuery, callback_data: dict, state: FSMCont
     tables = {'Хаб': 'SelectHub', 'Вторжение': 'SelectInvasion', 'Пожар': 'SelectFire', 'Протечка': 'SelectLeak',
               'Сирена': 'SelectSiren', 'Управление': 'SelectControl', 'ББП': 'SelectBBP'}
     data = await state.get_data()
+    print(data.get('table'))
     db.insert_choice_equipment(
         tables.get(data.get('table')),
         'id_tg, name',

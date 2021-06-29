@@ -360,8 +360,10 @@ def get_data_from_db_ip(id_tg: int) -> dict:
 
 
 def check_user_in(id_tg: int, column: str, table: str) -> bool:
-    cursor.execute(f"SELECT {column} FROM {table}")
-    data_from_db = cursor.fetchall()
+    with conn:
+        with conn.cursor():
+            cursor.execute(f"SELECT {column} FROM {table}")
+            data_from_db = cursor.fetchall()
     users = []
 
     for user in data_from_db:
